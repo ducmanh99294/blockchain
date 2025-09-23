@@ -1,0 +1,473 @@
+.account {
+  padding: 20px;
+  background-color: #f5f7f9;
+  min-height: 100vh;
+}
+
+.page-header {
+  margin-bottom: 30px;
+}
+
+.page-header h1 {
+  color: #2c3e50;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 5px;
+}
+
+.page-header p {
+  color: #6c757d;
+  margin: 0;
+}
+
+/* Tabs */
+.account-tabs {
+  display: flex;
+  border-bottom: 1px solid #eaecef;
+  margin-bottom: 30px;
+}
+
+.tab {
+  background: none;
+  border: none;
+  padding: 15px 20px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #6c757d;
+  font-size: 1rem;
+  border-bottom: 2px solid transparent;
+  transition: all 0.3s;
+}
+
+.tab:hover {
+  color: #3498db;
+}
+
+.tab.active {
+  color: #3498db;
+  border-bottom-color: #3498db;
+  font-weight: 600;
+}
+
+.tab-content {
+  background-color: white;
+  border-radius: 10px;
+  padding: 20px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* Section header */
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  padding-bottom: 15px;
+  border-bottom: 1px solid #eaecef;
+}
+
+.section-header h2 {
+  margin: 0;
+  color: #2c3e50;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.edit-actions {
+  display: flex;
+  gap: 10px;
+}
+
+/* Buttons */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 8px 15px;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.btn-primary {
+  background-color: #3498db;
+  color: white;
+}
+
+.btn-primary:hover {
+  background-color: #2980b9;
+}
+
+.btn-secondary {
+  background-color: #95a5a6;
+  color: white;
+}
+
+.btn-secondary:hover {
+  background-color: #7f8c8d;
+}
+
+.btn-outline {
+  background-color: transparent;
+  border: 1px solid #3498db;
+  color: #3498db;
+}
+
+.btn-outline:hover {
+  background-color: #eaf2f8;
+}
+
+.btn-small {
+  padding: 5px 10px;
+  font-size: 0.8rem;
+}
+
+.btn-icon {
+  background: none;
+  border: none;
+  color: #6c757d;
+  cursor: pointer;
+  padding: 5px;
+}
+
+.btn-icon:hover {
+  color: #3498db;
+}
+
+/* Profile form */
+.profile-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.form-group label {
+  font-weight: 600;
+  color: #2c3e50;
+  font-size: 0.9rem;
+}
+
+.form-group input {
+  padding: 10px 15px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 1rem;
+}
+
+.form-group input:disabled {
+  background-color: #f8f9fa;
+  color: #6c757d;
+}
+
+.license-info {
+  margin-top: 20px;
+  padding-top: 20px;
+  border-top: 1px solid #eaecef;
+}
+
+.license-info h3 {
+  margin: 0 0 15px 0;
+  color: #2c3e50;
+}
+
+/* Blockchain tab */
+.wallet-info {
+  margin-bottom: 30px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid #eaecef;
+}
+
+.wallet-info h3 {
+  margin: 0 0 15px 0;
+  color: #2c3e50;
+}
+
+.wallet-address {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  margin-bottom: 10px;
+  padding: 15px;
+  background-color: #f8f9fa;
+  border-radius: 8px;
+  font-family: monospace;
+  font-size: 0.9rem;
+}
+
+.wallet-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.wallet-balance {
+  font-size: 1.1rem;
+  color: #2c3e50;
+}
+
+/* Transaction history */
+.transaction-history {
+  margin-top: 30px;
+}
+
+.transaction-history h3 {
+  margin: 0 0 15px 0;
+  color: #2c3e50;
+}
+
+.history-table {
+  overflow-x: auto;
+}
+
+.history-table table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.history-table th, .history-table td {
+  padding: 12px 15px;
+  text-align: left;
+  border-bottom: 1px solid #eaecef;
+}
+
+.history-table th {
+  background-color: #f8f9fa;
+  font-weight: 600;
+  color: #2c3e50;
+}
+
+.history-table .tx-hash {
+  font-family: monospace;
+  font-size: 0.8rem;
+  color: #6c757d;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.status {
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.status.confirmed {
+  background-color: #c8e6c9;
+  color: #388e3c;
+}
+
+.status.pending {
+  background-color: #ffecb3;
+  color: #f57c00;
+}
+
+.status.unknown {
+  background-color: #ffcdd2;
+  color: #d32f2f;
+}
+
+/* Payment methods */
+.payment-methods {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.payment-card {
+  border: 1px solid #eaecef;
+  border-radius: 8px;
+  padding: 15px;
+}
+
+.payment-card.default {
+  border-color: #3498db;
+  background-color: #eaf2f8;
+}
+
+.payment-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.payment-header h3 {
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.default-badge {
+  background-color: #3498db;
+  color: white;
+  padding: 3px 8px;
+  border-radius: 4px;
+  font-size: 0.7rem;
+  font-weight: 600;
+}
+
+.payment-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.payment-details {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.detail-item {
+  display: flex;
+  gap: 10px;
+}
+
+.detail-item .label {
+  font-weight: 600;
+  color: #2c3e50;
+  min-width: 120px;
+}
+
+.detail-item .value {
+  color: #6c757d;
+}
+
+/* Staff management */
+.staff-list {
+  overflow-x: auto;
+}
+
+.staff-list table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.staff-list th, .staff-list td {
+  padding: 12px 15px;
+  text-align: left;
+  border-bottom: 1px solid #eaecef;
+}
+
+.staff-list th {
+  background-color: #f8f9fa;
+  font-weight: 600;
+  color: #2c3e50;
+}
+
+.staff-name {
+  font-weight: 600;
+  color: #2c3e50;
+}
+
+.permissions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+.permission-tag {
+  background-color: #eaf2f8;
+  color: #3498db;
+  padding: 3px 8px;
+  border-radius: 4px;
+  font-size: 0.7rem;
+  font-weight: 600;
+}
+
+.staff-actions {
+  display: flex;
+  gap: 5px;
+}
+
+.staff-list .status.active {
+  color: #388e3c;
+  font-weight: 600;
+}
+
+.staff-list .status.inactive {
+  color: #e74c3c;
+  font-weight: 600;
+}
+
+/* Responsive styles */
+@media (max-width: 992px) {
+  .account-tabs {
+    flex-wrap: wrap;
+  }
+  
+  .form-row {
+    grid-template-columns: 1fr;
+  }
+  
+  .wallet-address {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+  
+  .wallet-actions {
+    width: 100%;
+    justify-content: center;
+  }
+  
+  .history-table table, .staff-list table {
+    font-size: 0.8rem;
+  }
+  
+  .detail-item {
+    flex-direction: column;
+    gap: 3px;
+  }
+  
+  .detail-item .label {
+    min-width: auto;
+  }
+}
+
+@media (max-width: 768px) {
+  .section-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 15px;
+  }
+  
+  .payment-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+  
+  .payment-actions {
+    width: 100%;
+    justify-content: center;
+  }
+  
+  .staff-actions {
+    flex-direction: column;
+  }
+  
+  .history-table .tx-hash {
+    max-width: 100px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+}

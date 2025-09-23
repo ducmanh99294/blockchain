@@ -1,0 +1,748 @@
+/* PharmacySupplierOrders.css */
+.supplier-orders-page {
+  min-height: 100vh;
+  background: #f8f9fa;
+  padding: 20px;
+}
+
+.management-container {
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+/* Header */
+.management-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+  padding: 25px;
+  background: white;
+  border-radius: 15px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.header-left h1 {
+  color: #1a3a6c;
+  margin: 0 0 5px 0;
+  font-size: 2.2rem;
+}
+
+.header-left p {
+  color: #666;
+  margin: 0;
+  font-size: 1.1rem;
+}
+
+.stats {
+  display: flex;
+  gap: 20px;
+}
+
+.stat {
+  text-align: center;
+  padding: 15px;
+  background: #e3f2fd;
+  border-radius: 10px;
+  min-width: 80px;
+}
+
+.stat-number {
+  display: block;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #1a3a6c;
+  margin-bottom: 5px;
+}
+
+.stat-label {
+  color: #666;
+  font-size: 0.9rem;
+}
+
+/* Tab Navigation */
+.tab-navigation {
+  display: flex;
+  background: white;
+  padding: 10px;
+  border-radius: 15px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+  margin-bottom: 30px;
+}
+
+.tab-btn {
+  flex: 1;
+  padding: 15px 20px;
+  border: none;
+  background: none;
+  border-radius: 10px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.tab-btn.active {
+  background: #1a3a6c;
+  color: white;
+}
+
+.tab-btn:hover:not(.active) {
+  background: #f8f9fa;
+}
+
+/* Supplier Catalog */
+.supplier-catalog h2 {
+  color: #1a3a6c;
+  margin-bottom: 20px;
+  font-size: 1.8rem;
+}
+
+.products-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+  gap: 25px;
+}
+
+.supplier-product-card {
+  background: white;
+  border-radius: 15px;
+  padding: 25px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease;
+}
+
+.supplier-product-card:hover {
+  transform: translateY(-2px);
+}
+
+.product-image {
+  position: relative;
+  height: 200px;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.product-image img {
+  max-height: 100%;
+  max-width: 100%;
+  object-fit: contain;
+}
+
+.product-badges {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.prescription-badge {
+  background: #ff9800;
+  color: white;
+  padding: 6px 12px;
+  border-radius: 15px;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.blockchain-badge {
+  padding: 6px 12px;
+  border-radius: 15px;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.blockchain-badge.verified {
+  background: #d4edda;
+  color: #155724;
+}
+
+.blockchain-badge.pending {
+  background: #fff3cd;
+  color: #856404;
+}
+
+.product-info h3 {
+  margin: 0 0 10px 0;
+  color: #333;
+  font-size: 1.2rem;
+}
+
+.product-description {
+  color: #666;
+  margin: 0 0 20px 0;
+  font-size: 0.9rem;
+}
+
+.product-details {
+  margin-bottom: 20px;
+}
+
+.detail-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+  font-size: 0.9rem;
+}
+
+.detail-row span:first-child {
+  color: #666;
+}
+
+.import-price {
+  font-weight: 700;
+  color: #28a745;
+  font-size: 1.1rem;
+}
+
+.retail-price {
+  font-weight: 600;
+  color: #1a3a6c;
+}
+
+.distributor {
+  font-weight: 600;
+  color: #2c5282;
+}
+
+/* Blockchain Info */
+.blockchain-info {
+  margin: 20px 0;
+  padding: 15px;
+  background: #f8f9fa;
+  border-radius: 10px;
+  border-left: 4px solid #1a3a6c;
+}
+
+.blockchain-info h4 {
+  margin: 0 0 10px 0;
+  color: #1a3a6c;
+  font-size: 1rem;
+}
+
+.blockchain-links {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.blockchain-link {
+  color: #1a3a6c;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 0.9rem;
+  transition: color 0.3s ease;
+}
+
+.blockchain-link:hover {
+  color: #0f2a52;
+  text-decoration: underline;
+}
+
+/* Order Button */
+.order-btn {
+  width: 100%;
+  background: #28a745;
+  color: white;
+  border: none;
+  padding: 15px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: background 0.3s ease;
+  font-size: 1rem;
+}
+
+.order-btn:hover {
+  background: #218838;
+}
+
+/* Import Orders */
+.import-orders h2 {
+  color: #1a3a6c;
+  margin-bottom: 20px;
+  font-size: 1.8rem;
+}
+
+.orders-list {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.import-order-card {
+  background: white;
+  border-radius: 15px;
+  padding: 25px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.order-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 20px;
+  padding-bottom: 15px;
+  border-bottom: 2px solid #f8f9fa;
+}
+
+.order-info h3 {
+  margin: 0 0 10px 0;
+  color: #1a3a6c;
+  font-size: 1.3rem;
+}
+
+.distributor-info {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.distributor-name {
+  font-weight: 600;
+  color: #333;
+}
+
+.order-date {
+  color: #666;
+  font-size: 0.9rem;
+}
+
+.order-meta {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 8px;
+}
+
+.order-amount {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: #1a3a6c;
+}
+
+/* Status Badges */
+.status-badge {
+  padding: 6px 12px;
+  border-radius: 15px;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.status-badge.pending {
+  background: #fff3cd;
+  color: #856404;
+}
+
+.status-badge.shipped {
+  background: #cce7ff;
+  color: #004085;
+}
+
+.status-badge.received {
+  background: #d4edda;
+  color: #155724;
+}
+
+/* Order Content */
+.order-content {
+  margin-bottom: 20px;
+}
+
+.order-items {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  margin-bottom: 20px;
+}
+
+.order-item {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  padding: 15px;
+  border: 2px solid #e3f2fd;
+  border-radius: 10px;
+}
+
+.order-item img {
+  width: 60px;
+  height: 60px;
+  object-fit: cover;
+  border-radius: 8px;
+}
+
+.item-info h4 {
+  margin: 0 0 5px 0;
+  color: #333;
+}
+
+.item-info p {
+  margin: 2px 0;
+  color: #666;
+  font-size: 0.9rem;
+}
+
+/* Blockchain Details */
+.blockchain-details {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.blockchain-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 0;
+  border-bottom: 1px solid #eee;
+}
+
+.blockchain-row:last-child {
+  border-bottom: none;
+}
+
+.status-completed {
+  color: #28a745;
+  font-weight: 600;
+}
+
+.status-shipped {
+  color: #17a2b8;
+  font-weight: 600;
+}
+
+.status-pending {
+  color: #ffc107;
+  font-weight: 600;
+}
+
+/* Order Footer */
+.order-footer {
+  padding-top: 15px;
+  border-top: 2px solid #f8f9fa;
+}
+
+.order-actions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.action-btn.receive {
+  background: #28a745;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: background 0.3s ease;
+}
+
+.action-btn.receive:hover {
+  background: #218838;
+}
+
+.status-text {
+  color: #666;
+  font-style: italic;
+}
+
+.status-text.completed {
+  color: #28a745;
+  font-weight: 600;
+}
+
+/* Empty State */
+.empty-orders {
+  background: white;
+  padding: 60px 40px;
+  border-radius: 15px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+  text-align: center;
+}
+
+.empty-icon {
+  font-size: 4rem;
+  margin-bottom: 20px;
+}
+
+.empty-orders h3 {
+  color: #333;
+  margin-bottom: 10px;
+  font-size: 1.5rem;
+}
+
+.empty-orders p {
+  color: #666;
+  margin-bottom: 30px;
+  font-size: 1.1rem;
+}
+
+/* Modals */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 20px;
+}
+
+.order-modal,
+.receive-modal {
+  background: white;
+  border-radius: 15px;
+  max-width: 600px;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 25px;
+  border-bottom: 2px solid #f8f9fa;
+}
+
+.modal-header h2 {
+  color: #1a3a6c;
+  margin: 0;
+}
+
+.close-btn {
+  background: none;
+  border: none;
+  font-size: 2rem;
+  cursor: pointer;
+  color: #666;
+  transition: color 0.3s ease;
+}
+
+.close-btn:hover {
+  color: #333;
+}
+
+.modal-content {
+  padding: 25px;
+}
+
+.product-info {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  margin-bottom: 25px;
+}
+
+.product-info img {
+  width: 80px;
+  height: 80px;
+  object-fit: cover;
+  border-radius: 8px;
+}
+
+.product-info h3 {
+  margin: 0 0 5px 0;
+  color: #333;
+}
+
+.product-info p {
+  margin: 2px 0;
+  color: #666;
+}
+
+.order-form {
+  margin-bottom: 25px;
+}
+
+.order-form label {
+  display: block;
+  margin-bottom: 15px;
+  font-weight: 600;
+  color: #333;
+}
+
+.order-form input {
+  width: 100%;
+  padding: 12px 15px;
+  border: 2px solid #e3f2fd;
+  border-radius: 8px;
+  font-size: 1rem;
+  margin-top: 8px;
+}
+
+.order-form input:focus {
+  outline: none;
+  border-color: #1a3a6c;
+}
+
+.order-summary {
+  background: #f8f9fa;
+  padding: 20px;
+  border-radius: 10px;
+  margin-bottom: 20px;
+}
+
+.summary-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+  color: #666;
+}
+
+.summary-row.total {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: #1a3a6c;
+  border-top: 2px solid #eee;
+  padding-top: 10px;
+  margin-top: 10px;
+}
+
+.blockchain-notice {
+  background: #fff3cd;
+  padding: 15px;
+  border-radius: 8px;
+  border-left: 4px solid #ff9800;
+}
+
+.blockchain-notice p {
+  margin: 5px 0;
+  color: #856404;
+  font-size: 0.9rem;
+}
+
+/* Receive Checklist */
+.receive-checklist {
+  margin: 25px 0;
+}
+
+.receive-checklist h4 {
+  color: #1a3a6c;
+  margin-bottom: 15px;
+}
+
+.check-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 12px;
+  padding: 10px;
+  border: 2px solid #e3f2fd;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: border-color 0.3s ease;
+}
+
+.check-item:hover {
+  border-color: #1a3a6c;
+}
+
+/* Modal Actions */
+.modal-actions {
+  display: flex;
+  gap: 15px;
+  justify-content: flex-end;
+}
+
+.action-btn.cancel {
+  background: #6c757d;
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: background 0.3s ease;
+}
+
+.action-btn.cancel:hover {
+  background: #5a6268;
+}
+
+.action-btn.confirm {
+  background: #28a745;
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: background 0.3s ease;
+}
+
+.action-btn.confirm:hover {
+  background: #218838;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .management-header {
+    flex-direction: column;
+    gap: 20px;
+    text-align: center;
+  }
+
+  .stats {
+    justify-content: center;
+  }
+
+  .tab-navigation {
+    flex-direction: column;
+  }
+
+  .products-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .order-header {
+    flex-direction: column;
+    gap: 15px;
+    align-items: flex-start;
+  }
+
+  .order-meta {
+    align-items: flex-start;
+  }
+
+  .order-item {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .modal-actions {
+    flex-direction: column;
+  }
+}
+
+@media (max-width: 480px) {
+  .supplier-orders-page {
+    padding: 15px;
+  }
+
+  .management-header {
+    padding: 20px;
+  }
+
+  .header-left h1 {
+    font-size: 1.8rem;
+  }
+
+  .blockchain-links {
+    flex-direction: column;
+  }
+
+  .order-form input {
+    padding: 10px;
+  }
+}
