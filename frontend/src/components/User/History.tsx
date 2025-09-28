@@ -1,120 +1,138 @@
 // pages/OrderHistory.js
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import '../../assets/css/User/history.css';
 
 const History: React.FC = () => {
   // Dữ liệu mẫu đơn hàng
-  const [orders, setOrders] = useState([
-    {
-      id: 'MED123456',
-      date: '2024-03-15T10:30:00',
-      status: 'completed',
-      items: [
-        {
-          id: 1,
-          name: "Panadol Extra",
-          price: 95000,
-          image: "https://via.placeholder.com/60x60/4CAF50/ffffff?text=Panadol",
-          quantity: 2,
-          rating: 4
-        },
-        {
-          id: 2,
-          name: "Vitamin C 1000mg",
-          price: 150000,
-          image: "https://via.placeholder.com/60x60/FF9800/ffffff?text=Vitamin+C",
-          quantity: 1,
-          rating: 5
-        }
-      ],
-      total: 340000,
-      shippingAddress: {
-        name: "Nguyễn Văn A",
-        phone: "0901234567",
-        address: "123 Đường Nguyễn Văn Linh, Quận 7, TP.HCM"
-      },
-      paymentMethod: 'cod',
-      shippingMethod: 'standard'
-    },
-    {
-      id: 'MED123457',
-      date: '2024-03-14T15:45:00',
-      status: 'shipping',
-      items: [
-        {
-          id: 3,
-          name: "Amoxicillin 500mg",
-          price: 85000,
-          image: "https://via.placeholder.com/60x60/9C27B0/ffffff?text=Amoxicillin",
-          quantity: 1,
-          rating: 0
-        }
-      ],
-      total: 100000,
-      shippingAddress: {
-        name: "Nguyễn Văn A",
-        phone: "0901234567",
-        address: "123 Đường Nguyễn Văn Linh, Quận 7, TP.HCM"
-      },
-      paymentMethod: 'momo',
-      shippingMethod: 'express',
-      trackingNumber: 'SPX123456789'
-    },
-    {
-      id: 'MED123458',
-      date: '2024-03-13T09:15:00',
-      status: 'processing',
-      items: [
-        {
-          id: 4,
-          name: "Kem dưỡng da Eucerin",
-          price: 220000,
-          image: "https://via.placeholder.com/60x60/E91E63/ffffff?text=Eucerin",
-          quantity: 1,
-          rating: 0
-        }
-      ],
-      total: 235000,
-      shippingAddress: {
-        name: "Nguyễn Văn A",
-        phone: "0901234567",
-        address: "123 Đường Nguyễn Văn Linh, Quận 7, TP.HCM"
-      },
-      paymentMethod: 'banking',
-      shippingMethod: 'standard'
-    },
-    {
-      id: 'MED123459',
-      date: '2024-03-10T14:20:00',
-      status: 'cancelled',
-      items: [
-        {
-          id: 5,
-          name: "Calcium D3",
-          price: 135000,
-          image: "https://via.placeholder.com/60x60/FF5722/ffffff?text=Calcium+D3",
-          quantity: 2,
-          rating: 0
-        }
-      ],
-      total: 270000,
-      shippingAddress: {
-        name: "Nguyễn Văn A",
-        phone: "0901234567",
-        address: "123 Đường Nguyễn Văn Linh, Quận 7, TP.HCM"
-      },
-      paymentMethod: 'cod',
-      shippingMethod: 'standard',
-      cancelReason: 'Thay đổi nhu cầu mua hàng'
-    }
-  ]);
-
-  const [selectedOrder, setSelectedOrder] = useState(null);
+  // const [orders, setOrders] = useState([
+  //   {
+  //     id: 'MED123456',
+  //     date: '2024-03-15T10:30:00',
+  //     status: 'completed',
+  //     items: [
+  //       {
+  //         id: 1,
+  //         name: "Panadol Extra",
+  //         price: 95000,
+  //         image: "https://via.placeholder.com/60x60/4CAF50/ffffff?text=Panadol",
+  //         quantity: 2,
+  //         rating: 4
+  //       },
+  //       {
+  //         id: 2,
+  //         name: "Vitamin C 1000mg",
+  //         price: 150000,
+  //         image: "https://via.placeholder.com/60x60/FF9800/ffffff?text=Vitamin+C",
+  //         quantity: 1,
+  //         rating: 5
+  //       }
+  //     ],
+  //     total: 340000,
+  //     shippingAddress: {
+  //       name: "Nguyễn Văn A",
+  //       phone: "0901234567",
+  //       address: "123 Đường Nguyễn Văn Linh, Quận 7, TP.HCM"
+  //     },
+  //     paymentMethod: 'cod',
+  //     shippingMethod: 'standard'
+  //   },
+  //   {
+  //     id: 'MED123457',
+  //     date: '2024-03-14T15:45:00',
+  //     status: 'shipping',
+  //     items: [
+  //       {
+  //         id: 3,
+  //         name: "Amoxicillin 500mg",
+  //         price: 85000,
+  //         image: "https://via.placeholder.com/60x60/9C27B0/ffffff?text=Amoxicillin",
+  //         quantity: 1,
+  //         rating: 0
+  //       }
+  //     ],
+  //     total: 100000,
+  //     shippingAddress: {
+  //       name: "Nguyễn Văn A",
+  //       phone: "0901234567",
+  //       address: "123 Đường Nguyễn Văn Linh, Quận 7, TP.HCM"
+  //     },
+  //     paymentMethod: 'momo',
+  //     shippingMethod: 'express',
+  //     trackingNumber: 'SPX123456789'
+  //   },
+  //   {
+  //     id: 'MED123458',
+  //     date: '2024-03-13T09:15:00',
+  //     status: 'processing',
+  //     items: [
+  //       {
+  //         id: 4,
+  //         name: "Kem dưỡng da Eucerin",
+  //         price: 220000,
+  //         image: "https://via.placeholder.com/60x60/E91E63/ffffff?text=Eucerin",
+  //         quantity: 1,
+  //         rating: 0
+  //       }
+  //     ],
+  //     total: 235000,
+  //     shippingAddress: {
+  //       name: "Nguyễn Văn A",
+  //       phone: "0901234567",
+  //       address: "123 Đường Nguyễn Văn Linh, Quận 7, TP.HCM"
+  //     },
+  //     paymentMethod: 'banking',
+  //     shippingMethod: 'standard'
+  //   },
+  //   {
+  //     id: 'MED123459',
+  //     date: '2024-03-10T14:20:00',
+  //     status: 'cancelled',
+  //     items: [
+  //       {
+  //         id: 5,
+  //         name: "Calcium D3",
+  //         price: 135000,
+  //         image: "https://via.placeholder.com/60x60/FF5722/ffffff?text=Calcium+D3",
+  //         quantity: 2,
+  //         rating: 0
+  //       }
+  //     ],
+  //     total: 270000,
+  //     shippingAddress: {
+  //       name: "Nguyễn Văn A",
+  //       phone: "0901234567",
+  //       address: "123 Đường Nguyễn Văn Linh, Quận 7, TP.HCM"
+  //     },
+  //     paymentMethod: 'cod',
+  //     shippingMethod: 'standard',
+  //     cancelReason: 'Thay đổi nhu cầu mua hàng'
+  //   }
+  // ]);
+  const [orders, setOrders] = useState<any[]>([]);
+  const [selectedOrder, setSelectedOrder] = useState<any>(null);
   const [showReviewModal, setShowReviewModal] = useState(false);
-  const [currentReviewProduct, setCurrentReviewProduct] = useState(null);
+  const [currentReviewProduct, setCurrentReviewProduct] = useState<any>(null);
   const [reviewRating, setReviewRating] = useState(0);
   const [reviewComment, setReviewComment] = useState('');
 
+  const API = "http://localhost:3000";
+  const userId = localStorage.getItem("userId");
+
+  useEffect(()=>{
+    const fetchOrders = async () => {
+      try {
+        const res = await fetch(`${API}/api/order/user/${userId}`);
+        const data = await res.json();
+        
+        console.log(data)
+        setOrders(data);
+      } catch (err) {
+        console.log('err', err)
+      }
+    }
+
+    if (userId) fetchOrders();
+  }, [userId])
   // Trạng thái đơn hàng
   const statusConfig = {
     processing: { label: 'Đang xử lý', color: '#ff9800', icon: '⏳' },
@@ -123,13 +141,14 @@ const History: React.FC = () => {
     cancelled: { label: 'Đã hủy', color: '#f44336', icon: '❌' }
   };
 
+
   // Định dạng tiền
-  const formatPrice = (price) => {
+  const formatPrice = (price: any) => {
     return new Intl.NumberFormat('vi-VN').format(price) + 'đ';
   };
 
   // Định dạng ngày
-  const formatDate = (dateString) => {
+  const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('vi-VN', {
       year: 'numeric',
       month: 'long',
@@ -140,7 +159,7 @@ const History: React.FC = () => {
   };
 
   // Xem chi tiết đơn hàng
-  const viewOrderDetails = (order) => {
+  const viewOrderDetails = (order: any) => {
     setSelectedOrder(order);
   };
 
@@ -150,10 +169,10 @@ const History: React.FC = () => {
   };
 
   // Mua lại
-  const reorder = (order) => {
-    if (confirm(`Bạn có muốn mua lại đơn hàng ${order.id}?`)) {
-      // Logic thêm vào giỏ hàng
-      alert('Đã thêm sản phẩm vào giỏ hàng!');
+  const reorder = (order: any) => {
+    if (confirm(`Bạn có muốn mua lại đơn hàng ${order._id}?`)) {
+      // Ở đây có thể gọi API addToCart
+      alert("Đã thêm sản phẩm vào giỏ hàng!");
     }
   };
 
@@ -191,20 +210,30 @@ const History: React.FC = () => {
     setShowReviewModal(false);
   };
 
-  // Hủy đơn hàng
-  const cancelOrder = (orderId) => {
-    if (confirm('Bạn có chắc muốn hủy đơn hàng này?')) {
-      setOrders(orders.map(order =>
-        order.id === orderId
-          ? { ...order, status: 'cancelled', cancelReason: 'Người dùng hủy' }
-          : order
-      ));
-      alert('Đã hủy đơn hàng thành công!');
+  // Hủy đơn hàng (call API)
+  const cancelOrder = async (orderId: string) => {
+    if (!confirm("Bạn có chắc muốn hủy đơn hàng này?")) return;
+    try {
+      await fetch(`${API}/api/order/${orderId}/cancel`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ reason: "Người dùng hủy" }),
+      });
+      setOrders((prev) =>
+        prev.map((order) =>
+          order._id === orderId
+            ? { ...order, status: "cancelled", cancelReason: "Người dùng hủy" }
+            : order
+        )
+      );
+      alert("Đã hủy đơn hàng thành công!");
+    } catch (err) {
+      console.error("Lỗi khi hủy đơn hàng:", err);
     }
   };
 
   // Lọc đơn hàng theo trạng thái
-  const filterOrders = (status) => {
+  const filterOrders = (status: any) => {
     // Trong thực tế sẽ call API
     console.log('Filter by:', status);
   };

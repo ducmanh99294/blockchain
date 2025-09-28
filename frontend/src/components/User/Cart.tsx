@@ -1,132 +1,63 @@
 // pages/Cart.js
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import '../../assets/css/User/cart.css';
+import { useNavigate } from 'react-router-dom';
 
 const Cart: React.FC = () => {
   // Dữ liệu mẫu giỏ hàng
-  const [cartItems, setCartItems] = useState([
-    {
-      id: 1,
-      name: "Panadol Extra",
-      price: 95000,
-      originalPrice: 120000,
-      image: "https://via.placeholder.com/100x100/4CAF50/ffffff?text=Panadol",
-      quantity: 2,
-      prescription: false,
-      stock: 50,
-      manufacturer: "GSK"
-    },
-    {
-      id: 2,
-      name: "Vitamin C 1000mg",
-      price: 150000,
-      originalPrice: 180000,
-      image: "https://via.placeholder.com/100x100/FF9800/ffffff?text=Vitamin+C",
-      quantity: 1,
-      prescription: false,
-      stock: 100,
-      manufacturer: "Nature's Bounty"
-    },
-    {
-      id: 3,
-      name: "Amoxicillin 500mg",
-      price: 85000,
-      image: "https://via.placeholder.com/100x100/9C27B0/ffffff?text=Amoxicillin",
-      quantity: 1,
-      prescription: true,
-      stock: 25,
-      manufacturer: "Pfizer"
-    }
-  ]);
+  const [cartItems, setCartItems] = useState<any>([]);
+  const [paymentMethods, setPaymentMethods] = useState<any[]>([]);
+  const [shippingMethods, setShippingMethods] = useState<any[]>([]);
+  const [coupon, setCoupon] = useState<any>([]);
+  
+  const [couponCode, setCouponCode] = useState("");
+  const [appliedCoupon, setAppliedCoupon] = useState<any>(null);
+  const [selectedPayment, setSelectedPayment] = useState("");
+  const [selectedShipping, setSelectedShipping] = useState("");
+  const API = 'http://localhost:3000'
+  const userId = localStorage.getItem('userId');
+  const navigate = useNavigate();
 
-  const [couponCode, setCouponCode] = useState('');
-  const [appliedCoupon, setAppliedCoupon] = useState(null);
-  const [selectedPayment, setSelectedPayment] = useState('momo');
-  const [selectedShipping, setSelectedShipping] = useState('standard');
+useEffect(() => {
+  fetchData();
+}, [userId]);
 
-  // Phương thức vận chuyển
-  const shippingMethods = [
-    {
-      id: 'standard',
-      name: 'Giao hàng tiêu chuẩn',
-      price: 15000,
-      time: '3-5 ngày',
-      description: 'Giao hàng trong giờ hành chính'
-    },
-    {
-      id: 'express',
-      name: 'Giao hàng nhanh',
-      price: 30000,
-      time: '1-2 ngày',
-      description: 'Giao hàng hỏa tốc'
-    },
-    {
-      id: 'pickup',
-      name: 'Nhận tại nhà thuốc',
-      price: 0,
-      time: 'Ngay lập tức',
-      description: 'Tự đến nhận tại địa chỉ chỉ định'
-    }
-  ];
+  const fetchData = async () => {
+    try {
+      const [cartRes, couponRes, paymentRes, shippingRes] = await Promise.all([
+        fetch(`${API}/api/cart/user/${userId}`).then(res => res.json()),
+        fetch(`${API}/api/coupon`).then(res => res.json()),
+        fetch(`${API}/api/payment`).then(res => res.json()),
+        fetch(`${API}/api/shipping`).then(res => res.json())
+      ]);
 
-  // Phương thức thanh toán
-  const paymentMethods = [
-    {
-      id: 'momo',
-      name: 'Ví MoMo',
-      icon: '📱',
-      description: 'Thanh toán qua ứng dụng MoMo'
-    },
-    {
-      id: 'banking',
-      name: 'Chuyển khoản ngân hàng',
-      icon: '🏦',
-      description: 'Chuyển khoản qua Internet Banking'
-    },
-    {
-      id: 'cod',
-      name: 'Thanh toán khi nhận hàng',
-      icon: '💰',
-      description: 'Trả tiền mặt khi nhận được hàng'
-    },
-    {
-      id: 'visa',
-      name: 'Thẻ Visa/Mastercard',
-      icon: '💳',
-      description: 'Thanh toán bằng thẻ quốc tế'
-    }
-  ];
+      // ✅ cartRes: { userId, items: [] }
+      setCartItems(Array.isArray(cartRes.items) ? cartRes.items : []);
+      setCoupon(Array.isArray(couponRes) ? couponRes : []);
+      setPaymentMethods(Array.isArray(paymentRes) ? paymentRes : []);
+      setShippingMethods(Array.isArray(shippingRes) ? shippingRes : []);
 
-  // Mã giảm giá
-  const coupons = [
-    {
-      code: 'WELCOME10',
-      discount: 10,
-      type: 'percent',
-      minOrder: 200000,
-      description: 'Giảm 10% cho đơn hàng đầu tiên'
-    },
-    {
-      code: 'FREESHIP',
-      discount: 0,
-      type: 'shipping',
-      minOrder: 300000,
-      description: 'Miễn phí vận chuyển'
-    },
-    {
-      code: 'MED25',
-      discount: 25000,
-      type: 'fixed',
-      minOrder: 150000,
-      description: 'Giảm 25,000đ cho đơn hàng'
+      if (Array.isArray(paymentRes) && paymentRes.length > 0) {
+        setSelectedPayment(paymentRes[0].id);
+      }
+      if (Array.isArray(shippingRes) && shippingRes.length > 0) {
+        setSelectedShipping(shippingRes[0].id);
+      }
+    } catch (error) {
+      console.error("Lỗi tải dữ liệu:", error);
+      // fallback tránh crash UI
+      setCartItems([]);
+      setCoupon([]);
+      setPaymentMethods([]);
+      setShippingMethods([]);
     }
-  ];
+  };
 
   // Tính toán tổng tiền
   const calculateTotals = () => {
-    const subtotal = cartItems.reduce((total, item) => total + (item.price * item.quantity), 0);
+    const subtotal = cartItems.reduce((total: any, item: any) => total + (item.productId.price * item.quantity), 0);
     
-    const selectedShippingMethod = shippingMethods.find(method => method.id === selectedShipping);
+    const selectedShippingMethod = shippingMethods.find(method => method._id === selectedShipping);
     const shippingFee = selectedShippingMethod ? selectedShippingMethod.price : 0;
     
     let discount = 0;
@@ -148,39 +79,75 @@ const Cart: React.FC = () => {
   const { subtotal, shippingFee, discount, total } = calculateTotals();
 
   // Xử lý thay đổi số lượng
-  const handleQuantityChange = (id, newQuantity) => {
-    if (newQuantity < 1) return;
-    
-    setCartItems(cartItems.map(item =>
-      item.id === id ? { ...item, quantity: Math.min(newQuantity, item.stock) } : item
-    ));
-  };
+const handleQuantityChange = async (itemId: string, newQuantity: number) => {
+  if (newQuantity < 1) return;
+  try {
+    const res = await fetch(`${API}/api/cart/user/${userId}/item/${itemId}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ quantity: newQuantity }),
+    });
+
+    if (!res.ok) {
+      console.error("Cập nhật thất bại:", await res.text());
+      return;
+    }
+
+    const updatedItem = await res.json();
+
+    // update lại state giỏ hàng
+    setCartItems((prev: any[]) =>
+      prev.map((item) =>
+        item._id === itemId ? { ...item, quantity: updatedItem.quantity } : item
+      )
+    );
+    fetchData();
+  } catch (err) {
+    console.log("error: ", err);
+  }
+};
 
   // Xóa sản phẩm
-  const handleRemoveItem = (id) => {
-    setCartItems(cartItems.filter(item => item.id !== id));
+  const handleRemoveItem = async (itemId: any) => {
+    try {
+    const res = await fetch(`${API}/api/cart/user/${userId}/item/${itemId}`, {
+      method: "DELETE",
+    });
+    if (res.ok) {
+      setCartItems((prev: any[]) => prev.filter(item => item._id !== itemId));
+      await fetchData();
+    }
+  } catch (err) {
+    console.error("Lỗi khi xóa:", err);
+  }
   };
 
   // Áp dụng mã giảm giá
-  const handleApplyCoupon = () => {
-    const coupon = coupons.find(c => c.code === couponCode.toUpperCase());
-    
-    if (!coupon) {
-      alert('Mã giảm giá không hợp lệ!');
+const handleApplyCoupon = async () => {
+  try {
+    const res = await fetch(`${API}/api/coupon/apply?code=${couponCode.toUpperCase()}`);
+    const coupon = await res.json();
+
+    if (!res.ok || !coupon) {
+      alert("Mã giảm giá không hợp lệ!");
       return;
     }
-    
+
     if (subtotal < coupon.minOrder) {
       alert(`Đơn hàng tối thiểu ${coupon.minOrder.toLocaleString()}đ để áp dụng mã này`);
       return;
     }
-    
+
     setAppliedCoupon(coupon);
     alert(`Áp dụng mã giảm giá thành công: ${coupon.description}`);
-  };
+  } catch (error) {
+    console.error("Lỗi áp dụng coupon:", error);
+    alert("Không thể áp dụng mã giảm giá");
+  }
+};
 
   // Xóa mã giảm giá
-  const handleRemoveCoupon = () => {
+  const handleRemoveCoupon = async () => {
     setAppliedCoupon(null);
     setCouponCode('');
   };
@@ -193,23 +160,23 @@ const Cart: React.FC = () => {
     }
 
     // Kiểm tra thuốc kê đơn
-    const prescriptionItems = cartItems.filter(item => item.prescription);
+    const prescriptionItems = cartItems.filter((item: any) => item.prescription);
     if (prescriptionItems.length > 0) {
       alert('Đơn hàng có thuốc kê đơn. Vui lòng cung cấp đơn thuốc khi thanh toán.');
     }
 
-    alert('Chuyển đến trang thanh toán...');
+    navigate('/user/checkout');
     // Chuyển hướng đến trang thanh toán
   };
 
   // Định dạng tiền
-  const formatPrice = (price) => {
+  const formatPrice = (price: any) => {
     return new Intl.NumberFormat('vi-VN').format(price) + 'đ';
   };
 
-  if (cartItems.length === 0) {
-    return (
-      <div className="cart-page">
+  return (
+    <div className="cart-page">
+      {cartItems.length === 0  ? (
         <div className="cart-container">
           <div className="cart-header">
             <h1>Giỏ Hàng</h1>
@@ -226,12 +193,7 @@ const Cart: React.FC = () => {
             </button>
           </div>
         </div>
-      </div>
-    );
-  }
-
-  return (
-    <div className="cart-page">
+   ) : (      
       <div className="cart-container">
         <div className="cart-header">
           <h1>Giỏ Hàng</h1>
@@ -249,56 +211,56 @@ const Cart: React.FC = () => {
               <span>Thao tác</span>
             </div>
 
-            {cartItems.map(item => (
+            {cartItems.map((item: any) => (
               <div key={item.id} className="cart-item">
                 <div className="item-info">
-                  <img src={item.image} alt={item.name} className="item-image" />
+                  <img src={item.productId.image} alt={item.productId.name} className="item-image" />
                   <div className="item-details">
-                    <h3 className="item-name">{item.name}</h3>
-                    <p className="item-manufacturer">{item.manufacturer}</p>
-                    {item.prescription && (
+                    <h3 className="item-name">{item.productId.name}</h3>
+                    <p className="item-manufacturer">{item.productId.manufacturer}</p>
+                    {item.productId.prescription && (
                       <span className="prescription-badge">Cần kê đơn</span>
                     )}
                   </div>
                 </div>
 
                 <div className="item-price">
-                  {item.originalPrice ? (
+                  {item.productId.discountPrice ? (
                     <>
-                      <span className="current-price">{formatPrice(item.price)}</span>
-                      <span className="original-price">{formatPrice(item.originalPrice)}</span>
+                      <span className="current-price">{formatPrice(item.productId.discountPrice)}</span>
+                      <span className="original-price">{formatPrice(item.productId.price)}</span>
                     </>
                   ) : (
-                    <span className="current-price">{formatPrice(item.price)}</span>
+                    <span className="current-price">{formatPrice(item.productId.price)}</span>
                   )}
                 </div>
 
                 <div className="item-quantity">
                   <button 
                     className="quantity-btn"
-                    onClick={() => handleQuantityChange(item.id, item.quantity - 1)}
-                    disabled={item.quantity <= 1}
+                    onClick={() => handleQuantityChange(item.productId._id, item.quantity - 1)}
+                    disabled={item.productId.quantity <= 1}
                   >
                     -
                   </button>
                   <span className="quantity-number">{item.quantity}</span>
                   <button 
                     className="quantity-btn"
-                    onClick={() => handleQuantityChange(item.id, item.quantity + 1)}
-                    disabled={item.quantity >= item.stock}
+                    onClick={() => handleQuantityChange(item.productId._id, item.quantity + 1)}
+                    disabled={item.productId.quantity >= item.productId.stock}
                   >
                     +
                   </button>
                 </div>
 
                 <div className="item-total">
-                  {formatPrice(item.price * item.quantity)}
+                  {formatPrice(item.productId.price * item.quantity)}
                 </div>
 
                 <div className="item-actions">
                   <button 
                     className="remove-btn"
-                    onClick={() => handleRemoveItem(item.id)}
+                    onClick={() => handleRemoveItem(item.productId._id)}
                     title="Xóa sản phẩm"
                   >
                     🗑️
@@ -351,13 +313,13 @@ const Cart: React.FC = () => {
                 <h4>Phương thức vận chuyển</h4>
                 <div className="shipping-options">
                   {shippingMethods.map(method => (
-                    <label key={method.id} className="shipping-option">
+                    <label key={method._id} className="shipping-option">
                       <input
                         type="radio"
                         name="shipping"
-                        value={method.id}
-                        checked={selectedShipping === method.id}
-                        onChange={() => setSelectedShipping(method.id)}
+                        value={method._id}
+                        checked={selectedShipping === method._id}
+                        onChange={() => setSelectedShipping(method._id)}
                       />
                       <div className="shipping-info">
                         <span className="shipping-name">{method.name}</span>
@@ -377,13 +339,13 @@ const Cart: React.FC = () => {
                 <h4>Phương thức thanh toán</h4>
                 <div className="payment-options">
                   {paymentMethods.map(method => (
-                    <label key={method.id} className="payment-option">
+                    <label key={method._id} className="payment-option">
                       <input
                         type="radio"
                         name="payment"
-                        value={method.id}
-                        checked={selectedPayment === method.id}
-                        onChange={() => setSelectedPayment(method.id)}
+                        value={method._id}
+                        checked={selectedPayment === method._id}
+                        onChange={() => setSelectedPayment(method._id)}
                       />
                       <span className="payment-icon">{method.icon}</span>
                       <div className="payment-info">
@@ -432,6 +394,7 @@ const Cart: React.FC = () => {
           </div>
         </div>
       </div>
+   )}
     </div>
   );
 };

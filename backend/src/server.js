@@ -22,7 +22,14 @@ const userRouter = require('./routes/UserRoutes');
 const pharmacyRouter = require('./routes/PharmacyRoutes');
 const distributorRouter = require('./routes/DistributorRoute');
 const authRouter = require('./routes/AuthRoutes');
-
+const cartRouter = require('./routes/CartRoutes');
+const shippingRouter = require('./routes/ShippingRoutes');
+const paymentRouter = require('./routes/PaymentRoutes');
+const couponRouter = require('./routes/CouponRoutes');
+const orderRouter = require('./routes/orderRoutes');
+const productRouter = require('./routes/ProductRoutes');
+const categoryRouter = require('./routes/CategoryRoutes');
+const eventRouter = require('./routes/eventRoutes');
 app.use(cookieParser());
 // Connect to MongoDB
 connectMongoDB();
@@ -101,12 +108,19 @@ app.use("/api/transaction", transactionRouter);
 app.use("/api/user", userRouter);
 app.use("/api/pharmacy", pharmacyRouter);
 app.use("/api/distributor", distributorRouter);
+app.use("/api/coupon", couponRouter);
+app.use("/api/shipping", shippingRouter);
+app.use("/api/payment", paymentRouter);
+app.use("/api/cart", cartRouter);
+app.use("/api/order", orderRouter);
+app.use("/api/product", productRouter);
 app.use("/api", authRouter);
-
+app.use("/api/category", categoryRouter);
+app.use("/api/event", eventRouter);
 
 // Custom 404 middleware
 app.use((req, res, next) => {
-  console.warn(`Route not found: ${req.method} ${req.originalUrl}`);
+  console.log(`Route not found: ${req.method} ${req.originalUrl}`);
   res.status(404).json({
     success: false,
     message: `Không tìm thấy tài nguyên: ${req.originalUrl}`,
