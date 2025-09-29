@@ -36,12 +36,12 @@ useEffect(() => {
       setCoupon(Array.isArray(couponRes) ? couponRes : []);
       setPaymentMethods(Array.isArray(paymentRes) ? paymentRes : []);
       setShippingMethods(Array.isArray(shippingRes) ? shippingRes : []);
-
+      
       if (Array.isArray(paymentRes) && paymentRes.length > 0) {
-        setSelectedPayment(paymentRes[0].id);
+        setSelectedPayment(paymentRes[0]._id);
       }
       if (Array.isArray(shippingRes) && shippingRes.length > 0) {
-        setSelectedShipping(shippingRes[0].id);
+        setSelectedShipping(shippingRes[0]._id);
       }
     } catch (error) {
       console.error("Lỗi tải dữ liệu:", error);
@@ -212,7 +212,7 @@ const handleApplyCoupon = async () => {
             </div>
 
             {cartItems.map((item: any) => (
-              <div key={item.id} className="cart-item">
+              <div key={item._id} className="cart-item">
                 <div className="item-info">
                   <img src={item.productId.image} alt={item.productId.name} className="item-image" />
                   <div className="item-details">
@@ -308,31 +308,7 @@ const handleApplyCoupon = async () => {
                 )}
               </div>
 
-              {/* Phương thức vận chuyển */}
-              <div className="shipping-section">
-                <h4>Phương thức vận chuyển</h4>
-                <div className="shipping-options">
-                  {shippingMethods.map(method => (
-                    <label key={method._id} className="shipping-option">
-                      <input
-                        type="radio"
-                        name="shipping"
-                        value={method._id}
-                        checked={selectedShipping === method._id}
-                        onChange={() => setSelectedShipping(method._id)}
-                      />
-                      <div className="shipping-info">
-                        <span className="shipping-name">{method.name}</span>
-                        <span className="shipping-time">{method.time}</span>
-                        <span className="shipping-price">
-                          {method.price > 0 ? formatPrice(method.price) : 'Miễn phí'}
-                        </span>
-                        <span className="shipping-description">{method.description}</span>
-                      </div>
-                    </label>
-                  ))}
-                </div>
-              </div>
+
 
               {/* Phương thức thanh toán */}
               <div className="payment-section">
@@ -356,7 +332,7 @@ const handleApplyCoupon = async () => {
                   ))}
                 </div>
               </div>
-
+              
               {/* Tổng tiền */}
               <div className="totals-section">
                 <div className="total-row">

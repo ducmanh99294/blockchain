@@ -5,169 +5,180 @@ import '../../assets/css/User/category.css';
 
 const CategorySearch: React.FC = () => {
   const location = useLocation();
-  const [products, setProducts] = useState([]);
-  const [filteredProducts, setFilteredProducts] = useState([]);
+  const [products, setProducts] = useState<any>([]);
+  const [filteredProducts, setFilteredProducts] = useState<any>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [sortBy, setSortBy] = useState('default');
   const [priceRange, setPriceRange] = useState([0, 1000000]);
   const [prescriptionFilter, setPrescriptionFilter] = useState('all');
-
+  const [cartItems, setCartItems] = useState<any>([]);
+  const [categories, setCategories] = useState<any[]>([]);
+  const API = 'http://localhost:3000'
+  const userId = localStorage.getItem('userId')
+  const cartId = localStorage.getItem('cartId')
   // Dữ liệu mẫu - sẽ thay bằng API sau
-  const sampleProducts = [
-    {
-      id: 1,
-      name: "Panadol Extra",
-      description: "Giảm đau, hạ sốt nhanh chóng, hiệu quả cho các cơn đau nhẹ đến trung bình",
-      price: 95000,
-      originalPrice: 120000,
-      image: "https://via.placeholder.com/300x300/4CAF50/ffffff?text=Panadol+Extra",
-      category: 'pain',
-      prescription: false,
-      sales: 1245,
-      rating: 4.8,
-      stock: 50,
-      manufacturer: "GSK",
-      expiryDate: "12/2024"
-    },
-    {
-      id: 2,
-      name: "Vitamin C 1000mg",
-      description: "Bổ sung Vitamin C, tăng cường sức đề kháng, chống oxy hóa",
-      price: 150000,
-      originalPrice: 180000,
-      image: "https://via.placeholder.com/300x300/FF9800/ffffff?text=Vitamin+C",
-      category: 'vitamin',
-      prescription: false,
-      sales: 892,
-      rating: 4.6,
-      stock: 100,
-      manufacturer: "Nature's Bounty",
-      expiryDate: "06/2025"
-    },
-    {
-      id: 3,
-      name: "Sirop ho Prospan",
-      description: "Giảm ho hiệu quả cho cả gia đình, chiết xuất từ thảo dược",
-      price: 125000,
-      originalPrice: 150000,
-      image: "https://via.placeholder.com/300x300/2196F3/ffffff?text=Prospan",
-      category: 'cough',
-      prescription: false,
-      sales: 756,
-      rating: 4.7,
-      stock: 30,
-      manufacturer: "Engelhard",
-      expiryDate: "09/2024"
-    },
-    {
-      id: 4,
-      name: "Amoxicillin 500mg",
-      description: "Kháng sinh điều trị nhiễm khuẩn, cần kê đơn",
-      price: 85000,
-      image: "https://via.placeholder.com/300x300/9C27B0/ffffff?text=Amoxicillin",
-      category: 'antibiotic',
-      prescription: true,
-      sales: 345,
-      rating: 4.3,
-      stock: 25,
-      manufacturer: "Pfizer",
-      expiryDate: "03/2024"
-    },
-    {
-      id: 5,
-      name: "Omeprazole 20mg",
-      description: "Điều trị trào ngược dạ dày, giảm tiết acid",
-      price: 110000,
-      image: "https://via.placeholder.com/300x300/607D8B/ffffff?text=Omeprazole",
-      category: 'digestive',
-      prescription: true,
-      sales: 567,
-      rating: 4.4,
-      stock: 40,
-      manufacturer: "AstraZeneca",
-      expiryDate: "11/2024"
-    },
-    {
-      id: 6,
-      name: "Calcium D3",
-      description: "Bổ sung canxi và vitamin D3 cho xương chắc khỏe",
-      price: 135000,
-      originalPrice: 160000,
-      image: "https://via.placeholder.com/300x300/FF5722/ffffff?text=Calcium+D3",
-      category: 'supplement',
-      prescription: false,
-      sales: 978,
-      rating: 4.9,
-      stock: 60,
-      manufacturer: "Kirkland",
-      expiryDate: "08/2025"
-    },
-    {
-      id: 7,
-      name: "Kem dưỡng da Eucerin",
-      description: "Dưỡng ẩm chuyên sâu, phục hồi da tổn thương",
-      price: 220000,
-      originalPrice: 250000,
-      image: "https://via.placeholder.com/300x300/E91E63/ffffff?text=Eucerin",
-      category: 'skincare',
-      prescription: false,
-      sales: 432,
-      rating: 4.7,
-      stock: 20,
-      manufacturer: "Eucerin",
-      expiryDate: "05/2025"
-    },
-    {
-      id: 8,
-      name: "Metformin 500mg",
-      description: "Điều trị đái tháo đường type 2, cần kê đơn",
-      price: 95000,
-      image: "https://via.placeholder.com/300x300/795548/ffffff?text=Metformin",
-      category: 'diabetes',
-      prescription: true,
-      sales: 234,
-      rating: 4.2,
-      stock: 35,
-      manufacturer: "Merck",
-      expiryDate: "02/2024"
-    }
-  ];
+  // const sampleProducts = [
+  //   {
+  //     id: 1,
+  //     name: "Panadol Extra",
+  //     description: "Giảm đau, hạ sốt nhanh chóng, hiệu quả cho các cơn đau nhẹ đến trung bình",
+  //     price: 95000,
+  //     originalPrice: 120000,
+  //     image: "https://via.placeholder.com/300x300/4CAF50/ffffff?text=Panadol+Extra",
+  //     category: 'pain',
+  //     prescription: false,
+  //     sales: 1245,
+  //     rating: 4.8,
+  //     stock: 50,
+  //     manufacturer: "GSK",
+  //     expiryDate: "12/2024"
+  //   },
+  //   {
+  //     id: 2,
+  //     name: "Vitamin C 1000mg",
+  //     description: "Bổ sung Vitamin C, tăng cường sức đề kháng, chống oxy hóa",
+  //     price: 150000,
+  //     originalPrice: 180000,
+  //     image: "https://via.placeholder.com/300x300/FF9800/ffffff?text=Vitamin+C",
+  //     category: 'vitamin',
+  //     prescription: false,
+  //     sales: 892,
+  //     rating: 4.6,
+  //     stock: 100,
+  //     manufacturer: "Nature's Bounty",
+  //     expiryDate: "06/2025"
+  //   },
+  //   {
+  //     id: 3,
+  //     name: "Sirop ho Prospan",
+  //     description: "Giảm ho hiệu quả cho cả gia đình, chiết xuất từ thảo dược",
+  //     price: 125000,
+  //     originalPrice: 150000,
+  //     image: "https://via.placeholder.com/300x300/2196F3/ffffff?text=Prospan",
+  //     category: 'cough',
+  //     prescription: false,
+  //     sales: 756,
+  //     rating: 4.7,
+  //     stock: 30,
+  //     manufacturer: "Engelhard",
+  //     expiryDate: "09/2024"
+  //   },
+  //   {
+  //     id: 4,
+  //     name: "Amoxicillin 500mg",
+  //     description: "Kháng sinh điều trị nhiễm khuẩn, cần kê đơn",
+  //     price: 85000,
+  //     image: "https://via.placeholder.com/300x300/9C27B0/ffffff?text=Amoxicillin",
+  //     category: 'antibiotic',
+  //     prescription: true,
+  //     sales: 345,
+  //     rating: 4.3,
+  //     stock: 25,
+  //     manufacturer: "Pfizer",
+  //     expiryDate: "03/2024"
+  //   },
+  //   {
+  //     id: 5,
+  //     name: "Omeprazole 20mg",
+  //     description: "Điều trị trào ngược dạ dày, giảm tiết acid",
+  //     price: 110000,
+  //     image: "https://via.placeholder.com/300x300/607D8B/ffffff?text=Omeprazole",
+  //     category: 'digestive',
+  //     prescription: true,
+  //     sales: 567,
+  //     rating: 4.4,
+  //     stock: 40,
+  //     manufacturer: "AstraZeneca",
+  //     expiryDate: "11/2024"
+  //   },
+  //   {
+  //     id: 6,
+  //     name: "Calcium D3",
+  //     description: "Bổ sung canxi và vitamin D3 cho xương chắc khỏe",
+  //     price: 135000,
+  //     originalPrice: 160000,
+  //     image: "https://via.placeholder.com/300x300/FF5722/ffffff?text=Calcium+D3",
+  //     category: 'supplement',
+  //     prescription: false,
+  //     sales: 978,
+  //     rating: 4.9,
+  //     stock: 60,
+  //     manufacturer: "Kirkland",
+  //     expiryDate: "08/2025"
+  //   },
+  //   {
+  //     id: 7,
+  //     name: "Kem dưỡng da Eucerin",
+  //     description: "Dưỡng ẩm chuyên sâu, phục hồi da tổn thương",
+  //     price: 220000,
+  //     originalPrice: 250000,
+  //     image: "https://via.placeholder.com/300x300/E91E63/ffffff?text=Eucerin",
+  //     category: 'skincare',
+  //     prescription: false,
+  //     sales: 432,
+  //     rating: 4.7,
+  //     stock: 20,
+  //     manufacturer: "Eucerin",
+  //     expiryDate: "05/2025"
+  //   },
+  //   {
+  //     id: 8,
+  //     name: "Metformin 500mg",
+  //     description: "Điều trị đái tháo đường type 2, cần kê đơn",
+  //     price: 95000,
+  //     image: "https://via.placeholder.com/300x300/795548/ffffff?text=Metformin",
+  //     category: 'diabetes',
+  //     prescription: true,
+  //     sales: 234,
+  //     rating: 4.2,
+  //     stock: 35,
+  //     manufacturer: "Merck",
+  //     expiryDate: "02/2024"
+  //   }
+  // ];
 
-  const categories = [
-    { id: 'all', name: 'Tất cả', icon: '🏠' },
-    { id: 'pain', name: 'Giảm đau', icon: '🥴' },
-    { id: 'vitamin', name: 'Vitamin', icon: '💊' },
-    { id: 'cough', name: 'Thuốc ho', icon: '😷' },
-    { id: 'antibiotic', name: 'Kháng sinh', icon: '🦠' },
-    { id: 'digestive', name: 'Tiêu hóa', icon: '🍃' },
-    { id: 'supplement', name: 'Thực phẩm chức năng', icon: '🌿' },
-    { id: 'skincare', name: 'Chăm sóc da', icon: '✨' },
-    { id: 'diabetes', name: 'Tiểu đường', icon: '🩸' }
-  ];
-
+  // const categories = [
+  //   { id: 'all', name: 'Tất cả', icon: '🏠' },
+  //   { id: 'pain', name: 'Giảm đau', icon: '🥴' },
+  //   { id: 'vitamin', name: 'Vitamin', icon: '💊' },
+  //   { id: 'cough', name: 'Thuốc ho', icon: '😷' },
+  //   { id: 'antibiotic', name: 'Kháng sinh', icon: '🦠' },
+  //   { id: 'digestive', name: 'Tiêu hóa', icon: '🍃' },
+  //   { id: 'supplement', name: 'Thực phẩm chức năng', icon: '🌿' },
+  //   { id: 'skincare', name: 'Chăm sóc da', icon: '✨' },
+  //   { id: 'diabetes', name: 'Tiểu đường', icon: '🩸' }
+  // ];
   useEffect(() => {
-    // Giả lập load data từ API
-    setTimeout(() => {
-      setProducts(sampleProducts);
-      setFilteredProducts(sampleProducts);
+    if (userId) {
+      fetchData();
       setLoading(false);
-    }, 500);
-
-    // Lấy query parameters từ URL
-    const searchParams = new URLSearchParams(location.search);
-    const query = searchParams.get('q');
-    const category = searchParams.get('category');
-
-    if (query) {
-      setSearchTerm(query);
     }
-    if (category) {
-      setSelectedCategory(category);
-    }
-  }, [location]);
+  }, [userId]);
 
+  const fetchData = async () => {
+      try {
+        // gọi API song song
+        const [categoryRes, productsRes] = await Promise.all([
+          fetch(`${API}/api/category`).then((res) => res.json()),
+          fetch(`${API}/api/product`).then((res) => res.json()),
+        ]);
+        
+        if (Array.isArray(categoryRes)) {
+          setCategories(categoryRes);
+        }
+
+        if (Array.isArray(productsRes)) {
+          setProducts(productsRes)
+        }        
+
+      } catch (error) {
+        console.error("Lỗi tải dữ liệu:", error);
+        setCartItems([]);
+      }
+  };
+  
   useEffect(() => {
     filterAndSortProducts();
   }, [searchTerm, selectedCategory, sortBy, priceRange, prescriptionFilter, products]);
@@ -179,8 +190,7 @@ const CategorySearch: React.FC = () => {
     if (searchTerm) {
       filtered = filtered.filter(product =>
         product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        product.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        product.manufacturer.toLowerCase().includes(searchTerm.toLowerCase())
+        product.description.toLowerCase().includes(searchTerm.toLowerCase())
       );
     }
 
@@ -229,36 +239,48 @@ const CategorySearch: React.FC = () => {
     setFilteredProducts(filtered);
   };
 
-  const handleSearch = (e) => {
+  const handleSearch = (e: any) => {
     e.preventDefault();
     filterAndSortProducts();
   };
 
-  const handleAddToCart = (productId) => {
-    alert(`Đã thêm sản phẩm ${productId} vào giỏ hàng`);
-    // Logic thêm vào giỏ hàng sẽ được implement sau
+  const handleAddToCart = async (productId: string) => {
+    try {
+      const res = await fetch(`${API}/api/cart/user/${userId}/add`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ productId, quantity: 1 }),
+      });
+      const data = await res.json();
+      if(!userId) {
+        console.log('chua dang nhap')
+      }
+        alert("Đã thêm sản phẩm vào giỏ hàng!");
+        setCartItems(data.cart?.items); // cập nhật lại giỏ hàng
+        fetchData();
+    } catch (error) {
+      console.log("Lỗi khi thêm giỏ hàng:", error);
+    }
   };
 
-  const handleQuickView = (product) => {
+  const handleQuickView = (product: any) => {
     alert(`Xem nhanh: ${product.name}`);
     // Có thể mở modal chi tiết sản phẩm
   };
 
-  const formatPrice = (price) => {
+  const formatPrice = (price: any) => {
     return new Intl.NumberFormat('vi-VN').format(price) + 'đ';
   };
 
-  if (loading) {
-    return (
+  return (
+    <>
+    {loading ? (
       <div className="loading-container">
         <div className="loading-spinner"></div>
         <p>Đang tải sản phẩm...</p>
       </div>
-    );
-  }
-
-  return (
-    <div className="category-search-page">
+      ) : (
+        <div className="category-search-page">
       <div className="container">
         {/* Header với search */}
         <div className="search-header">
@@ -286,9 +308,9 @@ const CategorySearch: React.FC = () => {
               <div className="category-filters">
                 {categories.map(category => (
                   <button
-                    key={category.id}
-                    className={`category-filter ${selectedCategory === category.id ? 'active' : ''}`}
-                    onClick={() => setSelectedCategory(category.id)}
+                    key={category._id}
+                    className={`category-filter ${selectedCategory === category._id ? 'active' : ''}`}
+                    onClick={() => setSelectedCategory(category._id)}
                   >
                     <span className="category-icon">{category.icon}</span>
                     {category.name}
@@ -371,7 +393,7 @@ const CategorySearch: React.FC = () => {
               <p className="results-count">
                 Tìm thấy {filteredProducts.length} sản phẩm
                 {searchTerm && ` cho "${searchTerm}"`}
-                {selectedCategory !== 'all' && ` trong "${categories.find(c => c.id === selectedCategory)?.name}"`}
+                {selectedCategory !== 'all' && ` trong "${categories.find(c => c._id === selectedCategory)?.name}"`}
               </p>
               
               <div className="sort-options">
@@ -399,7 +421,7 @@ const CategorySearch: React.FC = () => {
                 </div>
               ) : (
                 filteredProducts.map(product => (
-                  <div key={product.id} className="product-card">
+                  <div key={product._id} className="product-card">
                     <div className="product-image">
                       <img src={product.image} alt={product.name} />
                       {product.prescription && (
@@ -428,7 +450,7 @@ const CategorySearch: React.FC = () => {
                           ⭐ {product.rating} ({product.sales} đã bán)
                         </span>
                         <span className="product-stock">
-                          {product.stock > 0 ? `Còn ${product.stock} sp` : 'Hết hàng'}
+                          {product.quantity > 0 ? `Còn ${product.quantity} sp` : 'Hết hàng'}
                         </span>
                       </div>
 
@@ -442,10 +464,10 @@ const CategorySearch: React.FC = () => {
                       <div className="product-actions">
                         <button 
                           className="add-to-cart-btn"
-                          onClick={() => handleAddToCart(product.id)}
-                          disabled={product.stock === 0}
+                          onClick={() => handleAddToCart(product._id)}
+                          disabled={product.quantity === 0}
                         >
-                          {product.stock === 0 ? 'Hết hàng' : 'Thêm vào giỏ'}
+                          {product.quantity === 0 ? 'Hết hàng' : 'Thêm vào giỏ'}
                         </button>
                         <button className="wishlist-btn">❤️</button>
                       </div>
@@ -465,7 +487,8 @@ const CategorySearch: React.FC = () => {
           </main>
         </div>
       </div>
-    </div>
+    </div>)}
+    </>
   );
 };
 

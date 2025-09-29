@@ -129,6 +129,7 @@ const Home: React.FC = () => {
         
         if (cartRes && cartRes.items) {
           setCartItems(cartRes.items);
+          localStorage.setItem('cartId', cartRes.cartId || '')
         }
         
         if (Array.isArray(categoryRes)) {
@@ -164,11 +165,9 @@ const Home: React.FC = () => {
       if(!userId) {
         console.log('chua dang nhap')
       }
-      if (data.success) {
         alert("Đã thêm sản phẩm vào giỏ hàng!");
-        setCartItems(data.cart.items); // cập nhật lại giỏ hàng
+        setCartItems(data.cart?.items); // cập nhật lại giỏ hàng
         fetchData();
-      }
     } catch (error) {
       console.log("Lỗi khi thêm giỏ hàng:", error);
     }
@@ -232,7 +231,7 @@ const Home: React.FC = () => {
         <button className="quick-action-btn" onClick={() => handleQuickAction('cart')}>
           <span className="action-icon">🛒</span>
           <span className="action-text">Giỏ hàng</span>
-          {cartItems.length > 0 && <span className="cart-badge">{cartItems.length}</span>}
+          {cartItems?.length > 0 && <span className="cart-badge">{cartItems?.length}</span>}
         </button>
         <button className="quick-action-btn" onClick={() => handleQuickAction('account')}>
           <span className="action-icon">👤</span>
@@ -248,7 +247,7 @@ const Home: React.FC = () => {
       <section className="categories-section">
         <h2>Danh mục sản phẩm</h2>
         <div className="categories-grid">
-          {categories.map(category => (
+          {categories.slice(0, 5).map(category => (
             <div 
               key={category._id} 
               className={`category-card ${selectedCategory === category._id ? 'active' : ''}`}

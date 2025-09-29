@@ -15,6 +15,10 @@ const ProductSchema = new mongoose.Schema({
     min: 0, 
     default: 0
   },
+  prescription: { 
+    type: Boolean, 
+    default: false 
+  },
   viewCount: { type: Number, default: 0 },
   likeCount: { type: Number, default: 0 },
   sellCount: { type: Number, default: 0 },

@@ -132,6 +132,7 @@ const saveUserChanges = async () => {
       console.error("Logout error", err);
     } finally {
       localStorage.removeItem("token");
+      localStorage.removeItem("userId");
       navigate("/login");
     }
   };

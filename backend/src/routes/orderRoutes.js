@@ -1,23 +1,23 @@
 const express = require("express");
 const router = express.Router();
-const orderController = require("../controllers/OrderController");
+const OrderController = require("../controllers/OrderController");
 
 // Tạo đơn hàng
-router.post("/", orderController.createOrder);
+router.post("/", OrderController.createOrder);
 
-// Lấy danh sách đơn hàng theo user
-router.get("/user/:userId", orderController.getOrdersByUser);
+// Lấy tất cả đơn hàng (admin)
+router.get("/", OrderController.getAllOrders);
+
+// Lấy đơn hàng theo userId
+router.get("/user/:userId", OrderController.getOrdersByUser);
 
 // Lấy chi tiết đơn hàng
-router.get("/:orderId", orderController.getOrderById);
+router.get("/:id", OrderController.getOrderById);
 
-// Cập nhật trạng thái đơn hàng
-router.put("/:id/status", orderController.updateOrderStatus);
-
-// Hủy đơn hàng
-router.put("/:orderId/cancel", orderController.cancelOrder);
+// Cập nhật đơn hàng (ví dụ cập nhật status)
+router.put("/:id", OrderController.updateOrder);
 
 // Xóa đơn hàng
-router.delete("/:id", orderController.deleteOrder);
+router.delete("/:id", OrderController.deleteOrder);
 
 module.exports = router;

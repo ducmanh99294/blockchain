@@ -1,149 +1,129 @@
 // pages/Checkout.js
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import '../../assets/css/User/checkout.css';
 
 const Checkout: React.FC = () => {
-  const navigate = useNavigate();
-  
-  // Dữ liệu mẫu giỏ hàng
-  const [cartItems] = useState([
-    {
-      id: 1,
-      name: "Panadol Extra",
-      price: 95000,
-      originalPrice: 120000,
-      image: "https://via.placeholder.com/60x60/4CAF50/ffffff?text=Panadol",
-      quantity: 2,
-      prescription: false
-    },
-    {
-      id: 2,
-      name: "Vitamin C 1000mg",
-      price: 150000,
-      originalPrice: 180000,
-      image: "https://via.placeholder.com/60x60/FF9800/ffffff?text=Vitamin+C",
-      quantity: 1,
-      prescription: false
-    }
-  ]);
-
-  // Thông tin giao hàng
-  const [shippingInfo, setShippingInfo] = useState({
-    fullName: 'Nguyễn Văn A',
-    phone: '0901234567',
-    email: 'nguyenvana@email.com',
-    address: '123 Đường Nguyễn Văn Linh',
-    city: 'Quận 7',
-    district: 'TP. Hồ Chí Minh',
-    ward: 'Phường Tân Thuận Đông',
-    note: ''
-  });
-
-  // Phương thức thanh toán
-  const [paymentMethod, setPaymentMethod] = useState('cod');
+const [cartItems, setCartItems] = useState<any[]>([]);
+  const [paymentMethods, setPaymentMethods] = useState<any[]>([]);
+  const [shippingMethods, setShippingMethods] = useState<any[]>([]);
+  const [selectedPayment, setSelectedPayment] = useState("");
+  const [selectedShipping, setSelectedShipping] = useState("");
+  const [coupon, setCoupon] = useState<any | null>(null);
+  const [shippingInfo, setShippingInfo] = useState<any>({});
   const [agreeToTerms, setAgreeToTerms] = useState(true);
 
-  // Phương thức vận chuyển
-  const shippingMethods = [
-    {
-      id: 'standard',
-      name: 'Giao hàng tiêu chuẩn',
-      price: 15000,
-      time: '3-5 ngày',
-      description: 'Giao hàng trong giờ hành chính'
-    },
-    {
-      id: 'express',
-      name: 'Giao hàng nhanh',
-      price: 30000,
-      time: '1-2 ngày',
-      description: 'Giao hàng hỏa tốc'
+  const navigate = useNavigate();
+  const location = useLocation();
+  const API = "http://localhost:3000";
+  const userId = localStorage.getItem("userId");
+
+  useEffect(() => {
+    fetchData();
+    if (location.state?.appliedCoupon) {
+      setCoupon(location.state.appliedCoupon);
     }
-  ];
+  }, [userId]);
 
-  const [selectedShipping] = useState('standard');
+  const fetchData = async () => {
+    try {
+      const [cartRes, paymentRes, shippingRes] = await Promise.all([
+        fetch(`${API}/api/cart/user/${userId}`).then((res) => res.json()),
+        fetch(`${API}/api/payment`).then((res) => res.json()),
+        fetch(`${API}/api/shipping`).then((res) => res.json()),
+      ]);
 
-  // Phương thức thanh toán
-  const paymentMethods = [
-    {
-      id: 'cod',
-      name: 'Thanh toán khi nhận hàng',
-      icon: '💰',
-      description: 'Trả tiền mặt khi nhận được hàng'
-    },
-    {
-      id: 'momo',
-      name: 'Ví MoMo',
-      icon: '📱',
-      description: 'Thanh toán qua ứng dụng MoMo'
-    },
-    {
-      id: 'banking',
-      name: 'Chuyển khoản ngân hàng',
-      icon: '🏦',
-      description: 'Chuyển khoản qua Internet Banking'
-    },
-    {
-      id: 'visa',
-      name: 'Thẻ Visa/Mastercard',
-      icon: '💳',
-      description: 'Thanh toán bằng thẻ quốc tế'
+      setCartItems(Array.isArray(cartRes.items) ? cartRes.items : []);
+      setPaymentMethods(Array.isArray(paymentRes) ? paymentRes : []);
+      setShippingMethods(Array.isArray(shippingRes) ? shippingRes : []);
+
+      if (Array.isArray(paymentRes) && paymentRes.length > 0) {
+        setSelectedPayment(paymentRes[0]._id);
+      }
+      if (Array.isArray(shippingRes) && shippingRes.length > 0) {
+        setSelectedShipping(shippingRes[0]._id);
+      }console.log(paymentRes)
+    } catch (error) {
+      console.error("Lỗi tải dữ liệu:", error);
+      setCartItems([]);
+      setCoupon([]);
+      setPaymentMethods([]);
+      setShippingMethods([]);
     }
-  ];
+  };
 
-  // Tính toán tổng tiền
+  // ✅ Tính toán tổng tiền
   const calculateTotals = () => {
-    const subtotal = cartItems.reduce((total, item) => total + (item.price * item.quantity), 0);
-    const shippingFee = shippingMethods.find(method => method.id === selectedShipping)?.price || 0;
-    const total = subtotal + shippingFee;
-    
-    return { subtotal, shippingFee, total };
+    const subtotal = cartItems.reduce(
+      (total, item) => total + item.productId.price * item.quantity,
+      0
+    );
+    const shippingFee =
+      shippingMethods.find((m) => m._id === selectedShipping)?.price || 0;
+    const discount = coupon ? coupon.discountAmount || 0 : 0;
+    const total = subtotal + shippingFee - discount;
+
+    return { subtotal, shippingFee, discount, total };
   };
 
-  const { subtotal, shippingFee, total } = calculateTotals();
+  const { subtotal, shippingFee, discount, total } = calculateTotals();
 
-  // Xử lý thay đổi thông tin
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setShippingInfo(prev => ({
-      ...prev,
-      [name]: value
-    }));
-  };
+// Xử lý thay đổi thông tin shippingInfo
+const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+  const { name, value } = e.target;
+  setShippingInfo((prev: any) => ({
+    ...prev,
+    [name]: value
+  }));
+};
 
-  // Xử lý đặt hàng
-  const handlePlaceOrder = (e) => {
+  // ✅ Đặt hàng
+  const handlePlaceOrder = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!agreeToTerms) {
-      alert('Vui lòng đồng ý với điều khoản và điều kiện');
+      alert("Vui lòng đồng ý với điều khoản và điều kiện");
       return;
     }
 
-    // Tạo đơn hàng
     const orderData = {
-      orderId: `MED${Date.now()}`,
-      items: cartItems,
+      userId,
+      items: cartItems.map((item) => ({
+        productId: item.productId._id,
+        name: item.productId.name,
+        price: item.productId.price,
+        quantity: item.quantity,
+      })),
       shippingInfo,
-      paymentMethod,
-      shippingMethod: selectedShipping,
-      totals: calculateTotals(),
-      orderDate: new Date().toISOString(),
-      status: 'pending'
+      shippingMethod: selectedShipping, 
+      paymentMethod: selectedPayment, 
+      coupon: coupon ? coupon._id : null, 
+      subtotal,
+      shippingFee,
+      discount,
+      totalPrice: total,
+      status: "pending",
     };
+    console.log(orderData)
+    try {
+      const res = await fetch(`${API}/api/order`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(orderData),
+      });
 
-    // Lưu đơn hàng (trong thực tế sẽ gọi API)
-    localStorage.setItem('lastOrder', JSON.stringify(orderData));
-    
-    // Chuyển đến trang xác nhận
-    navigate('/user/orders', { state: orderData });
+      if (!res.ok) throw new Error("Tạo đơn hàng thất bại");
+
+      const newOrder = await res.json();
+      navigate("/user/orders", { state: newOrder._id });
+    } catch (err) {
+      console.error("Lỗi khi tạo đơn hàng:", err);
+      alert("Không thể tạo đơn hàng, vui lòng thử lại");
+    }
   };
 
-  // Định dạng tiền
-  const formatPrice = (price) => {
-    return new Intl.NumberFormat('vi-VN').format(price) + 'đ';
-  };
+  const formatPrice = (price: number) =>
+    new Intl.NumberFormat("vi-VN").format(price) + "đ";
 
   return (
     <div className="checkout-page">
@@ -264,18 +244,43 @@ const Checkout: React.FC = () => {
               </div>
             </div>
 
+            {/* Phương thức vận chuyển */}
+            <div className="shipping-section">
+              <h4>Phương thức vận chuyển</h4>
+              <div className="shipping-options">
+                {shippingMethods.map(method => (
+                  <label key={method._id} className="shipping-option">                      <input
+                      type="radio"
+                      name="shipping"
+                      value={method._id}
+                      checked={selectedShipping === method._id}
+                      onChange={() => setSelectedShipping(method._id)}
+                    />
+                    <div className="shipping-info">
+                      <span className="shipping-name">{method.name}</span>
+                      <span className="shipping-time">{method.time}</span>
+                      <span className="shipping-price">
+                        {method.price > 0 ? formatPrice(method.price) : 'Miễn phí'}
+                      </span>
+                      <span className="shipping-description">{method.description}</span>
+                    </div>
+                  </label>
+                ))}
+              </div>
+             </div>
+
             {/* Phương thức thanh toán */}
             <div className="checkout-section">
               <h2>Phương thức thanh toán</h2>
               <div className="payment-methods">
                 {paymentMethods.map(method => (
-                  <label key={method.id} className="payment-method">
+                  <label key={method._id} className="payment-method">
                     <input
                       type="radio"
                       name="payment"
-                      value={method.id}
-                      checked={paymentMethod === method.id}
-                      onChange={() => setPaymentMethod(method.id)}
+                      value={method._id}
+                      checked={selectedPayment === method._id}
+                      onChange={() => setSelectedPayment(method._id)}
                     />
                     <div className="payment-content">
                       <span className="payment-icon">{method.icon}</span>
@@ -289,20 +294,21 @@ const Checkout: React.FC = () => {
               </div>
             </div>
 
+            
             {/* Xác nhận đơn hàng */}
             <div className="checkout-section">
               <h2>Xác nhận đơn hàng</h2>
               <div className="order-review">
                 <div className="order-items">
-                  {cartItems.map(item => (
-                    <div key={item.id} className="order-item">
-                      <img src={item.image} alt={item.name} />
+                  {cartItems.map((item: any) => (
+                    <div key={item.productId._id} className="order-item">
+                      <img src={item.productId.image} alt={item.productId.name} />
                       <div className="item-details">
-                        <h4>{item.name}</h4>
+                        <h4>{item.productId.name}</h4>
                         <p>Số lượng: {item.quantity}</p>
                       </div>
                       <div className="item-price">
-                        {formatPrice(item.price * item.quantity)}
+                        {formatPrice(item.productId.price * item.quantity)}
                       </div>
                     </div>
                   ))}
@@ -342,10 +348,10 @@ const Checkout: React.FC = () => {
               <h3>Tóm tắt đơn hàng</h3>
               
               <div className="summary-items">
-                {cartItems.map(item => (
-                  <div key={item.id} className="summary-item">
-                    <span className="item-name">{item.name} × {item.quantity}</span>
-                    <span className="item-price">{formatPrice(item.price * item.quantity)}</span>
+                {cartItems.map((item: any) => (
+                  <div key={item.productId._id} className="summary-item">
+                    <span className="item-name">{item.productId.name} × {item.productId.quantity}</span>
+                    <span className="item-price">{formatPrice(item.productId.price * item.quantity)}</span>
                   </div>
                 ))}
               </div>
