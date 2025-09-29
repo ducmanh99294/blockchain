@@ -1,8 +1,6 @@
 pipeline {
     agent any
-    tools {
-        nodejs "node20"
-    }
+
     stages {
         stage('Checkout') {
             steps {
@@ -12,34 +10,20 @@ pipeline {
             }
         }
 
-        stage('Backend') {
+        stage('Build & Deploy') {
             steps {
-                dir('backend') {
-                    sh 'npm install'
-                    sh 'npm run dev &'
-                }
-            }
-        }
-
-        stage('Frontend') {
-            steps {
-                dir('frontend') {
-                    sh 'npm install'
-                    sh 'npm run dev &'
-                }
+                sh 'docker-compose down || true'
+                sh 'docker-compose up -d --build'
             }
         }
     }
 
     post {
-        always {
-            echo "✅ Pipeline finished (success or fail)"
-        }
         success {
-            echo "🎉 Build succeeded!"
+            echo "🎉 Deploy thành công!"
         }
         failure {
-            echo "❌ Build failed!"
+            echo "❌ Deploy thất bại!"
         }
     }
 }
