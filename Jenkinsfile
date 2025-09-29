@@ -1,13 +1,14 @@
 pipeline {
     agent any
 
-    stages {
-        stage('Checkout') {
-            steps {
-                // Clone code từ GitHub
-                git branch: 'main', url: 'https://github.com/username/repo.git'
-            }
-        }
+    stage('Checkout') {
+    steps {
+        git branch: 'main',
+            url: 'git@github.com:ducmanh99294/blockchain.git',
+            credentialsId: 'github-ssh'
+    }
+}
+
 
         stage('Backend') {
             steps {
