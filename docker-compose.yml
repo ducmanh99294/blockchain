@@ -1,33 +1,14 @@
-version: '3.9'
+version: "3.8"
 
 services:
-  frontend:
-    build: ./frontend
-    container_name: react_frontend
-    ports:
-      - "5173:80"
-    depends_on:
-      - backend
-
   backend:
     build: ./backend
-    container_name: node_backend
+    container_name: backend
     ports:
       - "3000:3000"
-    environment:
-      - MONGO_URI=mongodb+srv://nguyenducmanh1809:manh1234@cluster0.1ya4y.mongodb.net/demo?retryWrites=true&w=majority&appName=Cluster0
-      - PORT=3000
-    depends_on:
-      - db
 
-  db:
-    image: mongo:6
-    container_name: mongo_db
-    restart: always
+  frontend:
+    build: ./frontend
+    container_name: frontend
     ports:
-      - "27017:27017"
-    volumes:
-      - mongo_data:/data/db
-
-volumes:
-  mongo_data:
+      - "5173:80"
