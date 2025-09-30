@@ -1,6 +1,14 @@
 pipeline {
     agent any
 
+    stage('Debug Git') {
+    steps {
+        sh 'env | sort'
+        sh 'git --version'
+        sh 'git ls-remote https://github.com/ducmanh99294/blockchain.git || true'
+    }
+}
+
     stages {
         stage('Checkout') {
             steps {
