@@ -7,12 +7,12 @@ import {
 import '../../assets/css/Distributor/account.css';
 
 const Account = () => {
-  const [distributorInfo, setDistributorInfo] = useState({});
+  const [distributorInfo, setDistributorInfo] = useState<any>({});
   const [editing, setEditing] = useState(false);
   const [activeTab, setActiveTab] = useState('profile');
-  const [staffMembers, setStaffMembers] = useState([]);
-  const [blockchainHistory, setBlockchainHistory] = useState([]);
-  const [paymentMethods, setPaymentMethods] = useState([]);
+  const [staffMembers, setStaffMembers] = useState<any>([]);
+  const [blockchainHistory, setBlockchainHistory] = useState<any>([]);
+  const [paymentMethods, setPaymentMethods] = useState<any>([]);
 
   // Giả lập dữ liệu nhà phân phối
   useEffect(() => {
@@ -151,9 +151,9 @@ const Account = () => {
     setEditing(false);
   };
 
-  const handleInputChange = (e) => {
+  const handleInputChange = (e: any) => {
     const { name, value } = e.target;
-    setDistributorInfo(prev => ({
+    setDistributorInfo((prev: any) => ({
       ...prev,
       [name]: value
     }));
@@ -166,18 +166,18 @@ const Account = () => {
   };
 
   // Định dạng ngày
-  const formatDate = (dateString) => {
+  const formatDate = (dateString: any) => {
     return new Date(dateString).toLocaleDateString('vi-VN');
   };
 
   // Định dạng ngày giờ
-  const formatDateTime = (dateTimeString) => {
+  const formatDateTime = (dateTimeString: any) => {
     const date = new Date(dateTimeString);
     return date.toLocaleDateString('vi-VN') + ' ' + date.toLocaleTimeString('vi-VN');
   };
 
   // Hiển thị trạng thái giao dịch
-  const renderStatus = (status) => {
+  const renderStatus = (status: any) => {
     switch(status) {
       case "confirmed":
         return <span className="status confirmed">Đã xác nhận</span>;
@@ -401,7 +401,7 @@ const Account = () => {
                     </tr>
                   </thead>
                   <tbody>
-                    {blockchainHistory.map((transaction) => (
+                    {blockchainHistory.map((transaction: any) => (
                       <tr key={transaction.id}>
                         <td>{formatDateTime(transaction.date)}</td>
                         <td>{transaction.action}</td>
@@ -434,7 +434,7 @@ const Account = () => {
             </div>
 
             <div className="payment-methods">
-              {paymentMethods.map((method) => (
+              {paymentMethods.map((method: any) => (
                 <div key={method.id} className={`payment-card ${method.isDefault ? 'default' : ''}`}>
                   <div className="payment-header">
                     <h3>
@@ -511,14 +511,14 @@ const Account = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {staffMembers.map((staff) => (
+                  {staffMembers.map((staff: any) => (
                     <tr key={staff.id}>
                       <td className="staff-name">{staff.name}</td>
                       <td>{staff.email}</td>
                       <td>{staff.role}</td>
                       <td>
                         <div className="permissions">
-                          {staff.permissions.map((permission, index) => (
+                          {staff.permissions.map((permission: any, index: any) => (
                             <span key={index} className="permission-tag">{permission}</span>
                           ))}
                         </div>

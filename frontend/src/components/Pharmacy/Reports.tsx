@@ -85,12 +85,12 @@ const PharmacyReports = () => {
   });
 
   // Format tiền
-  const formatPrice = (price) => {
+  const formatPrice = (price: any) => {
     return new Intl.NumberFormat('vi-VN').format(price) + 'đ';
   };
 
   // Format số
-  const formatNumber = (num) => {
+  const formatNumber = (num: any) => {
     return new Intl.NumberFormat('vi-VN').format(num);
   };
 
@@ -114,7 +114,7 @@ const PharmacyReports = () => {
   const avgRevenue = totalRevenue / chartData.length;
 
   // Hiển thị trạng thái blockchain
-  const renderBlockchainStatus = (status) => {
+  const renderBlockchainStatus = (status: any) => {
     switch (status) {
       case 'verified':
         return <span className="blockchain-badge verified">✅ Verified</span>;
@@ -126,7 +126,7 @@ const PharmacyReports = () => {
   };
 
   // Hiển thị tăng trưởng
-  const renderGrowth = (growth) => {
+  const renderGrowth = (growth: any) => {
     const isPositive = growth >= 0;
     return (
       <span className={`growth ${isPositive ? 'positive' : 'negative'}`}>

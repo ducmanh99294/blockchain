@@ -4,7 +4,7 @@ import '../../assets/css/Pharmacy/order.css';
 
 const PharmacyOrder = () => {
   const [filterStatus, setFilterStatus] = useState('all');
-  const [selectedOrder, setSelectedOrder] = useState(null);
+  const [selectedOrder, setSelectedOrder] = useState<any>(null);
   const [showDetailModal, setShowDetailModal] = useState(false);
 
   // Dữ liệu mẫu đơn hàng
@@ -157,12 +157,12 @@ const PharmacyOrder = () => {
   ]);
 
   // Format tiền
-  const formatPrice = (price) => {
+  const formatPrice = (price: any) => {
     return new Intl.NumberFormat('vi-VN').format(price) + 'đ';
   };
 
   // Format ngày
-  const formatDate = (dateString) => {
+  const formatDate = (dateString: any) => {
     return new Date(dateString).toLocaleDateString('vi-VN', {
       year: 'numeric',
       month: 'long',
@@ -178,7 +178,7 @@ const PharmacyOrder = () => {
     : orders.filter(order => order.status === filterStatus);
 
   // Hiển thị trạng thái đơn hàng
-  const renderOrderStatus = (status) => {
+  const renderOrderStatus = (status: any) => {
     switch (status) {
       case 'pending':
         return <span className="status-badge pending">⏳ Chờ xác nhận</span>;
@@ -194,7 +194,7 @@ const PharmacyOrder = () => {
   };
 
   // Hiển thị trạng thái blockchain
-  const renderBlockchainStatus = (status) => {
+  const renderBlockchainStatus = (status: any) => {
     switch (status) {
       case 'verified':
         return <span className="blockchain-badge verified">✅ Verified</span>;
@@ -206,14 +206,14 @@ const PharmacyOrder = () => {
   };
 
   // Cập nhật trạng thái đơn hàng
-  const updateOrderStatus = (orderId, newStatus) => {
+  const updateOrderStatus = (orderId: any, newStatus: any) => {
     const updatedOrders = orders.map(order => {
       if (order.id === orderId) {
         const updatedOrder = { ...order, status: newStatus };
         
         // Thêm timestamp khi cập nhật trạng thái
         if (newStatus === 'shipping') {
-          updatedOrder.shippingDate = new Date().toISOString();
+          // updatedOrder.shippingDate = new Date().toISOString();
         } else if (newStatus === 'completed') {
           updatedOrder.completedDate = new Date().toISOString();
         }
@@ -228,7 +228,7 @@ const PharmacyOrder = () => {
   };
 
   // Mở modal chi tiết
-  const openOrderDetail = (order) => {
+  const openOrderDetail = (order: any) => {
     setSelectedOrder(order);
     setShowDetailModal(true);
   };
@@ -240,7 +240,7 @@ const PharmacyOrder = () => {
   };
 
   // Hiển thị nút hành động theo trạng thái
-  const renderActionButtons = (order) => {
+  const renderActionButtons = (order: any) => {
     switch (order.status) {
       case 'pending':
         return (
@@ -497,7 +497,7 @@ const PharmacyOrder = () => {
                 <div className="detail-section">
                   <h3>Sản phẩm ({selectedOrder.items.length})</h3>
                   <div className="order-items-detail">
-                    {selectedOrder.items.map(item => (
+                    {selectedOrder.items.map((item: any) => (
                       <div key={item.id} className="order-item-detail">
                         <img src={item.image} alt={item.name} />
                         <div className="item-info">

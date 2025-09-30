@@ -5,7 +5,7 @@ import '../../assets/css/Pharmacy/supplier.css';
 
 const PharmacySupplierOrders = () => {
   const [activeTab, setActiveTab] = useState('catalog'); // catalog, orders
-  const [selectedProduct, setSelectedProduct] = useState(null);
+  const [selectedProduct, setSelectedProduct] = useState<any>(null);
   const [showOrderModal, setShowOrderModal] = useState(false);
   const [showReceiveModal, setShowReceiveModal] = useState(false);
   const [quantity, setQuantity] = useState(1);
@@ -159,12 +159,12 @@ const PharmacySupplierOrders = () => {
   ]);
 
   // Format tiền
-  const formatPrice = (price) => {
+  const formatPrice = (price: any) => {
     return new Intl.NumberFormat('vi-VN').format(price) + 'đ';
   };
 
   // Format ngày
-  const formatDate = (dateString) => {
+  const formatDate = (dateString: any) => {
     return new Date(dateString).toLocaleDateString('vi-VN', {
       year: 'numeric',
       month: 'long',
@@ -175,7 +175,7 @@ const PharmacySupplierOrders = () => {
   };
 
   // Hiển thị trạng thái blockchain
-  const renderBlockchainStatus = (status) => {
+  const renderBlockchainStatus = (status: any) => {
     switch (status) {
       case 'verified':
         return <span className="blockchain-badge verified">✅ Verified</span>;
@@ -187,7 +187,7 @@ const PharmacySupplierOrders = () => {
   };
 
   // Hiển thị trạng thái đơn hàng
-  const renderOrderStatus = (status) => {
+  const renderOrderStatus = (status: any) => {
     switch (status) {
       case 'pending':
         return <span className="status-badge pending">⏳ Chờ xác nhận</span>;
@@ -201,7 +201,7 @@ const PharmacySupplierOrders = () => {
   };
 
   // Mở modal đặt hàng
-  const openOrderModal = (product) => {
+  const openOrderModal = (product: any) => {
     setSelectedProduct(product);
     setQuantity(product.minOrder);
     setShowOrderModal(true);
@@ -248,7 +248,7 @@ const PharmacySupplierOrders = () => {
   };
 
   // Mở modal xác nhận nhận hàng
-  const openReceiveModal = (order) => {
+  const openReceiveModal = (order: any) => {
     setSelectedProduct(order);
     setShowReceiveModal(true);
   };

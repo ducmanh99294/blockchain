@@ -7,10 +7,10 @@ import {
 import '../../assets/css/Distributor/order.css';
 
 const DistributorOrder = () => {
-  const [orders, setOrders] = useState([]);
-  const [filteredOrders, setFilteredOrders] = useState([]);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [selectedOrder, setSelectedOrder] = useState(null);
+  const [orders, setOrders] = useState<any>([]);
+  const [filteredOrders, setFilteredOrders] = useState<any>([]);([]);
+  const [searchTerm, setSearchTerm] = useState<any>([]);('');
+  const [selectedOrder, setSelectedOrder] = useState<any>([]);(null);
   const [showModal, setShowModal] = useState(false);
   const [statusFilter, setStatusFilter] = useState('all');
   const [actionLoading, setActionLoading] = useState(false);
@@ -95,12 +95,12 @@ const DistributorOrder = () => {
     
     // Lọc theo trạng thái
     if (statusFilter !== 'all') {
-      filtered = filtered.filter(order => order.status === statusFilter);
+      filtered = filtered.filter((order: any) => order.status === statusFilter);
     }
     
     // Lọc theo từ khóa tìm kiếm
     if (searchTerm) {
-      filtered = filtered.filter(order => 
+      filtered = filtered.filter((order: any) => 
         order.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
         order.pharmacy.toLowerCase().includes(searchTerm.toLowerCase())
       );
@@ -110,13 +110,13 @@ const DistributorOrder = () => {
   }, [searchTerm, statusFilter, orders]);
 
   // Xem chi tiết đơn hàng
-  const handleViewDetails = (order) => {
+  const handleViewDetails = (order: any) => {
     setSelectedOrder(order);
     setShowModal(true);
   };
 
   // Xác nhận đơn hàng và đẩy lên blockchain
-  const handleConfirmOrder = async (orderId) => {
+  const handleConfirmOrder = async (orderId: any) => {
     setActionLoading(true);
     
     // Giả lập gọi API để xác nhận đơn hàng
@@ -125,7 +125,7 @@ const DistributorOrder = () => {
       await new Promise(resolve => setTimeout(resolve, 2000));
       
       // Cập nhật trạng thái đơn hàng
-      const updatedOrders = orders.map(order => 
+      const updatedOrders = orders.map((order: any) => 
         order.id === orderId ? {
           ...order, 
           status: "processing",
@@ -143,7 +143,7 @@ const DistributorOrder = () => {
   };
 
   // Cập nhật trạng thái giao hàng
-  const handleUpdateStatus = async (orderId, newStatus) => {
+  const handleUpdateStatus = async (orderId: any, newStatus: any) => {
     setActionLoading(true);
     
     // Giả lập gọi API để cập nhật trạng thái
@@ -152,7 +152,7 @@ const DistributorOrder = () => {
       await new Promise(resolve => setTimeout(resolve, 1500));
       
       // Cập nhật trạng thái đơn hàng
-      const updatedOrders = orders.map(order => 
+      const updatedOrders = orders.map((order: any) => 
         order.id === orderId ? {
           ...order, 
           status: newStatus,
@@ -169,7 +169,7 @@ const DistributorOrder = () => {
   };
 
   // Định dạng số tiền
-  const formatCurrency = (amount) => {
+  const formatCurrency = (amount: any) => {
     return new Intl.NumberFormat('vi-VN', {
       style: 'currency',
       currency: 'VND'
@@ -177,12 +177,12 @@ const DistributorOrder = () => {
   };
 
   // Định dạng ngày
-  const formatDate = (dateString) => {
+  const formatDate = (dateString: any) => {
     return new Date(dateString).toLocaleDateString('vi-VN');
   };
 
   // Hiển thị trạng thái đơn hàng
-  const renderStatus = (status) => {
+  const renderStatus = (status: any) => {
     switch(status) {
       case "pending":
         return <span className="status pending"><FaClock /> Chờ xác nhận</span>;
@@ -198,8 +198,8 @@ const DistributorOrder = () => {
   };
 
   // Lấy số lượng đơn hàng theo trạng thái
-  const getOrderCountByStatus = (status) => {
-    return orders.filter(order => order.status === status).length;
+  const getOrderCountByStatus = (status: any) => {
+    return orders.filter((order: any) => order.status === status).length;
   };
 
   return (
@@ -283,7 +283,7 @@ const DistributorOrder = () => {
           <div>Thao tác</div>
         </div>
         <div className="table-body">
-          {filteredOrders.map(order => (
+          {filteredOrders.map((order: any) => (
             <div key={order.id} className="table-row">
               <div className="order-id">{order.id}</div>
               <div className="pharmacy-info">
@@ -398,7 +398,7 @@ const DistributorOrder = () => {
                         <div>Đơn giá</div>
                         <div>Thành tiền</div>
                       </div>
-                      {selectedOrder.items.map((item, index) => (
+                      {selectedOrder.items.map((item: any, index: any) => (
                         <div key={index} className="item-row">
                           <div className="product-name">{item.product}</div>
                           <div className="quantity">{item.quantity}</div>

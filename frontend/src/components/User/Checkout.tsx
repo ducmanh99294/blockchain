@@ -69,7 +69,9 @@ const [cartItems, setCartItems] = useState<any[]>([]);
   const { subtotal, shippingFee, discount, total } = calculateTotals();
 
 // Xử lý thay đổi thông tin shippingInfo
-const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+const handleInputChange = (
+  e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
+) => {
   const { name, value } = e.target;
   setShippingInfo((prev: any) => ({
     ...prev,
@@ -238,7 +240,7 @@ const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectEle
                     value={shippingInfo.note}
                     onChange={handleInputChange}
                     placeholder="Ghi chú về đơn hàng, vị trí giao hàng..."
-                    rows="3"
+                    rows={3}
                   />
                 </div>
               </div>

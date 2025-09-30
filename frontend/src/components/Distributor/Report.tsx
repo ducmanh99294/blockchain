@@ -11,13 +11,13 @@ import {
 import '../../assets/css/Distributor/report.css';
 
 const DistributorReports = () => {
-  const [revenueData, setRevenueData] = useState([]);
+  const [revenueData, setRevenueData] = useState<any>([]);
   const [timeRange, setTimeRange] = useState('monthly');
-  const [startDate, setStartDate] = useState('');
-  const [endDate, setEndDate] = useState('');
+  const [startDate, setStartDate] = useState<any>('');
+  const [endDate, setEndDate] = useState<any>('');
   const [loading, setLoading] = useState(false);
-  const [stats, setStats] = useState({});
-  const [blockchainComparison, setBlockchainComparison] = useState([]);
+  const [stats, setStats] = useState<any>({});
+  const [blockchainComparison, setBlockchainComparison] = useState<any>([]);
 
   // Màu sắc cho biểu đồ
   const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884D8'];
@@ -109,7 +109,7 @@ const DistributorReports = () => {
   };
 
   // Định dạng số tiền
-  const formatCurrency = (amount) => {
+  const formatCurrency = (amount: any) => {
     return new Intl.NumberFormat('vi-VN', {
       style: 'currency',
       currency: 'VND'
@@ -117,7 +117,13 @@ const DistributorReports = () => {
   };
 
   // Custom tooltip cho biểu đồ
-  const CustomTooltip = ({ active, payload, label }) => {
+  interface CustomTooltipProps {
+    active?: boolean;
+    payload?: any[];
+    label?: string;
+  }
+
+  const CustomTooltip = ({ active, payload, label }: CustomTooltipProps) => {
     if (active && payload && payload.length) {
       return (
         <div className="custom-tooltip">
@@ -135,7 +141,13 @@ const DistributorReports = () => {
   };
 
   // Custom tooltip cho biểu đồ so sánh
-  const ComparisonTooltip = ({ active, payload, label }) => {
+  interface ComparisonTooltipProps {
+    active?: boolean;
+    payload?: any[];
+    label?: string;
+  }
+
+  const ComparisonTooltip = ({ active, payload, label }: ComparisonTooltipProps) => {
     if (active && payload && payload.length) {
       return (
         <div className="custom-tooltip">
@@ -318,12 +330,12 @@ const DistributorReports = () => {
                       cx="50%"
                       cy="50%"
                       labelLine={false}
-                      label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
+                      label={({ name, percent }) => `${name}: ${((percent as number) * 100).toFixed(0)}%`}
                       outerRadius={100}
                       fill="#8884d8"
                       dataKey="value"
                     >
-                      {stats.blockchainVsNonBlockchain?.map((entry, index) => (
+                      {stats.blockchainVsNonBlockchain?.map((entry: any, index: any) => (
                         <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                       ))}
                     </Pie>
@@ -361,7 +373,7 @@ const DistributorReports = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {blockchainComparison.map((item, index) => (
+                  {blockchainComparison.map((item: any, index: any) => (
                     <tr key={index}>
                       <td>{item.metric}</td>
                       <td className="positive">{item.blockchain}</td>
@@ -438,7 +450,7 @@ const DistributorReports = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {stats.blockchainHistory?.map((item, index) => (
+                  {stats.blockchainHistory?.map((item: any, index: any) => (
                     <tr key={index}>
                       <td>{item.date}</td>
                       <td>{item.action}</td>

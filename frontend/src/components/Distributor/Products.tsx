@@ -7,10 +7,10 @@ import '../../assets/css/Distributor/products.css';
 
 
 const DistributorProduct = () => {
-  const [products, setProducts] = useState([]);
-  const [filteredProducts, setFilteredProducts] = useState([]);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [selectedProduct, setSelectedProduct] = useState(null);
+  const [products, setProducts] = useState<any>([]);
+  const [filteredProducts, setFilteredProducts] = useState<any>([]);
+  const [searchTerm, setSearchTerm] = useState<any>('');
+  const [selectedProduct, setSelectedProduct] = useState<any>(null);
   const [showModal, setShowModal] = useState(false);
   const [showRegisterModal, setShowRegisterModal] = useState(false);
 
@@ -85,7 +85,7 @@ const DistributorProduct = () => {
 
   // Xử lý tìm kiếm
   useEffect(() => {
-    const filtered = products.filter(product => 
+    const filtered = products.filter((product: any) => 
       product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       product.description.toLowerCase().includes(searchTerm.toLowerCase())
     );
@@ -93,13 +93,13 @@ const DistributorProduct = () => {
   }, [searchTerm, products]);
 
   // Xem chi tiết sản phẩm
-  const handleViewDetails = (product) => {
+  const handleViewDetails = (product: any) => {
     setSelectedProduct(product);
     setShowModal(true);
   };
 
   // Đăng ký lên blockchain
-  const handleRegisterToBlockchain = (product) => {
+  const handleRegisterToBlockchain = (product: any) => {
     setSelectedProduct(product);
     setShowRegisterModal(true);
   };
@@ -107,7 +107,7 @@ const DistributorProduct = () => {
   // Giả lập đăng ký lên blockchain
   const confirmRegistration = () => {
     // Giả lập cập nhật trạng thái
-    const updatedProducts = products.map(p => 
+    const updatedProducts = products.map((p: any) => 
       p.id === selectedProduct.id ? {...p, status: "pending"} : p
     );
     
@@ -116,7 +116,7 @@ const DistributorProduct = () => {
     
     // Giả lập sau 3 giây sẽ verified
     setTimeout(() => {
-      const verifiedProducts = products.map(p => 
+      const verifiedProducts = products.map((p: any) => 
         p.id === selectedProduct.id ? {
           ...p, 
           status: "verified", 
@@ -128,7 +128,7 @@ const DistributorProduct = () => {
   };
 
   // Định dạng số tiền
-  const formatCurrency = (amount) => {
+  const formatCurrency = (amount: any) => {
     return new Intl.NumberFormat('vi-VN', {
       style: 'currency',
       currency: 'VND'
@@ -136,7 +136,7 @@ const DistributorProduct = () => {
   };
 
   // Hiển thị trạng thái blockchain
-  const renderStatus = (status) => {
+  const renderStatus = (status: any) => {
     switch(status) {
       case "verified":
         return <span className="status verified"><FaCheckCircle /> ✅ Đã xác thực</span>;
@@ -170,7 +170,7 @@ const DistributorProduct = () => {
       </div>
 
       <div className="products-grid">
-        {filteredProducts.map(product => (
+        {filteredProducts.map((product: any) => (
           <div key={product.id} className="product-card">
             <div className="product-image">
               <img src={product.image} alt={product.name} />

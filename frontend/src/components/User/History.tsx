@@ -3,111 +3,6 @@ import React, { useEffect, useState } from 'react';
 import '../../assets/css/User/history.css';
 
 const History: React.FC = () => {
-  // Dữ liệu mẫu đơn hàng
-  // const [orders, setOrders] = useState([
-  //   {
-  //     id: 'MED123456',
-  //     date: '2024-03-15T10:30:00',
-  //     status: 'completed',
-  //     items: [
-  //       {
-  //         id: 1,
-  //         name: "Panadol Extra",
-  //         price: 95000,
-  //         image: "https://via.placeholder.com/60x60/4CAF50/ffffff?text=Panadol",
-  //         quantity: 2,
-  //         rating: 4
-  //       },
-  //       {
-  //         id: 2,
-  //         name: "Vitamin C 1000mg",
-  //         price: 150000,
-  //         image: "https://via.placeholder.com/60x60/FF9800/ffffff?text=Vitamin+C",
-  //         quantity: 1,
-  //         rating: 5
-  //       }
-  //     ],
-  //     total: 340000,
-  //     shippingAddress: {
-  //       name: "Nguyễn Văn A",
-  //       phone: "0901234567",
-  //       address: "123 Đường Nguyễn Văn Linh, Quận 7, TP.HCM"
-  //     },
-  //     paymentMethod: 'cod',
-  //     shippingMethod: 'standard'
-  //   },
-  //   {
-  //     id: 'MED123457',
-  //     date: '2024-03-14T15:45:00',
-  //     status: 'shipping',
-  //     items: [
-  //       {
-  //         id: 3,
-  //         name: "Amoxicillin 500mg",
-  //         price: 85000,
-  //         image: "https://via.placeholder.com/60x60/9C27B0/ffffff?text=Amoxicillin",
-  //         quantity: 1,
-  //         rating: 0
-  //       }
-  //     ],
-  //     total: 100000,
-  //     shippingAddress: {
-  //       name: "Nguyễn Văn A",
-  //       phone: "0901234567",
-  //       address: "123 Đường Nguyễn Văn Linh, Quận 7, TP.HCM"
-  //     },
-  //     paymentMethod: 'momo',
-  //     shippingMethod: 'express',
-  //     trackingNumber: 'SPX123456789'
-  //   },
-  //   {
-  //     id: 'MED123458',
-  //     date: '2024-03-13T09:15:00',
-  //     status: 'processing',
-  //     items: [
-  //       {
-  //         id: 4,
-  //         name: "Kem dưỡng da Eucerin",
-  //         price: 220000,
-  //         image: "https://via.placeholder.com/60x60/E91E63/ffffff?text=Eucerin",
-  //         quantity: 1,
-  //         rating: 0
-  //       }
-  //     ],
-  //     total: 235000,
-  //     shippingAddress: {
-  //       name: "Nguyễn Văn A",
-  //       phone: "0901234567",
-  //       address: "123 Đường Nguyễn Văn Linh, Quận 7, TP.HCM"
-  //     },
-  //     paymentMethod: 'banking',
-  //     shippingMethod: 'standard'
-  //   },
-  //   {
-  //     id: 'MED123459',
-  //     date: '2024-03-10T14:20:00',
-  //     status: 'cancelled',
-  //     items: [
-  //       {
-  //         id: 5,
-  //         name: "Calcium D3",
-  //         price: 135000,
-  //         image: "https://via.placeholder.com/60x60/FF5722/ffffff?text=Calcium+D3",
-  //         quantity: 2,
-  //         rating: 0
-  //       }
-  //     ],
-  //     total: 270000,
-  //     shippingAddress: {
-  //       name: "Nguyễn Văn A",
-  //       phone: "0901234567",
-  //       address: "123 Đường Nguyễn Văn Linh, Quận 7, TP.HCM"
-  //     },
-  //     paymentMethod: 'cod',
-  //     shippingMethod: 'standard',
-  //     cancelReason: 'Thay đổi nhu cầu mua hàng'
-  //   }
-  // ]);
   const [orders, setOrders] = useState<any[]>([]);
   const [selectedOrder, setSelectedOrder] = useState<any>(null);
   const [showReviewModal, setShowReviewModal] = useState(false);
@@ -134,7 +29,8 @@ const History: React.FC = () => {
     if (userId) fetchOrders();
   }, [userId])
   // Trạng thái đơn hàng
-  const statusConfig = {
+  type OrderStatus = 'processing' | 'shipping' | 'completed' | 'cancelled';
+  const statusConfig: Record<OrderStatus, { label: string; color: string; icon: string }> = {
     processing: { label: 'Đang xử lý', color: '#ff9800', icon: '⏳' },
     shipping: { label: 'Đang giao', color: '#2196f3', icon: '🚚' },
     completed: { label: 'Hoàn thành', color: '#4caf50', icon: '✅' },
@@ -177,7 +73,7 @@ const History: React.FC = () => {
   };
 
   // Mở modal đánh giá
-  const openReviewModal = (product) => {
+  const openReviewModal = (product: any) => {
     setCurrentReviewProduct(product);
     setReviewRating(product.rating || 0);
     setReviewComment('');
@@ -193,10 +89,10 @@ const History: React.FC = () => {
 
     // Cập nhật đánh giá
     setOrders(orders.map(order => {
-      if (order.items.some(item => item.id === currentReviewProduct.id)) {
+      if (order.items.some((item: any) => item.id === currentReviewProduct.id)) {
         return {
           ...order,
-          items: order.items.map(item =>
+          items: order.items.map((item: any) =>
             item.id === currentReviewProduct.id
               ? { ...item, rating: reviewRating, reviewComment }
               : item
@@ -281,7 +177,7 @@ const History: React.FC = () => {
             </div>
           ) : (
             orders.map(order => {
-              const status = statusConfig[order.status];
+              const status = statusConfig[selectedOrder.status as OrderStatus];
               return (
                 <div key={order.id} className="order-card">
                   <div className="order-header">
@@ -298,7 +194,7 @@ const History: React.FC = () => {
                   </div>
 
                   <div className="order-items-preview">
-                    {order.items.slice(0, 3).map(item => (
+                    {order.items.slice(0, 3).map((item: any) => (
                       <div key={item.id} className="preview-item">
                         <img src={item.image} alt={item.name} />
                         <span>{item.name} × {item.quantity}</span>
@@ -371,9 +267,9 @@ const History: React.FC = () => {
                     <span>Trạng thái:</span>
                     <span 
                       className="status-badge"
-                      style={{ color: statusConfig[selectedOrder.status].color }}
+                      style={{ color: statusConfig[selectedOrder.status as OrderStatus].color }}
                     >
-                      {statusConfig[selectedOrder.status].icon} {statusConfig[selectedOrder.status].label}
+                      {statusConfig[selectedOrder.status as OrderStatus].icon} {statusConfig[selectedOrder.status as OrderStatus].label}
                     </span>
                   </div>
                   {selectedOrder.trackingNumber && (
@@ -402,7 +298,7 @@ const History: React.FC = () => {
 
                 <div className="order-items-detail">
                   <h3>Sản phẩm ({selectedOrder.items.length})</h3>
-                  {selectedOrder.items.map(item => (
+                  {selectedOrder.items.map((item: any) => (
                     <div key={item.id} className="detail-item">
                       <img src={item.image} alt={item.name} />
                       <div className="item-info">
@@ -513,7 +409,7 @@ const History: React.FC = () => {
                     value={reviewComment}
                     onChange={(e) => setReviewComment(e.target.value)}
                     placeholder="Chia sẻ trải nghiệm của bạn về sản phẩm..."
-                    rows="4"
+                    rows={4}
                   />
                 </div>
               </div>

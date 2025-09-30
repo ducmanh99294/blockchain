@@ -75,7 +75,7 @@ const Account: React.FC = () => {
     }
   ];
 
-  const [expandedFaq, setExpandedFaq] = useState(null);
+  const [expandedFaq, setExpandedFaq] = useState<any>(null);
 
   // Xử lý cập nhật thông tin
 // cập nhật state local khi nhập
@@ -252,7 +252,7 @@ const saveUserChanges = async () => {
       return;
     }
 
-    const updatedAddresses = addresses.filter(addr => addr.id !== id);
+    const updatedAddresses = addresses.filter((addr:any) => addr.id !== id);
 
     try {
       const token = localStorage.getItem("token");
@@ -282,7 +282,7 @@ const saveUserChanges = async () => {
   };
 
   // Xóa phương thức thanh toán
-  const deletePaymentMethod = (id) => {
+  const deletePaymentMethod = (id: any) => {
     if (paymentMethods.length <= 1) {
       alert('Cần ít nhất một phương thức thanh toán');
       return;
@@ -291,7 +291,7 @@ const saveUserChanges = async () => {
   };
 
   // Đặt làm phương thức mặc định
-  const setDefaultPaymentMethod = (id) => {
+  const setDefaultPaymentMethod = (id: any) => {
     setPaymentMethods(paymentMethods.map(pm => ({
       ...pm,
       isDefault: pm.id === id

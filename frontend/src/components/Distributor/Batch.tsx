@@ -8,10 +8,10 @@ import '../../assets/css/Distributor/batch.css';
 
 
 const DistributorBatch = () => {
-  const [batches, setBatches] = useState([]);
-  const [filteredBatches, setFilteredBatches] = useState([]);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [selectedBatch, setSelectedBatch] = useState(null);
+  const [batches, setBatches] = useState<any>([]);
+  const [filteredBatches, setFilteredBatches] = useState<any>([]);
+  const [searchTerm, setSearchTerm] = useState<any>('');
+  const [selectedBatch, setSelectedBatch] = useState<any>(null);
   const [showModal, setShowModal] = useState(false);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [statusFilter, setStatusFilter] = useState('all');
@@ -134,12 +134,12 @@ const DistributorBatch = () => {
     
     // Lọc theo trạng thái
     if (statusFilter !== 'all') {
-      filtered = filtered.filter(batch => batch.status === statusFilter);
+      filtered = filtered.filter((batch: any) => batch.status === statusFilter);
     }
     
     // Lọc theo từ khóa tìm kiếm
     if (searchTerm) {
-      filtered = filtered.filter(batch => 
+      filtered = filtered.filter((batch: any) => 
         batch.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
         batch.manufacturer.toLowerCase().includes(searchTerm.toLowerCase()) ||
         batch.destination.toLowerCase().includes(searchTerm.toLowerCase())
@@ -150,7 +150,7 @@ const DistributorBatch = () => {
   }, [searchTerm, statusFilter, batches]);
 
   // Xem chi tiết lô hàng
-  const handleViewDetails = (batch) => {
+  const handleViewDetails = (batch: any) => {
     setSelectedBatch(batch);
     setShowModal(true);
   };
@@ -161,7 +161,7 @@ const DistributorBatch = () => {
   };
 
   // Xác thực lô hàng trên blockchain
-  const handleVerifyBatch = async (batchId) => {
+  const handleVerifyBatch = async (batchId: any) => {
     setActionLoading(true);
     
     // Giả lập gọi API để xác thực lô hàng
@@ -170,7 +170,7 @@ const DistributorBatch = () => {
       await new Promise(resolve => setTimeout(resolve, 2000));
       
       // Cập nhật trạng thái lô hàng
-      const updatedBatches = batches.map(batch => 
+      const updatedBatches = batches.map((batch: any) => 
         batch.id === batchId ? {
           ...batch, 
           status: "verified",
@@ -199,7 +199,7 @@ const DistributorBatch = () => {
   };
 
   // Cập nhật trạng thái lô hàng
-  const handleUpdateStatus = async (batchId, newStatus) => {
+  const handleUpdateStatus = async (batchId: any, newStatus: any) => {
     setActionLoading(true);
     
     // Giả lập gọi API để cập nhật trạng thái
@@ -208,7 +208,7 @@ const DistributorBatch = () => {
       await new Promise(resolve => setTimeout(resolve, 1500));
       
       // Cập nhật trạng thái lô hàng
-      const updatedBatches = batches.map(batch => {
+      const updatedBatches = batches.map((batch: any) => {
         if (batch.id === batchId) {
           let description = "";
           switch(newStatus) {
@@ -247,18 +247,18 @@ const DistributorBatch = () => {
   };
 
   // Định dạng ngày
-  const formatDate = (dateString) => {
+  const formatDate = (dateString: any) => {
     return new Date(dateString).toLocaleDateString('vi-VN');
   };
 
   // Định dạng ngày giờ
-  const formatDateTime = (dateTimeString) => {
+  const formatDateTime = (dateTimeString: any) => {
     const date = new Date(dateTimeString);
     return date.toLocaleDateString('vi-VN') + ' ' + date.toLocaleTimeString('vi-VN');
   };
 
   // Hiển thị trạng thái lô hàng
-  const renderStatus = (status) => {
+  const renderStatus = (status: any) => {
     switch(status) {
       case "created":
         return <span className="status created"><FaClock /> Đã tạo</span>;
@@ -274,10 +274,10 @@ const DistributorBatch = () => {
   };
 
   // Hiển thị timeline
-  const renderTimeline = (timeline) => {
+  const renderTimeline = (timeline: any) => {
     return (
       <div className="timeline">
-        {timeline.map((event, index) => (
+        {timeline.map((event: any, index: any) => (
           <div key={index} className="timeline-event">
             <div className="timeline-icon">
               {event.status === "created" && <FaPlus />}
@@ -333,7 +333,7 @@ const DistributorBatch = () => {
       </div>
 
       <div className="batches-grid">
-        {filteredBatches.map(batch => (
+        {filteredBatches.map((batch: any) => (
           <div key={batch.id} className="batch-card">
             <div className="batch-header">
               <div className="batch-id">{batch.id}</div>
@@ -361,7 +361,7 @@ const DistributorBatch = () => {
               <div className="info-item">
                 <span className="label">Sản phẩm:</span>
                 <div className="products-list">
-                  {batch.products.map((product, index) => (
+                  {batch.products.map((product: any, index: any) => (
                     <div key={index} className="product-item">
                       {product.name} (x{product.quantity})
                     </div>
@@ -460,7 +460,7 @@ const DistributorBatch = () => {
                       <div>Số lượng</div>
                       <div>Hạn sử dụng</div>
                     </div>
-                    {selectedBatch.products.map((product, index) => (
+                    {selectedBatch.products.map((product: any, index: any) => (
                       <div key={index} className="table-row">
                         <div className="product-name">{product.name}</div>
                         <div className="quantity">{product.quantity}</div>
@@ -488,7 +488,7 @@ const DistributorBatch = () => {
                           </button>
                         </div>
                       )}
-                      {selectedBatch.documents.map((doc, index) => (
+                      {selectedBatch.documents.map((doc: any, index: any) => (
                         <div key={index} className="info-item full-width">
                           <span className="label">{doc.name}:</span>
                           <span className="value cid">{doc.cid}</span>

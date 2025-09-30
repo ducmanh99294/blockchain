@@ -4,7 +4,7 @@ import '../../assets/css/Pharmacy/products.css';
 
 const PharmacyProduct = () => {
   const [viewMode, setViewMode] = useState('grid'); // grid or table
-  const [selectedProduct, setSelectedProduct] = useState(null);
+  const [selectedProduct, setSelectedProduct] = useState<any>(null);
   const [showDetailModal, setShowDetailModal] = useState(false);
   const [showRegisterModal, setShowRegisterModal] = useState(false);
 
@@ -95,12 +95,12 @@ const PharmacyProduct = () => {
   ]);
 
   // Format tiền
-  const formatPrice = (price) => {
+  const formatPrice = (price: any) => {
     return new Intl.NumberFormat('vi-VN').format(price) + 'đ';
   };
 
   // Format ngày
-  const formatDate = (dateString) => {
+  const formatDate = (dateString: any) => {
     return new Date(dateString).toLocaleDateString('vi-VN', {
       year: 'numeric',
       month: 'long',
@@ -109,7 +109,7 @@ const PharmacyProduct = () => {
   };
 
   // Hiển thị trạng thái blockchain
-  const renderBlockchainStatus = (status) => {
+  const renderBlockchainStatus = (status: any) => {
     switch (status) {
       case 'verified':
         return (
@@ -133,7 +133,7 @@ const PharmacyProduct = () => {
   };
 
   // Hiển thị trạng thái tồn kho
-  const renderStockStatus = (stock, minStock) => {
+  const renderStockStatus = (stock: any, minStock: any) => {
     if (stock === 0) {
       return <span className="stock-badge out-of-stock">Hết hàng</span>;
     } else if (stock <= minStock) {
@@ -144,19 +144,19 @@ const PharmacyProduct = () => {
   };
 
   // Mở modal chi tiết
-  const openProductDetail = (product) => {
+  const openProductDetail = (product: any) => {
     setSelectedProduct(product);
     setShowDetailModal(true);
   };
 
   // Mở modal đăng ký blockchain
-  const openRegisterModal = (product) => {
+  const openRegisterModal = (product: any) => {
     setSelectedProduct(product);
     setShowRegisterModal(true);
   };
 
   // Đăng ký lên blockchain
-  const registerOnBlockchain = async (productId) => {
+  const registerOnBlockchain = async (productId: any) => {
     // Giả lập gọi API đăng ký blockchain
     alert(`Đang đăng ký sản phẩm ${productId} lên blockchain...`);
     
@@ -177,7 +177,7 @@ const PharmacyProduct = () => {
   };
 
   // Xác minh lại trên blockchain
-  const verifyOnBlockchain = async (productId) => {
+  const verifyOnBlockchain = async (productId: any) => {
     // Giả lập gọi API xác minh
     alert(`Đang xác minh sản phẩm ${productId} trên blockchain...`);
     

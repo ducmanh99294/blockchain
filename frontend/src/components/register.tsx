@@ -16,7 +16,7 @@ const Register: React.FC = () => {
     agreeToTerms: false
   });
 
-  const handleRoleSelect = (role) => {
+  const handleRoleSelect = (role: any) => {
     if (role === activeRole || animationState !== 'normal') return;
     
     // Bắt đầu animation thu form lại
@@ -34,7 +34,7 @@ const Register: React.FC = () => {
     }, 500);
   };
 
-  const handleInputChange = (e) => {
+  const handleInputChange = (e: any) => {
     const { name, value, type, checked } = e.target;
     setFormData(prev => ({
       ...prev,
@@ -42,7 +42,7 @@ const Register: React.FC = () => {
     }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = (e: any) => {
     e.preventDefault();
     
     // Kiểm tra mật khẩu trùng khớp
@@ -62,7 +62,7 @@ const Register: React.FC = () => {
     console.log('Dữ liệu đăng ký:', { ...formData, role: activeRole });
   };
 
-  const getRoleLabel = (role) => {
+  const getRoleLabel = (role :any) => {
     switch(role) {
       case 'user': return 'Người dùng';
       case 'pharmacy': return 'Nhà thuốc';

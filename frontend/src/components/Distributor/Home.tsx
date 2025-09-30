@@ -19,8 +19,8 @@ const DistributorHome = () => {
     }
   });
 
-  const [blockchainTransactions, setBlockchainTransactions] = useState([]);
-  const [notifications, setNotifications] = useState([]);
+  const [blockchainTransactions, setBlockchainTransactions] = useState<any>([]);
+  const [notifications, setNotifications] = useState<any>([]);
 
   // Giả lập dữ liệu
   useEffect(() => {
@@ -90,7 +90,7 @@ const DistributorHome = () => {
   }, []);
 
   // Định dạng số tiền
-  const formatCurrency = (amount) => {
+  const formatCurrency = (amount: any) => {
     return new Intl.NumberFormat('vi-VN', {
       style: 'currency',
       currency: 'VND'
@@ -104,9 +104,9 @@ const DistributorHome = () => {
         <div className="header-actions">
           <button className="notification-btn">
             <FaBell />
-            {notifications.filter(n => !n.read).length > 0 && (
+            {notifications.filter((n: any) => !n.read).length > 0 && (
               <span className="notification-badge">
-                {notifications.filter(n => !n.read).length}
+                {notifications.filter((n: any) => !n.read).length}
               </span>
             )}
           </button>
@@ -160,7 +160,7 @@ const DistributorHome = () => {
           <div className="notifications-section">
             <h2>Thông báo</h2>
             <div className="notifications-list">
-              {notifications.map(notification => (
+              {notifications.map((notification: any) => (
                 <div 
                   key={notification.id} 
                   className={`notification-item ${notification.read ? 'read' : 'unread'}`}
@@ -184,7 +184,7 @@ const DistributorHome = () => {
           <div className="blockchain-section">
             <h2>Giao dịch blockchain gần nhất</h2>
             <div className="transactions-list">
-              {blockchainTransactions.map(transaction => (
+              {blockchainTransactions.map((transaction: any) => (
                 <div key={transaction.id} className="transaction-item">
                   <div className="transaction-icon">
                     <FaLink />

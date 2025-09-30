@@ -5,7 +5,8 @@ import { useNavigate } from 'react-router-dom';
 
 
 const PharmacyHome = () => {
-  const [timeRange, setTimeRange] = useState('today');
+  type TimeRange = 'today' | 'week' | 'month';
+  const [timeRange, setTimeRange] = useState<TimeRange>('today');
   const [notifications, setNotifications] = useState([]);
   const navigate = useNavigate();
 
@@ -123,12 +124,12 @@ const PharmacyHome = () => {
   }, [timeRange]);
 
   // Format tiền
-  const formatPrice = (price) => {
+  const formatPrice = (price: any) => {
     return new Intl.NumberFormat('vi-VN').format(price) + 'đ';
   };
 
   // Tính phần trăm thay đổi
-  const calculateChangePercent = (current, previous) => {
+  const calculateChangePercent = (current: any, previous: any) => {
     if (previous === 0) return 100;
     return ((current - previous) / previous * 100).toFixed(1);
   };
@@ -257,8 +258,7 @@ const PharmacyHome = () => {
                   {revenueData[timeRange].map((value, index) => (
                     <div
                       key={index}
-                      className="chart-bar"
-                      style={{ height: `${(value / Math.max(...revenueData[timeRange])) * 100}%` }}
+                      style={{ height: `${(value / Math.max(...revenueData[timeRange as TimeRange])) * 100}%` }}
                     ></div>
                   ))}
                 </div>

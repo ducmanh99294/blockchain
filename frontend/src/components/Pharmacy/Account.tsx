@@ -135,7 +135,7 @@ const PharmacyAccount = () => {
   ]);
 
   // Format ngày
-  const formatDate = (dateString) => {
+  const formatDate = (dateString: any) => {
     return new Date(dateString).toLocaleDateString('vi-VN', {
       year: 'numeric',
       month: 'long',
@@ -144,7 +144,7 @@ const PharmacyAccount = () => {
   };
 
   // Format datetime
-  const formatDateTime = (dateString) => {
+  const formatDateTime = (dateString: any) => {
     return new Date(dateString).toLocaleString('vi-VN', {
       year: 'numeric',
       month: 'long',
@@ -155,7 +155,7 @@ const PharmacyAccount = () => {
   };
 
   // Xử lý thay đổi thông tin
-  const handleInputChange = (e) => {
+  const handleInputChange = (e: any) => {
     const { name, value } = e.target;
     setPharmacyData(prev => ({
       ...prev,
@@ -164,7 +164,7 @@ const PharmacyAccount = () => {
   };
 
   // Hiển thị trạng thái giao dịch
-  const renderTransactionStatus = (status) => {
+  const renderTransactionStatus = (status: any) => {
     switch (status) {
       case 'confirmed':
         return <span className="status-badge confirmed">✅ Đã xác nhận</span>;
@@ -176,7 +176,7 @@ const PharmacyAccount = () => {
   };
 
   // Hiển thị loại giao dịch
-  const renderTransactionType = (type) => {
+  const renderTransactionType = (type: any) => {
     switch (type) {
       case 'product_registration':
         return "Đăng ký sản phẩm";
