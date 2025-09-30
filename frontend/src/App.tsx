@@ -32,13 +32,13 @@ const AppContent: React.FC = () => {
       <Route path="/register" element={<Register/>} />
 
       {/* USER */}
-      <Route path="/user/home" element={<Home/>}/>
-      <Route path="/user/cart" element={<Cart/>}/>
-      <Route path="/user/category" element={<Category/>}/>
-      <Route path="/user/checkout" element={<Checkout/>}/>
-      <Route path="/user/orders" element={<Order/>}/>
-      <Route path="/user/history" element={<History/>}/>
-      <Route path="/user/account" element={<Account/>}/>
+      <Route path="/" element={<Home/>}/>
+      <Route path="/cart" element={<Cart/>}/>
+      <Route path="/category" element={<Category/>}/>
+      <Route path="/checkout" element={<Checkout/>}/>
+      <Route path="/orders" element={<Order/>}/>
+      <Route path="/history" element={<History/>}/>
+      <Route path="/account" element={<Account/>}/>
 
       {/* PHARMACY */}
       <Route path="/pharmacy/home" element={<PharmacyHome/>}/>

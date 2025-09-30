@@ -117,7 +117,7 @@ const handleInputChange = (
       if (!res.ok) throw new Error("Tạo đơn hàng thất bại");
 
       const newOrder = await res.json();
-      navigate("/user/orders", { state: newOrder._id });
+      navigate("/orders", { state: newOrder._id });
     } catch (err) {
       console.error("Lỗi khi tạo đơn hàng:", err);
       alert("Không thể tạo đơn hàng, vui lòng thử lại");

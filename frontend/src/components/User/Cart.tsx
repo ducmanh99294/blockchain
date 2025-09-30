@@ -165,7 +165,7 @@ const handleApplyCoupon = async () => {
       alert('Đơn hàng có thuốc kê đơn. Vui lòng cung cấp đơn thuốc khi thanh toán.');
     }
 
-    navigate('/user/checkout');
+    navigate('/checkout');
     // Chuyển hướng đến trang thanh toán
   };
 

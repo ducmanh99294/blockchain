@@ -16,7 +16,7 @@ const Order: React.FC = () => {
     if (userId && orderId) {
       fetchData();
     } else {
-      navigate('/user/checkout');
+      navigate('/checkout');
     }   
   }, [userId, orderId]);
 
@@ -122,13 +122,13 @@ const Order: React.FC = () => {
           <div className="confirmation-actions">
             <button 
               className="track-order-btn"
-              onClick={() => navigate('/user/history')}
+              onClick={() => navigate('/history')}
             >
               Theo dõi đơn hàng
             </button>
             <button 
               className="continue-shopping-btn"
-              onClick={() => navigate('/user/category')}
+              onClick={() => navigate('/category')}
             >
               Tiếp tục mua sắm
             </button>

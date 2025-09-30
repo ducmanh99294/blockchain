@@ -346,7 +346,7 @@ const saveUserChanges = async () => {
             </button>
           </nav>
 
-          <button className="back-btn" onClick={()=>navigate('/user/home')}>
+          <button className="back-btn" onClick={()=>navigate('/')}>
             🚪 Quay lại
           </button>
           <button className="logout-btn" onClick={handleLogout}>
