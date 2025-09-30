@@ -87,14 +87,14 @@ const Login: React.FC = () => {
       setLoading(false);
     }
   };
-  const getRoleLabel = (role: any) => {
-    switch(role) {
-      case 'user': return 'Người dùng';
-      case 'pharmacy': return 'Nhà thuốc';
-      case 'distributor': return 'Đơn vị vận chuyển';
-      default: return 'Người dùng';
-    }
-  };
+  // const getRoleLabel = (role: any) => {
+  //   switch(role) {
+  //     case 'user': return 'Người dùng';
+  //     case 'pharmacy': return 'Nhà thuốc';
+  //     case 'distributor': return 'Đơn vị vận chuyển';
+  //     default: return 'Người dùng';
+  //   }
+  // };
 
   return (
     <div className="login-container">
