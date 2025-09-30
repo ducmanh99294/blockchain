@@ -12,7 +12,7 @@ const server = http.createServer(app);
 const io = new Server(server, { cors: { origin: '*' } });
 
 const HOST = process.env.HOST || 'localhost';
-const PORT = process.env.PORT || 3001;
+const PORT = process.env.PORT || 3000;
 const cookieParser = require('cookie-parser');
 
 const medicineRouter = require('./routes/MedicineRoutes');
