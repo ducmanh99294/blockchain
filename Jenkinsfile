@@ -6,7 +6,7 @@ pipeline {
             steps {
                 git branch: 'main',
                     url: 'https://github.com/ducmanh99294/blockchain.git',
-                    credentialsId: 'github-token'   // ID bạn đã tạo trong Jenkins
+                    credentialsId: 'github-cred'   // ID bạn đã tạo trong Jenkins
             }
         }
 
