@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { 
-  FaChartLine, FaChartBar, FaChartPie, FaMoneyBillWave, 
-  FaBox, FaClipboardCheck, FaTimesCircle, FaShieldAlt,
-  FaCalendarAlt, FaFilter, FaDownload, FaSyncAlt
+  FaChartLine, FaChartBar, FaMoneyBillWave, 
+  FaClipboardCheck, FaTimesCircle, FaShieldAlt,
+  FaFilter, FaDownload, FaSyncAlt
 } from 'react-icons/fa';
 import {
   LineChart, Line, BarChart, Bar, PieChart, Pie, Cell,
@@ -10,7 +10,7 @@ import {
 } from 'recharts';
 import '../../assets/css/Distributor/report.css';
 
-const DistributorReports = () => {
+const DistributorReports: React.FC = () => {
   const [revenueData, setRevenueData] = useState<any>([]);
   const [timeRange, setTimeRange] = useState('monthly');
   const [startDate, setStartDate] = useState<any>('');

@@ -2,11 +2,11 @@ import React, { useState, useEffect } from 'react';
 import { 
   FaClipboardList, FaSearch, FaEye, FaTruck, 
   FaCheckCircle, FaClock, FaFileAlt, FaShieldAlt,
-  FaStore, FaMoneyBillWave, FaBoxOpen
+  FaStore, FaBoxOpen
 } from 'react-icons/fa';
 import '../../assets/css/Distributor/order.css';
 
-const DistributorOrder = () => {
+const DistributorOrder: React.FC = () => {
   const [orders, setOrders] = useState<any>([]);
   const [filteredOrders, setFilteredOrders] = useState<any>([]);([]);
   const [searchTerm, setSearchTerm] = useState<any>([]);('');

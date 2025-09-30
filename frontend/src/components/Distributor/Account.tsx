@@ -6,7 +6,7 @@ import {
 } from 'react-icons/fa';
 import '../../assets/css/Distributor/account.css';
 
-const Account = () => {
+const Account: React.FC = () => {
   const [distributorInfo, setDistributorInfo] = useState<any>({});
   const [editing, setEditing] = useState(false);
   const [activeTab, setActiveTab] = useState('profile');

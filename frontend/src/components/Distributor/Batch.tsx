@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { 
-  FaBoxes, FaPlus, FaSearch, FaEye, FaCloudUploadAlt, 
+  FaBoxes, FaPlus, FaSearch, FaEye, 
   FaCheckCircle, FaClock, FaFileAlt, FaShieldAlt,
   FaShippingFast, FaReceipt, FaHistory, FaQrcode
 } from 'react-icons/fa';
 import '../../assets/css/Distributor/batch.css';
 
 
-const DistributorBatch = () => {
+const DistributorBatch: React.FC = () => {
   const [batches, setBatches] = useState<any>([]);
   const [filteredBatches, setFilteredBatches] = useState<any>([]);
   const [searchTerm, setSearchTerm] = useState<any>('');

@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import '../../assets/css/Pharmacy/order.css';
 
-const PharmacyOrder = () => {
+const PharmacyOrder: React.FC = () => {
   const [filterStatus, setFilterStatus] = useState('all');
   const [selectedOrder, setSelectedOrder] = useState<any>(null);
   const [showDetailModal, setShowDetailModal] = useState(false);

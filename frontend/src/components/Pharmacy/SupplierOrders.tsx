@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import '../../assets/css/Pharmacy/supplier.css';
 
 
-const PharmacySupplierOrders = () => {
+const PharmacySupplierOrders: React.FC = () => {
   const [activeTab, setActiveTab] = useState('catalog'); // catalog, orders
   const [selectedProduct, setSelectedProduct] = useState<any>(null);
   const [showOrderModal, setShowOrderModal] = useState(false);

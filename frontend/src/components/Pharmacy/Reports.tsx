@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import '../../assets/css/Pharmacy/reports.css';
 
 
-const PharmacyReports = () => {
+const PharmacyReports: React.FC = () => {
   const [timeRange, setTimeRange] = useState('month'); // day, week, month
   const [reportType, setReportType] = useState('revenue'); // revenue, products, inventory
 

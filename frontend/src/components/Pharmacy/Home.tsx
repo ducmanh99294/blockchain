@@ -4,10 +4,10 @@ import '../../assets/css/Pharmacy/home.css';
 import { useNavigate } from 'react-router-dom';
 
 
-const PharmacyHome = () => {
+const PharmacyHome: React.FC = () => {
   type TimeRange = 'today' | 'week' | 'month';
   const [timeRange, setTimeRange] = useState<TimeRange>('today');
-  const [notifications, setNotifications] = useState([]);
+  // const [notifications, setNotifications] = useState([]);
   const navigate = useNavigate();
 
   // Dữ liệu mẫu - sẽ thay bằng API sau

@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import '../../assets/css/Pharmacy/products.css';
 
-const PharmacyProduct = () => {
+const PharmacyProduct: React.FC = () => {
   const [viewMode, setViewMode] = useState('grid'); // grid or table
   const [selectedProduct, setSelectedProduct] = useState<any>(null);
   const [showDetailModal, setShowDetailModal] = useState(false);

@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import '../../assets/css/Pharmacy/account.css';
 
 
-const PharmacyAccount = () => {
+const PharmacyAccount: React.FC = () => {
   const [activeTab, setActiveTab] = useState('profile'); // profile, blockchain, payment, staff
   const [isEditing, setIsEditing] = useState(false);
 

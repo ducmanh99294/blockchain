@@ -5,7 +5,7 @@ import {
 } from 'react-icons/fa';
 import '../../assets/css/Distributor/home.css';
 
-const DistributorHome = () => {
+const DistributorHome: React.FC = () => {
   const [stats, setStats] = useState({
     products: 0,
     orders: {

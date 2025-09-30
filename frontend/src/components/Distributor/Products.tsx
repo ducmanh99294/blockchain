@@ -6,7 +6,7 @@ import {
 import '../../assets/css/Distributor/products.css';
 
 
-const DistributorProduct = () => {
+const DistributorProduct: React.FC = () => {
   const [products, setProducts] = useState<any>([]);
   const [filteredProducts, setFilteredProducts] = useState<any>([]);
   const [searchTerm, setSearchTerm] = useState<any>('');
