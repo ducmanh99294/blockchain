@@ -147,7 +147,7 @@ const DistributorReports: React.FC = () => {
     label?: string;
   }
 
-  const ComparisonTooltip = ({ active, payload, label }: ComparisonTooltipProps) => {
+  const ComparisonTooltip = ({ active, payload }: ComparisonTooltipProps) => {
     if (active && payload && payload.length) {
       return (
         <div className="custom-tooltip">
@@ -335,7 +335,7 @@ const DistributorReports: React.FC = () => {
                       fill="#8884d8"
                       dataKey="value"
                     >
-                      {stats.blockchainVsNonBlockchain?.map((entry: any, index: any) => (
+                      {stats.blockchainVsNonBlockchain?.map(( index: any) => (
                         <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                       ))}
                     </Pie>

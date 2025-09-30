@@ -1,10 +1,10 @@
 // pages/CategorySearch.js
 import React, { useState, useEffect } from 'react';
-import { useLocation } from 'react-router-dom';
+// import { useLocation } from 'react-router-dom';
 import '../../assets/css/User/category.css';
 
 const CategorySearch: React.FC = () => {
-  const location = useLocation();
+  // const ocation = useLocation();
   const [products, setProducts] = useState<any>([]);
   const [filteredProducts, setFilteredProducts] = useState<any>([]);
   const [loading, setLoading] = useState(true);
@@ -13,11 +13,11 @@ const CategorySearch: React.FC = () => {
   const [sortBy, setSortBy] = useState('default');
   const [priceRange, setPriceRange] = useState([0, 1000000]);
   const [prescriptionFilter, setPrescriptionFilter] = useState('all');
-  const [cartItems, setCartItems] = useState<any>([]);
+  const [_cartItems, setCartItems] = useState<any>([]);
   const [categories, setCategories] = useState<any[]>([]);
   const API = 'http://localhost:3000'
   const userId = localStorage.getItem('userId')
-  const cartId = localStorage.getItem('cartId')
+  // const cartId = localStorage.getItem('cartId')
 
   useEffect(() => {
     if (userId) {

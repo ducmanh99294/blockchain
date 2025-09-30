@@ -11,7 +11,7 @@ const PharmacySupplierOrders: React.FC = () => {
   const [quantity, setQuantity] = useState(1);
 
   // Dữ liệu mẫu sản phẩm từ nhà phân phối
-  const [supplierProducts, setSupplierProducts] = useState([
+  const [supplierProducts, _setSupplierProducts] = useState([
     {
       id: 'SP001',
       name: "Panadol Extra",

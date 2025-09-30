@@ -11,7 +11,7 @@ const PharmacyHome: React.FC = () => {
   const navigate = useNavigate();
 
   // Dữ liệu mẫu - sẽ thay bằng API sau
-  const [dashboardData, setDashboardData] = useState({
+  const [dashboardData, _setDashboardData] = useState({
     revenue: {
       today: 12500000,
       yesterday: 9800000,
@@ -39,7 +39,7 @@ const PharmacyHome: React.FC = () => {
   });
 
   // Dữ liệu tồn kho
-  const [inventoryItems, setInventoryItems] = useState([
+  const [inventoryItems, _setInventoryItems] = useState([
     {
       id: 1,
       name: "Panadol Extra",
@@ -83,7 +83,7 @@ const PharmacyHome: React.FC = () => {
   ]);
 
   // Đơn hàng mới
-  const [recentOrders, setRecentOrders] = useState([
+  const [recentOrders, _setRecentOrders] = useState([
     {
       id: 'MED123460',
       customer: 'Nguyễn Văn B',

@@ -8,7 +8,7 @@ const Cart: React.FC = () => {
   const [cartItems, setCartItems] = useState<any>([]);
   const [paymentMethods, setPaymentMethods] = useState<any[]>([]);
   const [shippingMethods, setShippingMethods] = useState<any[]>([]);
-  const [coupon, setCoupon] = useState<any>([]);
+  const [_coupon, setCoupon] = useState<any>([]);
   
   const [couponCode, setCouponCode] = useState("");
   const [appliedCoupon, setAppliedCoupon] = useState<any>(null);

@@ -8,7 +8,7 @@ const PharmacyReports: React.FC = () => {
   const [reportType, setReportType] = useState('revenue'); // revenue, products, inventory
 
   // Dữ liệu mẫu báo cáo
-  const [reportsData, setReportsData] = useState({
+  const [reportsData, _setReportsData] = useState({
     revenue: {
       daily: [1200000, 1850000, 2200000, 1750000, 2500000, 3000000, 2800000],
       weekly: [12500000, 11800000, 13200000, 14500000, 15600000, 14800000, 15200000],

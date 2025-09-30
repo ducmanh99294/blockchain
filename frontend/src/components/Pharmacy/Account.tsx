@@ -22,7 +22,7 @@ const PharmacyAccount: React.FC = () => {
   });
 
   // Thông tin blockchain
-  const [blockchainData, setBlockchainData] = useState({
+  const [blockchainData, _setBlockchainData] = useState({
     walletAddress: "0x742d35Cc6634C0532925a3b844Bc454e4438f44e",
     network: "Polygon Mainnet",
     balance: "2.45 MATIC",
@@ -32,7 +32,7 @@ const PharmacyAccount: React.FC = () => {
   });
 
   // Lịch sử giao dịch blockchain
-  const [blockchainTransactions, setBlockchainTransactions] = useState([
+  const [blockchainTransactions, _setBlockchainTransactions] = useState([
     {
       hash: "0x4a7c1b9e2f8d3a6b5c4e8f7a2b3c6d9e1f5a8b7c4d3e2f9a6b5c8e7f4a3b2d1c9",
       type: "product_registration",
@@ -72,7 +72,7 @@ const PharmacyAccount: React.FC = () => {
   ]);
 
   // Phương thức thanh toán
-  const [paymentMethods, setPaymentMethods] = useState([
+  const [paymentMethods, _setPaymentMethods] = useState([
     {
       id: 1,
       type: 'bank',
@@ -101,7 +101,7 @@ const PharmacyAccount: React.FC = () => {
   ]);
 
   // Nhân sự
-  const [staffMembers, setStaffMembers] = useState([
+  const [staffMembers, _setStaffMembers] = useState([
     {
       id: 1,
       name: "Nguyễn Thị B",
