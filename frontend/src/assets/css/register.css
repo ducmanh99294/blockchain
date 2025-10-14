@@ -1,4 +1,4 @@
-/* Register.css */
+/* Register.css - Fixed Version */
 .register-container {
   display: flex;
   justify-content: center;
@@ -16,12 +16,16 @@
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
   background-color: white;
   overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  max-height: 95vh;
 }
 
 .register-header {
   text-align: center;
   margin-bottom: 30px;
   animation: fadeIn 0.8s ease-out;
+  flex-shrink: 0; /* Không bị co lại */
 }
 
 .register-header h1 {
@@ -42,6 +46,7 @@
   margin-bottom: 25px;
   gap: 10px;
   animation: fadeIn 0.8s ease-out;
+  flex-shrink: 0; /* Không bị co lại */
 }
 
 .role-btn {
@@ -110,15 +115,24 @@
   font-weight: 500;
 }
 
+/* FIXED FORM CONTAINER */
+.form-wrapper {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0; /* Quan trọng: cho phép flex item co lại */
+}
+
 .form-container {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0; /* Quan trọng: cho phép scroll */
   transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
   overflow: hidden;
-  max-height: 600px;
-  opacity: 1;
 }
 
 .form-container.collapsing {
-  max-height: 0;
   opacity: 0;
   transform: translateY(-20px);
   transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
@@ -130,7 +144,6 @@
 
 @keyframes expandForm {
   0% {
-    max-height: 0;
     opacity: 0;
     transform: translateY(-20px);
   }
@@ -138,14 +151,44 @@
     transform: translateY(5px);
   }
   100% {
-    max-height: 600px;
     opacity: 1;
     transform: translateY(0);
   }
 }
 
+/* SCROLLABLE FORM CONTENT */
+.form-scrollable {
+  flex: 1;
+  overflow-y: auto;
+  padding: 5px 0;
+  margin-bottom: 10px;
+  max-height: 400px; /* Giới hạn chiều cao scroll */
+}
+
+/* Custom scrollbar */
+.form-scrollable::-webkit-scrollbar {
+  width: 6px;
+}
+
+.form-scrollable::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 3px;
+}
+
+.form-scrollable::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 3px;
+}
+
+.form-scrollable::-webkit-scrollbar-thumb:hover {
+  background: #a8a8a8;
+}
+
 .register-form {
-  margin-bottom: 20px;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
 }
 
 .form-row {
@@ -178,6 +221,7 @@
   font-size: 1rem;
   transition: all 0.4s ease;
   background-color: #f8fafc;
+  box-sizing: border-box; /* Quan trọng: tính cả padding và border */
 }
 
 .form-control:focus {
@@ -193,6 +237,7 @@
   align-items: center;
   margin-top: 10px;
   animation: fadeIn 0.6s ease-out;
+  flex-shrink: 0;
 }
 
 .form-check-input {
@@ -201,6 +246,7 @@
   height: 18px;
   accent-color: #1a3a6c;
   cursor: pointer;
+  flex-shrink: 0;
 }
 
 .form-check-label {
@@ -220,6 +266,14 @@
   text-decoration: underline;
 }
 
+/* FIXED BUTTON SECTION */
+.form-actions {
+  flex-shrink: 0; /* Không bao giờ bị co lại */
+  padding-top: 15px;
+  border-top: 1px solid #e2e8f0;
+  margin-top: auto; /* Đẩy xuống dưới cùng */
+}
+
 .register-btn {
   width: 100%;
   padding: 14px;
@@ -234,7 +288,10 @@
   position: relative;
   overflow: hidden;
   animation: fadeIn 0.6s ease-out;
-  margin-top: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
 }
 
 .register-btn::before {
@@ -261,11 +318,34 @@
   transform: translateY(0);
 }
 
+.register-btn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Loading spinner */
+.spinner {
+  width: 18px;
+  height: 18px;
+  border: 2px solid transparent;
+  border-top: 2px solid white;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
 .register-footer {
   text-align: center;
   padding-top: 20px;
   border-top: 1px solid #e2e8f0;
   animation: fadeIn 0.6s ease-out;
+  flex-shrink: 0; /* Không bị co lại */
+  margin-top: 10px;
 }
 
 .register-footer p {
@@ -321,6 +401,7 @@
   left: 0;
   width: 100%;
   height: 3px;
+  background: linear-gradient(to right, #28a745, #20c997);
   animation: loading 1s ease;
 }
 
@@ -335,35 +416,25 @@
 
 /* Responsive design */
 @media (max-width: 768px) {
+  .register-card {
+    max-height: 90vh;
+    padding: 20px;
+  }
+  
   .form-row {
     flex-direction: column;
     gap: 0;
   }
   
-  .form-container {
-    max-height: 700px;
-  }
-  
-  @keyframes expandForm {
-    0% {
-      max-height: 0;
-      opacity: 0;
-      transform: translateY(-20px);
-    }
-    70% {
-      transform: translateY(5px);
-    }
-    100% {
-      max-height: 700px;
-      opacity: 1;
-      transform: translateY(0);
-    }
+  .form-scrollable {
+    max-height: 350px;
   }
 }
 
 @media (max-width: 576px) {
   .register-card {
-    padding: 20px;
+    padding: 15px;
+    max-height: 85vh;
   }
   
   .register-header h1 {
@@ -386,23 +457,11 @@
     font-size: 1.5rem;
   }
   
-  .form-container {
-    max-height: 750px;
+  .form-scrollable {
+    max-height: 300px;
   }
   
-  @keyframes expandForm {
-    0% {
-      max-height: 0;
-      opacity: 0;
-      transform: translateY(-20px);
-    }
-    70% {
-      transform: translateY(5px);
-    }
-    100% {
-      max-height: 750px;
-      opacity: 1;
-      transform: translateY(0);
-    }
+  .form-control {
+    padding: 12px 14px;
   }
 }

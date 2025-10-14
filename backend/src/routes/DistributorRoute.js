@@ -4,6 +4,8 @@ const distributorController = require("../controllers/DistributorController");
 const auth = require("../middleware/auth");
 
 // Auth routes
-router.post("/register/distributor", distributorController.registerDistributor);
+router.get("/", distributorController.getAllDistributors);
+router.get("/:id", distributorController.getDistributorById);
+router.put("/:id", distributorController.updateDistributor);
 
 module.exports = router;

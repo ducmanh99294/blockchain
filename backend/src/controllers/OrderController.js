@@ -2,6 +2,7 @@ const Order = require("../models/Order");
 const Shipping = require("../models/Shipping");
 const Coupon = require("../models/Coupon");
 const Product = require("../models/Product");
+const { get } = require("mongoose");
 
 const OrderController = {
   // ✅ Tạo đơn hàng
@@ -78,10 +79,15 @@ const OrderController = {
   async getAllOrders(req, res) {
     try {
       const orders = await Order.find()
-        .populate("paymentMethod", "name")
-        .populate("userId", "name email")
-        .populate("shippingMethod", "name price")
-        .populate("coupon", "code discount type");
+      .populate("paymentMethod", "name")
+      .populate("userId", "name email")
+      .populate("shippingMethod", "name price")
+      .populate("coupon", "code discount type")
+      .populate({
+        path: "items.productId",
+        select: "name price pharmacy",
+        populate: { path: "pharmacy", select: "pharmacyName" } // lấy tên nhà thuốc
+      });
       res.json(orders);
     } catch (error) {
       res.status(500).json({ message: "Lỗi server", error });
@@ -94,6 +100,11 @@ const OrderController = {
       const orders = await Order.find({ userId: req.params.userId })
         .populate("paymentMethod", "name")
         .populate("shippingMethod", "name price")
+        .populate({
+        path: "items.productId",
+        select: "name price pharmacy",
+        populate: { path: "pharmacy", select: "pharmacyName" } 
+      })
         .populate("coupon", "code discount type");
       res.json(orders);
     } catch (error) {
@@ -107,7 +118,11 @@ const OrderController = {
       const order = await Order.findById(req.params.id)
         .populate("paymentMethod", "name")
         .populate("userId", "name email")
-        .populate("items.productId", "name price")
+        .populate({
+        path: "items.productId",
+        select: "name price pharmacy",
+        populate: { path: "pharmacy", select: "pharmacyName" } 
+        })
         .populate("shippingMethod", "name price")
         .populate("coupon", "code discount type");
 
@@ -117,6 +132,51 @@ const OrderController = {
       res.status(500).json({ message: "Lỗi server", error });
     }
   },
+
+async getOrderByPharmacy(req, res) {
+  try {
+    const pharmacyId = req.params.pharmacyId;
+
+    // Lấy tất cả đơn hàng + populate product + pharmacy
+    const orders = await Order.find()
+      .populate("paymentMethod", "name")
+      .populate("userId", "name email")
+      .populate({
+        path: "items.productId",
+        select: "name price pharmacy",
+        populate: { path: "pharmacy", select: "pharmacyName" } 
+      })
+      .populate("shippingMethod", "name price")
+      .populate("coupon", "code discount type");
+
+    const filteredOrders = orders.filter(order =>
+      order.items.some(item => 
+        item.productId?.Pharmacy?._id.toString() === pharmacyId
+      )
+    );
+
+    res.json(filteredOrders);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Lỗi server", error });
+  }
+},
+
+  async getOrderByDistributor(req, res) {
+    try {
+      const orders = await Order.find({ distributorId: req.params.distributorId })
+        .populate("paymentMethod", "name")
+        .populate("userId", "name email")
+        .populate("items.productId", "name price")
+        .populate("shippingMethod", "name price")
+        .populate("coupon", "code discount type");
+      res.json(orders);
+    } catch (error) {
+      res.status(500).json({ message: "Lỗi server", error });
+    }
+  },
+
+
 
   // ✅ Cập nhật đơn hàng (status, trackingNumber, cancelReason)
   async updateOrder(req, res) {
@@ -138,7 +198,25 @@ const OrderController = {
     } catch (error) {
       res.status(500).json({ message: "Lỗi server", error });
     }
+  },
+  
+  async getLatestOrdersByPharmacy(req, res) {
+    try {
+      const { pharmacyId } = req.params;
+      const limit = parseInt(req.query.limit) || 5;
+
+      const orders = await Order.find({ pharmacyId })
+        .sort({ createdAt: -1 })   // sắp xếp giảm dần
+        .limit(limit);             // giới hạn số lượng
+
+      res.json(orders);
+    } catch (err) {
+      res.status(500).json({ message: "Error fetching latest orders", error: err.message });
+    }
   }
+
 };
+
+
 
 module.exports = OrderController;

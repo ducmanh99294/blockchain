@@ -4,6 +4,9 @@ import '../../assets/css/User/history.css';
 
 const History: React.FC = () => {
   const [orders, setOrders] = useState<any[]>([]);
+  const [allOrders, setAllOrders] = useState<any[]>([]);
+  const [activeFilter, setActiveFilter] = useState("all");
+  const [loading, setLoading] = useState(true);
   const [selectedOrder, setSelectedOrder] = useState<any>(null);
   const [showReviewModal, setShowReviewModal] = useState(false);
   const [currentReviewProduct, setCurrentReviewProduct] = useState<any>(null);
@@ -14,24 +17,30 @@ const History: React.FC = () => {
   const userId = localStorage.getItem("userId");
 
   useEffect(()=>{
-    const fetchOrders = async () => {
+    if(userId) (
+    fetchOrders()
+    )
+  }, [userId])
+  
+  const fetchOrders = async () => {
       try {
         const res = await fetch(`${API}/api/order/user/${userId}`);
         const data = await res.json();
         
         console.log(data)
+        setAllOrders(data);
         setOrders(data);
       } catch (err) {
         console.log('err', err)
+      } finally {
+        setLoading(false);
       }
     }
 
-    if (userId) fetchOrders();
-  }, [userId])
+  console.log()
   // Trạng thái đơn hàng
-  type OrderStatus = 'processing' | 'shipping' | 'completed' | 'cancelled';
-  const statusConfig: Record<OrderStatus, { label: string; color: string; icon: string }> = {
-    processing: { label: 'Đang xử lý', color: '#ff9800', icon: '⏳' },
+  const statusConfig: { [key: string]: { label: any; color: any; icon: any } } = {
+    pending: { label: 'Đang xử lý', color: '#ff9800', icon: '⏳' },
     shipping: { label: 'Đang giao', color: '#2196f3', icon: '🚚' },
     completed: { label: 'Hoàn thành', color: '#4caf50', icon: '✅' },
     cancelled: { label: 'Đã hủy', color: '#f44336', icon: '❌' }
@@ -57,6 +66,7 @@ const History: React.FC = () => {
   // Xem chi tiết đơn hàng
   const viewOrderDetails = (order: any) => {
     setSelectedOrder(order);
+    console.log(order)
   };
 
   // Đóng chi tiết
@@ -89,11 +99,11 @@ const History: React.FC = () => {
 
     // Cập nhật đánh giá
     setOrders(orders.map(order => {
-      if (order.items.some((item: any) => item.id === currentReviewProduct.id)) {
+      if (order.items.some((item: any) => item._id === currentReviewProduct._id)) {
         return {
           ...order,
           items: order.items.map((item: any) =>
-            item.id === currentReviewProduct.id
+            item._id === currentReviewProduct._id
               ? { ...item, rating: reviewRating, reviewComment }
               : item
           )
@@ -129,9 +139,13 @@ const History: React.FC = () => {
   };
 
   // Lọc đơn hàng theo trạng thái
-  const filterOrders = (status: any) => {
-    // Trong thực tế sẽ call API
-    console.log('Filter by:', status);
+  const filterOrders = (status: string) => {
+    setActiveFilter(status);
+    if (status === "all") {
+      setOrders(allOrders);
+    } else {
+      setOrders(allOrders.filter((o) => o.status === status));
+    }
   };
 
   return (
@@ -144,23 +158,41 @@ const History: React.FC = () => {
 
         {/* Bộ lọc */}
         <div className="order-filters">
-          <button className="filter-btn active" onClick={() => filterOrders('all')}>
+          <button 
+            className={`filter-btn ${activeFilter === 'all' ? 'active' : ''}`} 
+            onClick={() => filterOrders('all')}>
             Tất cả
           </button>
-          <button className="filter-btn" onClick={() => filterOrders('processing')}>
+          <button 
+            className={`filter-btn ${activeFilter === 'pending' ? 'active' : ''}`} 
+            onClick={() => filterOrders('pending')}>
             Đang xử lý
-          </button>
-          <button className="filter-btn" onClick={() => filterOrders('shipping')}>
+          </button>         
+          <button 
+            className={`filter-btn ${activeFilter === 'shipping' ? 'active' : ''}`} 
+            onClick={() => filterOrders('shipping')}>
             Đang giao
-          </button>
-          <button className="filter-btn" onClick={() => filterOrders('completed')}>
+          </button>          
+          <button 
+            className={`filter-btn ${activeFilter === 'completed' ? 'active' : ''}`} 
+            onClick={() => filterOrders('completed')}>
             Hoàn thành
-          </button>
-          <button className="filter-btn" onClick={() => filterOrders('cancelled')}>
+          </button>          
+          <button 
+            className={`filter-btn ${activeFilter === 'cancelled' ? 'active' : ''}`} 
+            onClick={() => filterOrders('cancelled')}>
             Đã hủy
           </button>
-        </div>
 
+        </div>
+        
+        {loading ? (
+          <div className="loading-container">
+            <div className="loading-spinner"></div>
+            <p>Đang tải sản phẩm...</p>
+          </div>
+    ) : (
+    <>
         {/* Danh sách đơn hàng */}
         <div className="orders-list">
           {orders.length === 0 ? (
@@ -177,25 +209,25 @@ const History: React.FC = () => {
             </div>
           ) : (
             orders.map(order => {
-              const status = statusConfig[selectedOrder.status as OrderStatus];
+              const status = statusConfig[order?.status];
               return (
-                <div key={order.id} className="order-card">
+                <div key={order._id} className="order-card">
                   <div className="order-header">
                     <div className="order-info">
-                      <span className="order-id">Mã đơn: {order.id}</span>
-                      <span className="order-date">{formatDate(order.date)}</span>
+                      <span className="order-id">Mã đơn: {order._id}</span>
+                      <span className="order-date">{formatDate(order.createdAt)}</span>
                     </div>
                     <div 
                       className="order-status"
-                      style={{ color: status.color, borderColor: status.color }}
+                      style={{ color: status?.color, borderColor: status?.color }}
                     >
-                      {status.icon} {status.label}
+                      {status?.icon} {status?.label}
                     </div>
                   </div>
 
                   <div className="order-items-preview">
                     {order.items.slice(0, 3).map((item: any) => (
-                      <div key={item.id} className="preview-item">
+                      <div key={item._id} className="preview-item">
                         <img src={item.image} alt={item.name} />
                         <span>{item.name} × {item.quantity}</span>
                       </div>
@@ -209,7 +241,7 @@ const History: React.FC = () => {
 
                   <div className="order-footer">
                     <div className="order-total">
-                      Tổng tiền: <strong>{formatPrice(order.total)}</strong>
+                      Tổng tiền: <strong>{formatPrice(order.totalPrice)}</strong>
                     </div>
                     <div className="order-actions">
                       <button 
@@ -231,7 +263,7 @@ const History: React.FC = () => {
                       {order.status === 'processing' && (
                         <button 
                           className="action-btn cancel"
-                          onClick={() => cancelOrder(order.id)}
+                          onClick={() => cancelOrder(order._id)}
                         >
                           Hủy đơn
                         </button>
@@ -257,7 +289,7 @@ const History: React.FC = () => {
                 <div className="order-summary">
                   <div className="summary-row">
                     <span>Mã đơn hàng:</span>
-                    <strong>{selectedOrder.id}</strong>
+                    <strong>{selectedOrder._id}</strong>
                   </div>
                   <div className="summary-row">
                     <span>Ngày đặt:</span>
@@ -267,9 +299,9 @@ const History: React.FC = () => {
                     <span>Trạng thái:</span>
                     <span 
                       className="status-badge"
-                      style={{ color: statusConfig[selectedOrder.status as OrderStatus].color }}
+                      style={{ color: statusConfig[selectedOrder.status].color }}
                     >
-                      {statusConfig[selectedOrder.status as OrderStatus].icon} {statusConfig[selectedOrder.status as OrderStatus].label}
+                      {statusConfig[selectedOrder.status].icon} {statusConfig[selectedOrder.status].label}
                     </span>
                   </div>
                   {selectedOrder.trackingNumber && (
@@ -282,24 +314,22 @@ const History: React.FC = () => {
 
                 <div className="shipping-info">
                   <h3>Thông tin giao hàng</h3>
-                  <p><strong>{selectedOrder.shippingAddress.name}</strong></p>
-                  <p>{selectedOrder.shippingAddress.phone}</p>
-                  <p>{selectedOrder.shippingAddress.address}</p>
+                  <p><strong>{selectedOrder.shippingInfo.name}</strong></p>
+                  <p>{selectedOrder.shippingInfo.phone}</p>
+                  <p>{selectedOrder.shippingInfo.address}</p>
                 </div>
 
                 <div className="payment-info">
                   <h3>Phương thức thanh toán</h3>
                   <p>
-                    {selectedOrder.paymentMethod === 'cod' ? 'Thanh toán khi nhận hàng' : 
-                     selectedOrder.paymentMethod === 'momo' ? 'Ví MoMo' :
-                     selectedOrder.paymentMethod === 'banking' ? 'Chuyển khoản ngân hàng' : 'Thẻ Visa/Mastercard'}
+                    {selectedOrder.paymentMethod.name}
                   </p>
                 </div>
 
                 <div className="order-items-detail">
                   <h3>Sản phẩm ({selectedOrder.items.length})</h3>
                   {selectedOrder.items.map((item: any) => (
-                    <div key={item.id} className="detail-item">
+                    <div key={item._id} className="detail-item">
                       <img src={item.image} alt={item.name} />
                       <div className="item-info">
                         <h4>{item.name}</h4>
@@ -308,16 +338,18 @@ const History: React.FC = () => {
                         
                         {selectedOrder.status === 'completed' && (
                           <div className="review-section">
-                            {item.rating > 0 ? (
+                            {item.productId.rating > 0 ? (
                               <div className="existing-review">
                                 <div className="rating">
-                                  {'⭐'.repeat(item.rating)}
-                                  {'☆'.repeat(5 - item.rating)}
+                                  {'⭐'.repeat(item.productId.rating)}
+                                  {'☆'.repeat(5 - item.productId.rating)}
                                 </div>
                                 {item.reviewComment && (
                                   <p className="review-comment">"{item.reviewComment}"</p>
                                 )}
+                                
                               </div>
+                              
                             ) : (
                               <button 
                                 className="review-btn"
@@ -336,15 +368,15 @@ const History: React.FC = () => {
                 <div className="order-totals">
                   <div className="total-row">
                     <span>Tạm tính:</span>
-                    <span>{formatPrice(selectedOrder.total - 15000)}</span>
+                    <span>{formatPrice(selectedOrder.subtotal)}</span>
                   </div>
                   <div className="total-row">
                     <span>Phí vận chuyển:</span>
-                    <span>{formatPrice(15000)}</span>
+                    <span>{formatPrice(selectedOrder.shippingMethod.price)}</span>
                   </div>
                   <div className="total-row grand-total">
                     <span>Tổng cộng:</span>
-                    <span>{formatPrice(selectedOrder.total)}</span>
+                    <span>{formatPrice(selectedOrder.totalPrice)}</span>
                   </div>
                 </div>
 
@@ -431,6 +463,10 @@ const History: React.FC = () => {
             </div>
           </div>
         )}
+    </>
+      )} 
+
+        
       </div>
     </div>
   );

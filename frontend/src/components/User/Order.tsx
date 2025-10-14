@@ -58,7 +58,7 @@ const Order: React.FC = () => {
     {loading ? (
       <div className="loading-container">
         <div className="loading-spinner"></div>
-        <p>Đang tải sản phẩm...</p>
+        <p>Đang tải...</p>
       </div>
     ) : (
       <div className="confirmation-page">

@@ -4,7 +4,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import '../../assets/css/User/checkout.css';
 
 const Checkout: React.FC = () => {
-const [cartItems, setCartItems] = useState<any[]>([]);
+  const [cartItems, setCartItems] = useState<any[]>([]);
   const [paymentMethods, setPaymentMethods] = useState<any[]>([]);
   const [shippingMethods, setShippingMethods] = useState<any[]>([]);
   const [selectedPayment, setSelectedPayment] = useState("");
@@ -12,6 +12,7 @@ const [cartItems, setCartItems] = useState<any[]>([]);
   const [coupon, setCoupon] = useState<any | null>(null);
   const [shippingInfo, setShippingInfo] = useState<any>({});
   const [agreeToTerms, setAgreeToTerms] = useState(true);
+  const [loading, setLoading] = useState(true);
 
   const navigate = useNavigate();
   const location = useLocation();
@@ -49,6 +50,8 @@ const [cartItems, setCartItems] = useState<any[]>([]);
       setCoupon([]);
       setPaymentMethods([]);
       setShippingMethods([]);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -138,8 +141,13 @@ const handleInputChange = (
             <div className="step">3. Hoàn tất</div>
           </div>
         </div>
-
-        <form className="checkout-form" onSubmit={handlePlaceOrder}>
+    {loading ? (
+      <div className="loading-container">
+        <div className="loading-spinner"></div>
+        <p>Đang tải...</p>
+      </div>
+    ) : (
+              <form className="checkout-form" onSubmit={handlePlaceOrder}>
           <div className="checkout-content">
             {/* Thông tin giao hàng */}
             <div className="checkout-section">
@@ -383,6 +391,8 @@ const handleInputChange = (
             </div>
           </div>
         </form>
+  )}
+
       </div>
     </div>
   );

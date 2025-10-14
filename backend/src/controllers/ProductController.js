@@ -53,6 +53,19 @@ exports.getProductById = async (req, res) => {
   }
 };
 
+// GET /products/pharmacy/:pharmacyId
+exports.getProductsByPharmacy = async (req, res) => {
+  try {
+    const products = await Product.find({ pharmacy: req.params.pharmacyId })
+      .populate("pharmacy", "pharmacyName")
+      .populate("category", "name")
+      .populate("distributor", "name");
+    res.json(products);
+  } catch (error) {
+    res.status(500).json({ message: "Lỗi server", error });
+  }
+}
+
 // ✏️ Sửa sản phẩm
 exports.updateProduct = async (req, res) => {
   try {

@@ -569,9 +569,9 @@ const PharmacyAccount: React.FC = () => {
                         {method.isDefault && (
                           <span className="default-badge">Mặc định</span>
                         )}
-                        <button className="edit-btn">Sửa</button>
+                        <button className="action-btn set-default">Đặt làm mặc định</button>
                         {!method.isDefault && (
-                          <button className="delete-btn">Xóa</button>
+                          <button className="action-btn delete">Xóa</button>
                         )}
                       </div>
                     </div>

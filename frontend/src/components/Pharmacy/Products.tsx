@@ -1,5 +1,5 @@
 // pages/PharmacyProductManagement.js
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import '../../assets/css/Pharmacy/products.css';
 
 const PharmacyProduct: React.FC = () => {
@@ -7,92 +7,113 @@ const PharmacyProduct: React.FC = () => {
   const [selectedProduct, setSelectedProduct] = useState<any>(null);
   const [showDetailModal, setShowDetailModal] = useState(false);
   const [showRegisterModal, setShowRegisterModal] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [products, setProducts] = useState<any[]>([]);
 
-  // Dữ liệu mẫu sản phẩm
-  const [products, setProducts] = useState([
-    {
-      id: 1,
-      name: "Panadol Extra",
-      description: "Giảm đau, hạ sốt nhanh chóng, hiệu quả cho các cơn đau nhẹ đến trung bình",
-      price: 95000,
-      originalPrice: 120000,
-      image: "https://via.placeholder.com/200x200/4CAF50/ffffff?text=Panadol+Extra",
-      category: "Giảm đau",
-      stock: 15,
-      minStock: 20,
-      manufacturer: "GSK Pharmaceuticals",
-      distributor: "Công ty Dược phẩm Việt Nam",
-      expiryDate: "2024-12-31",
-      usage: "Uống 1-2 viên mỗi 4-6 giờ khi cần",
-      sideEffects: "Buồn nôn, chóng mặt nhẹ",
-      blockchainStatus: "verified",
-      transactionHash: "0x4a7c1b9e2f8d3a6b5c4e8f7a2b3c6d9e1f5a8b7c4d3e2f9a6b5c8e7f4a3b2d1c9",
-      ipfsCID: "QmXoypizjW3WknFiJnKLwHCnL72vedxjQkDDP1mXWo6uco",
-      blockchainTimestamp: "2024-03-10T14:30:00Z",
-      registeredDate: "2024-03-01"
-    },
-    {
-      id: 2,
-      name: "Vitamin C 1000mg",
-      description: "Bổ sung Vitamin C, tăng cường sức đề kháng, chống oxy hóa",
-      price: 150000,
-      originalPrice: 180000,
-      image: "https://via.placeholder.com/200x200/FF9800/ffffff?text=Vitamin+C",
-      category: "Vitamin",
-      stock: 5,
-      minStock: 15,
-      manufacturer: "Nature's Bounty Inc.",
-      distributor: "Công ty TNHH Dược phẩm ABC",
-      expiryDate: "2025-06-30",
-      usage: "Uống 1 viên mỗi ngày sau bữa ăn",
-      sideEffects: "Tiêu chảy nếu dùng quá liều",
-      blockchainStatus: "pending",
-      transactionHash: "",
-      ipfsCID: "",
-      blockchainTimestamp: "",
-      registeredDate: "2024-03-15"
-    },
-    {
-      id: 3,
-      name: "Amoxicillin 500mg",
-      description: "Kháng sinh điều trị nhiễm khuẩn, cần kê đơn",
-      price: 85000,
-      image: "https://via.placeholder.com/200x200/9C27B0/ffffff?text=Amoxicillin",
-      category: "Kháng sinh",
-      stock: 0,
-      minStock: 10,
-      manufacturer: "Pfizer Pharmaceuticals",
-      distributor: "Công ty Dược phẩm Quốc tế",
-      expiryDate: "2024-03-31",
-      usage: "Uống theo chỉ định của bác sĩ",
-      sideEffects: "Dị ứng, rối loạn tiêu hóa",
-      blockchainStatus: "not_registered",
-      transactionHash: "",
-      ipfsCID: "",
-      blockchainTimestamp: "",
-      registeredDate: "2024-03-12"
-    },
-    {
-      id: 4,
-      name: "Omeprazole 20mg",
-      description: "Điều trị trào ngược dạ dày, giảm tiết acid",
-      price: 110000,
-      image: "https://via.placeholder.com/200x200/607D8B/ffffff?text=Omeprazole",
-      category: "Tiêu hóa",
-      stock: 25,
-      minStock: 15,
-      manufacturer: "AstraZeneca",
-      distributor: "Công ty Dược phẩm Medico",
-      expiryDate: "2024-11-30",
-      usage: "Uống 1 viên mỗi ngày trước bữa ăn",
-      sideEffects: "Đau đầu, buồn nôn",
-      blockchainStatus: "verified",
-      transactionHash: "0x8b3c6d9e1f5a8b7c4d3e2f9a6b5c8e7f4a3b2d1c94a7c1b9e2f8d3a6b5c4e8f7",
-      ipfsCID: "QmYH5g2W8Kp4L3m2N1B6V7C9X8Z2Q1W4E5R6T7Y8U9I0O1P2",
-      blockchainTimestamp: "2024-02-28T09:15:00Z",
-      registeredDate: "2024-02-20"
+  const pharmacyId = localStorage.getItem("userId");
+  const API = 'http://localhost:3000'
+  useEffect(()=>{
+      fetchProducts();
+  }, [pharmacyId])
+
+  const fetchProducts = async () => {
+    try{
+      const res = await fetch(`${API}/api/product/pharmacy/${pharmacyId}`)
+      const data = await res.json()
+      if(data) {
+        setProducts(data)
+      }
+    } catch (err) {
+      console.log(err);
+    } finally {
+      setLoading(false);
     }
-  ]);
+  }
+  // Dữ liệu mẫu sản phẩm
+  // const [products, setProducts] = useState([
+  //   {
+  //     id: 1,
+  //     name: "Panadol Extra",
+  //     description: "Giảm đau, hạ sốt nhanh chóng, hiệu quả cho các cơn đau nhẹ đến trung bình",
+  //     price: 95000,
+  //     originalPrice: 120000,
+  //     image: "https://via.placeholder.com/200x200/4CAF50/ffffff?text=Panadol+Extra",
+  //     category: "Giảm đau",
+  //     stock: 15,
+  //     minStock: 20,
+  //     manufacturer: "GSK Pharmaceuticals",
+  //     distributor: "Công ty Dược phẩm Việt Nam",
+  //     expiryDate: "2024-12-31",
+  //     usage: "Uống 1-2 viên mỗi 4-6 giờ khi cần",
+  //     sideEffects: "Buồn nôn, chóng mặt nhẹ",
+  //     blockchainStatus: "verified",
+  //     transactionHash: "0x4a7c1b9e2f8d3a6b5c4e8f7a2b3c6d9e1f5a8b7c4d3e2f9a6b5c8e7f4a3b2d1c9",
+  //     ipfsCID: "QmXoypizjW3WknFiJnKLwHCnL72vedxjQkDDP1mXWo6uco",
+  //     blockchainTimestamp: "2024-03-10T14:30:00Z",
+  //     registeredDate: "2024-03-01"
+  //   },
+  //   {
+  //     id: 2,
+  //     name: "Vitamin C 1000mg",
+  //     description: "Bổ sung Vitamin C, tăng cường sức đề kháng, chống oxy hóa",
+  //     price: 150000,
+  //     originalPrice: 180000,
+  //     image: "https://via.placeholder.com/200x200/FF9800/ffffff?text=Vitamin+C",
+  //     category: "Vitamin",
+  //     stock: 5,
+  //     minStock: 15,
+  //     manufacturer: "Nature's Bounty Inc.",
+  //     distributor: "Công ty TNHH Dược phẩm ABC",
+  //     expiryDate: "2025-06-30",
+  //     usage: "Uống 1 viên mỗi ngày sau bữa ăn",
+  //     sideEffects: "Tiêu chảy nếu dùng quá liều",
+  //     blockchainStatus: "pending",
+  //     transactionHash: "",
+  //     ipfsCID: "",
+  //     blockchainTimestamp: "",
+  //     registeredDate: "2024-03-15"
+  //   },
+  //   {
+  //     id: 3,
+  //     name: "Amoxicillin 500mg",
+  //     description: "Kháng sinh điều trị nhiễm khuẩn, cần kê đơn",
+  //     price: 85000,
+  //     image: "https://via.placeholder.com/200x200/9C27B0/ffffff?text=Amoxicillin",
+  //     category: "Kháng sinh",
+  //     stock: 0,
+  //     minStock: 10,
+  //     manufacturer: "Pfizer Pharmaceuticals",
+  //     distributor: "Công ty Dược phẩm Quốc tế",
+  //     expiryDate: "2024-03-31",
+  //     usage: "Uống theo chỉ định của bác sĩ",
+  //     sideEffects: "Dị ứng, rối loạn tiêu hóa",
+  //     blockchainStatus: "not_registered",
+  //     transactionHash: "",
+  //     ipfsCID: "",
+  //     blockchainTimestamp: "",
+  //     registeredDate: "2024-03-12"
+  //   },
+  //   {
+  //     id: 4,
+  //     name: "Omeprazole 20mg",
+  //     description: "Điều trị trào ngược dạ dày, giảm tiết acid",
+  //     price: 110000,
+  //     image: "https://via.placeholder.com/200x200/607D8B/ffffff?text=Omeprazole",
+  //     category: "Tiêu hóa",
+  //     stock: 25,
+  //     minStock: 15,
+  //     manufacturer: "AstraZeneca",
+  //     distributor: "Công ty Dược phẩm Medico",
+  //     expiryDate: "2024-11-30",
+  //     usage: "Uống 1 viên mỗi ngày trước bữa ăn",
+  //     sideEffects: "Đau đầu, buồn nôn",
+  //     blockchainStatus: "verified",
+  //     transactionHash: "0x8b3c6d9e1f5a8b7c4d3e2f9a6b5c8e7f4a3b2d1c94a7c1b9e2f8d3a6b5c4e8f7",
+  //     ipfsCID: "QmYH5g2W8Kp4L3m2N1B6V7C9X8Z2Q1W4E5R6T7Y8U9I0O1P2",
+  //     blockchainTimestamp: "2024-02-28T09:15:00Z",
+  //     registeredDate: "2024-02-20"
+  //   }
+  // ]);
 
   // Format tiền
   const formatPrice = (price: any) => {
@@ -252,7 +273,14 @@ const PharmacyProduct: React.FC = () => {
           </div>
         </div>
 
-        {/* Danh sách sản phẩm */}
+        {loading ? (
+          <div className="loading-container">
+            <div className="loading-spinner"></div>
+            <p>Đang tải...</p>
+          </div>
+        ) : (
+          <>        
+          {/* Danh sách sản phẩm */}
         {viewMode === 'grid' ? (
           <div className="products-grid">
             {products.map(product => (
@@ -542,6 +570,9 @@ const PharmacyProduct: React.FC = () => {
             </div>
           </div>
         )}
+        </>
+        )}
+
       </div>
     </div>
   );

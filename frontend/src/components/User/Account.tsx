@@ -8,6 +8,7 @@ const Account: React.FC = () => {
 //   const { user, logout } = useAuth();
   const [activeTab, setActiveTab] = useState('profile');
   const [isEditing, setIsEditing] = useState(false);
+  const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
   const [userData, setUserData] = useState<any>("");
 
@@ -159,6 +160,8 @@ const saveUserChanges = async () => {
       } catch (err) {
         console.error(err);
         navigate("/login"); // Nếu lỗi → chuyển login
+      } finally {
+        setLoading(false);
       }
     };
 
@@ -299,6 +302,13 @@ const saveUserChanges = async () => {
   };
 
   return (
+    <>
+    {loading ? (
+      <div className="loading-container">
+        <div className="loading-spinner"></div>
+        <p>Đang tải...</p>
+      </div>
+    ) : (
     <div className="account-page">
       <div className="account-container">
         {/* Sidebar navigation */}
@@ -663,6 +673,9 @@ const saveUserChanges = async () => {
         </div>
       </div>
     </div>
+  )}
+  </>
+
   );
 };
 

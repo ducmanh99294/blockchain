@@ -9,6 +9,7 @@ const Cart: React.FC = () => {
   const [paymentMethods, setPaymentMethods] = useState<any[]>([]);
   const [shippingMethods, setShippingMethods] = useState<any[]>([]);
   const [_coupon, setCoupon] = useState<any>([]);
+  const [loading, setLoading] = useState(true);
   
   const [couponCode, setCouponCode] = useState("");
   const [appliedCoupon, setAppliedCoupon] = useState<any>(null);
@@ -50,6 +51,8 @@ useEffect(() => {
       setCoupon([]);
       setPaymentMethods([]);
       setShippingMethods([]);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -175,6 +178,13 @@ const handleApplyCoupon = async () => {
   };
 
   return (
+    <>
+        {loading ? (
+      <div className="loading-container">
+        <div className="loading-spinner"></div>
+        <p>Đang tải...</p>
+      </div>
+    ) : (
     <div className="cart-page">
       {cartItems.length === 0  ? (
         <div className="cart-container">
@@ -286,7 +296,7 @@ const handleApplyCoupon = async () => {
                       className="remove-coupon-btn"
                       onClick={handleRemoveCoupon}
                     >
-                      Xóa
+                      Gỡ
                     </button>
                   </div>
                 ) : (
@@ -372,6 +382,8 @@ const handleApplyCoupon = async () => {
       </div>
    )}
     </div>
+  )}
+</>
   );
 };
 

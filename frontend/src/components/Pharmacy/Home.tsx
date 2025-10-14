@@ -7,8 +7,45 @@ import { useNavigate } from 'react-router-dom';
 const PharmacyHome: React.FC = () => {
   type TimeRange = 'today' | 'week' | 'month';
   const [timeRange, setTimeRange] = useState<TimeRange>('today');
-  // const [notifications, setNotifications] = useState([]);
+  const [_notifications, setNotifications] = useState([]);
+  const [order, setOrder] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  
+
+  const API = "http://localhost/3000"
+  const pharmacyId = localStorage.getItem("userId")
   const navigate = useNavigate();
+
+  useEffect(()=>{
+    fetchOrders()
+    fetchNotifications();
+  }, [pharmacyId])
+
+  const fetchOrders = async () => {
+    try {
+      const res = await fetch(`${API}/orders/pharmacy/${pharmacyId}?limit=5&sort=desc`);
+      if (!res.ok) throw new Error("Failed to fetch orders");
+      const data = await res.json();
+      setOrder(data);
+    } catch (err) {
+      console.error("Error fetching orders:", err);
+    } finally {
+      setLoading(false);
+    }
+  }; 
+  
+const fetchNotifications = async () => {
+  try {
+    const res = await fetch(`${API}/notifications/pharmacy/${pharmacyId}`);
+    if (!res.ok) throw new Error("Failed to fetch notifications");
+    const data = await res.json();
+    setNotifications(data);
+  } catch (err) {
+    console.error("Error fetching notifications:", err);
+  } finally {
+    setLoading(false);
+  }
+};
 
   // Dữ liệu mẫu - sẽ thay bằng API sau
   const [dashboardData, _setDashboardData] = useState({
@@ -83,32 +120,32 @@ const PharmacyHome: React.FC = () => {
   ]);
 
   // Đơn hàng mới
-  const [recentOrders, _setRecentOrders] = useState([
-    {
-      id: 'MED123460',
-      customer: 'Nguyễn Văn B',
-      amount: 345000,
-      status: 'new',
-      time: '10 phút trước',
-      items: ['Panadol Extra', 'Vitamin C']
-    },
-    {
-      id: 'MED123461',
-      customer: 'Trần Thị C',
-      amount: 220000,
-      status: 'new',
-      time: '25 phút trước',
-      items: ['Kem dưỡng da Eucerin']
-    },
-    {
-      id: 'MED123462',
-      customer: 'Lê Văn D',
-      amount: 185000,
-      status: 'processing',
-      time: '1 giờ trước',
-      items: ['Amoxicillin 500mg']
-    }
-  ]);
+  // const [recentOrders, _setRecentOrders] = useState([
+  //   {
+  //     id: 'MED123460',
+  //     customer: 'Nguyễn Văn B',
+  //     amount: 345000,
+  //     status: 'new',
+  //     time: '10 phút trước',
+  //     items: ['Panadol Extra', 'Vitamin C']
+  //   },
+  //   {
+  //     id: 'MED123461',
+  //     customer: 'Trần Thị C',
+  //     amount: 220000,
+  //     status: 'new',
+  //     time: '25 phút trước',
+  //     items: ['Kem dưỡng da Eucerin']
+  //   },
+  //   {
+  //     id: 'MED123462',
+  //     customer: 'Lê Văn D',
+  //     amount: 185000,
+  //     status: 'processing',
+  //     time: '1 giờ trước',
+  //     items: ['Amoxicillin 500mg']
+  //   }
+  // ]);
 
   // Thống kê doanh thu theo thời gian (mẫu)
   const revenueData = {
@@ -120,8 +157,8 @@ const PharmacyHome: React.FC = () => {
   // Load dữ liệu khi thay đổi timeRange
   useEffect(() => {
     // Giả lập fetch data
-    console.log('Loading data for:', timeRange);
-  }, [timeRange]);
+    
+  }, [pharmacyId]);
 
   // Format tiền
   const formatPrice = (price: any) => {
@@ -307,8 +344,19 @@ const PharmacyHome: React.FC = () => {
                 <h3>📦 Đơn hàng mới nhất</h3>
                 <button className="view-all-btn">Xem tất cả →</button>
               </div>
+              {loading ? (
+                <div className="loading-container">
+                  <div className="loading-spinner"></div>
+                  <p>Đang tải...</p>
+                </div>
+              ): (
               <div className="orders-list">
-                {recentOrders.map(order => (
+                {order.length === 0 ? (
+                  <>
+                  <p>chưa có đơn  hàng</p>
+                  </>
+                ) : (
+                  order.map(order => (
                   <div key={order.id} className="order-item">
                     <div className="order-info">
                       <h4>#{order.id}</h4>
@@ -322,8 +370,10 @@ const PharmacyHome: React.FC = () => {
                       </span>
                     </div>
                   </div>
-                ))}
+                ))
+              )}    
               </div>
+            )}              
             </div>
 
             {/* Thông báo quan trọng */}

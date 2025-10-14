@@ -5,6 +5,7 @@ import '../../assets/css/User/home.css';
 
 const Home: React.FC = () => {
 //   const { user } = useAuth();
+  const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [cartItems, setCartItems] = useState<any>([]);
@@ -151,6 +152,8 @@ const Home: React.FC = () => {
       } catch (error) {
         console.error("Lỗi tải dữ liệu:", error);
         setCartItems([]);
+      } finally {
+        setLoading(false);
       }
   };
   
@@ -176,16 +179,16 @@ const Home: React.FC = () => {
   const handleQuickAction = (action: string) => {
     switch(action) {
       case 'cart':
-        window.location.href = '/user/cart';
+        window.location.href = '/cart';
         break;
       case 'account':
-        window.location.href = '/user/account';
+        window.location.href = '/account';
         break;
       case 'history':
-        window.location.href = '/user/history';
+        window.location.href = '/history';
         break;
       case 'category':
-        window.location.href = '/user/category';
+        window.location.href = '/category';
         break;
       default:
         break;
@@ -246,7 +249,12 @@ const Home: React.FC = () => {
       {/* Danh mục sản phẩm */}
       <section className="categories-section">
         <h2>Danh mục sản phẩm</h2>
-        <div className="categories-grid">
+            {loading ? (
+      <div className="loading-container">
+        <div className="loading-spinner"></div>
+      </div>
+      ) : (
+      <div className="categories-grid">
           {categories.slice(0, 5).map(category => (
             <div 
               key={category._id} 
@@ -259,11 +267,54 @@ const Home: React.FC = () => {
             </div>
           ))}
         </div>
+        )}
+        
       </section>
 
       {/* Sản phẩm nổi bật */}
       <section className="featured-section">
         <h2>Sản phẩm nổi bật</h2>
+        {loading ? (
+      <div className="loading-container">
+        <div className="loading-spinner"></div>
+        <p>Đang tải sản phẩm...</p>
+      </div>
+      ) : (
+      <div className="products-grid">
+          {recommendProducts.map(product => (
+            <div key={product._id} className="product-card">
+              <div className="product-image">
+                <img src={product.image} alt={product.name} />
+                {product.originalPrice && (
+                  <span className="discount-badge">
+                    -{Math.round((1 - product.price / product.originalPrice) * 100)}%
+                  </span>
+                )}
+              </div>
+              <div className="product-info">
+                <h3>{product.name}</h3>
+                <p>{product.description}</p>
+                <div className="product-rating">
+                  ⭐ ({product.rating})
+              
+                </div>
+                <div className="product-price">
+                  <span className="current-price">{product.price.toLocaleString()}đ</span>
+                  {product.originalPrice && (
+                    <span className="original-price">{product.originalPrice.toLocaleString()}đ</span>
+                  )}
+                </div>
+                <button 
+                  className="add-to-cart-btn"
+                  onClick={() => handleAddToCart(product._id)}
+                >
+                  Thêm vào giỏ
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+        )}
         <div className="products-grid">
           {recommendProducts.map(product => (
             <div key={product._id} className="product-card">
@@ -303,6 +354,12 @@ const Home: React.FC = () => {
       {/* Sản phẩm đề xuất */}
       <section className="recommended-section">
         <h2>Gợi ý cho bạn</h2>
+        {loading ? (
+      <div className="loading-container">
+        <div className="loading-spinner"></div>
+        <p>Đang tải sản phẩm...</p>
+      </div>
+      ) : (
         <div className="recommended-products">
           {randomProducts.map(product => (
             <div key={product._id} className="recommended-card">
@@ -321,6 +378,8 @@ const Home: React.FC = () => {
             </div>
           ))}
         </div>
+        )}
+
       </section>
     </div>
   );

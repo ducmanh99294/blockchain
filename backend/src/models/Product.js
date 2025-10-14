@@ -1,6 +1,8 @@
 const mongoose = require("mongoose");
+const Pharmacy = require("./Pharmacy");
 
 const ProductSchema = new mongoose.Schema({
+  pharmacy: { type: mongoose.Schema.Types.ObjectId, ref: "Pharmacy", required: true },
   name: { type: String, required: true },
   description: { type: String },
   price: { type: Number, required: true },
@@ -18,6 +20,12 @@ const ProductSchema = new mongoose.Schema({
   prescription: { 
     type: Boolean, 
     default: false 
+  },
+  usage : { type: String }, // hướng dẫn sử dụng
+  distributor: { 
+    type: mongoose.Schema.Types.ObjectId, 
+    ref: "Distributor", 
+    required: true 
   },
   viewCount: { type: Number, default: 0 },
   likeCount: { type: Number, default: 0 },

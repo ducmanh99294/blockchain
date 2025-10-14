@@ -11,6 +11,14 @@ router.get("/", OrderController.getAllOrders);
 // Lấy đơn hàng theo userId
 router.get("/user/:userId", OrderController.getOrdersByUser);
 
+// Lấy đơn hàng theo pharmacyId
+router.get("/pharmacy/:pharmacyId", OrderController.getOrderByPharmacy);
+
+// Lấy đơn hàng theo distributorId
+router.get("/distributor/:distributorId", OrderController.getOrderByDistributor);
+
+// Lấy đơn hàng mới nhất theo pharmacyId
+router.get("/pharmacy/:pharmacyId/latest", OrderController.getLatestOrdersByPharmacy);
 // Lấy chi tiết đơn hàng
 router.get("/:id", OrderController.getOrderById);
 

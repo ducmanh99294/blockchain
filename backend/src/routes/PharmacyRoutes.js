@@ -4,6 +4,9 @@ const pharmacyController = require("../controllers/PharmacyController")
 const auth = require("../middleware/auth");
 
 // Auth routes
-router.post("/register/distributor", pharmacyController.registerPharmacy);
+router.get("/", pharmacyController.getAllPharmacies);
+router.get("/:id", pharmacyController.getPharmacyById);
+router.put("/:id", pharmacyController.updatePharmacy);
+// router.delete("/:id", pharmacyController.deletePharmacy);
 
 module.exports = router;

@@ -1,161 +1,187 @@
 // pages/PharmacyOrderManagement.js
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import '../../assets/css/Pharmacy/order.css';
 
 const PharmacyOrder: React.FC = () => {
   const [filterStatus, setFilterStatus] = useState('all');
   const [selectedOrder, setSelectedOrder] = useState<any>(null);
   const [showDetailModal, setShowDetailModal] = useState(false);
-
+  const [loading, setLoading] = useState(true);
+  const [orders, setOrders] = useState<any[]>([]);
+  const pharmacyId = localStorage.getItem("userId");
+  const API = 'http://localhost:3000'
   // Dữ liệu mẫu đơn hàng
-  const [orders, setOrders] = useState([
-    {
-      id: 'MED123456',
-      customer: {
-        name: 'Nguyễn Văn A',
-        phone: '0901234567',
-        email: 'nguyenvana@email.com'
-      },
-      status: 'pending',
-      orderDate: '2024-03-15T10:30:00',
-      totalAmount: 345000,
-      shippingAddress: {
-        name: 'Nguyễn Văn A',
-        phone: '0901234567',
-        address: '123 Đường Nguyễn Văn Linh, P. Tân Thuận Đông, Q.7, TP.HCM'
-      },
-      paymentMethod: 'cod',
-      shippingMethod: 'standard',
-      items: [
-        {
-          id: 1,
-          name: "Panadol Extra",
-          price: 95000,
-          quantity: 2,
-          image: "https://via.placeholder.com/60x60/4CAF50/ffffff?text=Panadol",
-          blockchain: {
-            status: 'verified',
-            transactionHash: '0x4a7c1b9e2f8d3a6b5c4e8f7a2b3c6d9e1f5a8b7c4d3e2f9a6b5c8e7f4a3b2d1c9',
-            ipfsCID: 'QmXoypizjW3WknFiJnKLwHCnL72vedxjQkDDP1mXWo6uco'
-          }
-        },
-        {
-          id: 2,
-          name: "Vitamin C 1000mg",
-          price: 150000,
-          quantity: 1,
-          image: "https://via.placeholder.com/60x60/FF9800/ffffff?text=Vitamin+C",
-          blockchain: {
-            status: 'verified',
-            transactionHash: '0x8b3c6d9e1f5a8b7c4d3e2f9a6b5c8e7f4a3b2d1c94a7c1b9e2f8d3a6b5c4e8f7',
-            ipfsCID: 'QmYH5g2W8Kp4L3m2N1B6V7C9X8Z2Q1W4E5R6T7Y8U9I0O1P2'
-          }
-        }
-      ]
-    },
-    {
-      id: 'MED123457',
-      customer: {
-        name: 'Trần Thị B',
-        phone: '0907654321',
-        email: 'tranthib@email.com'
-      },
-      status: 'shipping',
-      orderDate: '2024-03-14T15:45:00',
-      totalAmount: 220000,
-      shippingAddress: {
-        name: 'Trần Thị B',
-        phone: '0907654321',
-        address: '456 Đường Nguyễn Huệ, P. Bến Nghé, Q.1, TP.HCM'
-      },
-      paymentMethod: 'momo',
-      shippingMethod: 'express',
-      trackingNumber: 'SPX123456789',
-      items: [
-        {
-          id: 3,
-          name: "Kem dưỡng da Eucerin",
-          price: 220000,
-          quantity: 1,
-          image: "https://via.placeholder.com/60x60/E91E63/ffffff?text=Eucerin",
-          blockchain: {
-            status: 'verified',
-            transactionHash: '0x3c6d9e1f5a8b7c4d3e2f9a6b5c8e7f4a3b2d1c94a7c1b9e2f8d3a6b5c4e8f7a2',
-            ipfsCID: 'QmZ2X4Y6W8Kp4L3m2N1B6V7C9X8Z2Q1W4E5R6T7Y8U9I0O1P2'
-          }
-        }
-      ]
-    },
-    {
-      id: 'MED123458',
-      customer: {
-        name: 'Lê Văn C',
-        phone: '0912345678',
-        email: 'levanc@email.com'
-      },
-      status: 'completed',
-      orderDate: '2024-03-13T09:15:00',
-      completedDate: '2024-03-13T16:30:00',
-      totalAmount: 185000,
-      shippingAddress: {
-        name: 'Lê Văn C',
-        phone: '0912345678',
-        address: '789 Đường Lê Lợi, P. Bến Thành, Q.1, TP.HCM'
-      },
-      paymentMethod: 'banking',
-      shippingMethod: 'standard',
-      items: [
-        {
-          id: 4,
-          name: "Amoxicillin 500mg",
-          price: 85000,
-          quantity: 1,
-          image: "https://via.placeholder.com/60x60/9C27B0/ffffff?text=Amoxicillin",
-          prescription: true,
-          blockchain: {
-            status: 'pending',
-            transactionHash: '0x9e1f5a8b7c4d3e2f9a6b5c8e7f4a3b2d1c94a7c1b9e2f8d3a6b5c4e8f7a2b3',
-            ipfsCID: 'QmC3X5Y7W9Kp4L3m2N1B6V7C9X8Z2Q1W4E5R6T7Y8U9I0O1P2'
-          }
-        }
-      ]
-    },
-    {
-      id: 'MED123459',
-      customer: {
-        name: 'Phạm Thị D',
-        phone: '0923456789',
-        email: 'phamthid@email.com'
-      },
-      status: 'cancelled',
-      orderDate: '2024-03-12T14:20:00',
-      cancelledDate: '2024-03-12T15:30:00',
-      totalAmount: 270000,
-      shippingAddress: {
-        name: 'Phạm Thị D',
-        phone: '0923456789',
-        address: '321 Đường Cách Mạng Tháng 8, P. Bến Thành, Q.1, TP.HCM'
-      },
-      paymentMethod: 'cod',
-      shippingMethod: 'standard',
-      cancelReason: 'Khách hàng hủy',
-      items: [
-        {
-          id: 5,
-          name: "Calcium D3",
-          price: 135000,
-          quantity: 2,
-          image: "https://via.placeholder.com/60x60/FF5722/ffffff?text=Calcium+D3",
-          blockchain: {
-            status: 'verified',
-            transactionHash: '0x1f5a8b7c4d3e2f9a6b5c8e7f4a3b2d1c94a7c1b9e2f8d3a6b5c4e8f7a2b3c6',
-            ipfsCID: 'QmD4X6Y8W0Kp4L3m2N1B6V7C9X8Z2Q1W4E5R6T7Y8U9I0O1P2'
-          }
-        }
-      ]
-    }
-  ]);
+  // const [orders, setOrders] = useState([
+  //   {
+  //     id: 'MED123456',
+  //     customer: {
+  //       name: 'Nguyễn Văn A',
+  //       phone: '0901234567',
+  //       email: 'nguyenvana@email.com'
+  //     },
+  //     status: 'pending',
+  //     orderDate: '2024-03-15T10:30:00',
+  //     totalAmount: 345000,
+  //     shippingAddress: {
+  //       name: 'Nguyễn Văn A',
+  //       phone: '0901234567',
+  //       address: '123 Đường Nguyễn Văn Linh, P. Tân Thuận Đông, Q.7, TP.HCM'
+  //     },
+  //     paymentMethod: 'cod',
+  //     shippingMethod: 'standard',
+  //     items: [
+  //       {
+  //         id: 1,
+  //         name: "Panadol Extra",
+  //         price: 95000,
+  //         quantity: 2,
+  //         image: "https://via.placeholder.com/60x60/4CAF50/ffffff?text=Panadol",
+  //         blockchain: {
+  //           status: 'verified',
+  //           transactionHash: '0x4a7c1b9e2f8d3a6b5c4e8f7a2b3c6d9e1f5a8b7c4d3e2f9a6b5c8e7f4a3b2d1c9',
+  //           ipfsCID: 'QmXoypizjW3WknFiJnKLwHCnL72vedxjQkDDP1mXWo6uco'
+  //         }
+  //       },
+  //       {
+  //         id: 2,
+  //         name: "Vitamin C 1000mg",
+  //         price: 150000,
+  //         quantity: 1,
+  //         image: "https://via.placeholder.com/60x60/FF9800/ffffff?text=Vitamin+C",
+  //         blockchain: {
+  //           status: 'verified',
+  //           transactionHash: '0x8b3c6d9e1f5a8b7c4d3e2f9a6b5c8e7f4a3b2d1c94a7c1b9e2f8d3a6b5c4e8f7',
+  //           ipfsCID: 'QmYH5g2W8Kp4L3m2N1B6V7C9X8Z2Q1W4E5R6T7Y8U9I0O1P2'
+  //         }
+  //       }
+  //     ]
+  //   },
+  //   {
+  //     id: 'MED123457',
+  //     customer: {
+  //       name: 'Trần Thị B',
+  //       phone: '0907654321',
+  //       email: 'tranthib@email.com'
+  //     },
+  //     status: 'shipping',
+  //     orderDate: '2024-03-14T15:45:00',
+  //     totalAmount: 220000,
+  //     shippingAddress: {
+  //       name: 'Trần Thị B',
+  //       phone: '0907654321',
+  //       address: '456 Đường Nguyễn Huệ, P. Bến Nghé, Q.1, TP.HCM'
+  //     },
+  //     paymentMethod: 'momo',
+  //     shippingMethod: 'express',
+  //     trackingNumber: 'SPX123456789',
+  //     items: [
+  //       {
+  //         id: 3,
+  //         name: "Kem dưỡng da Eucerin",
+  //         price: 220000,
+  //         quantity: 1,
+  //         image: "https://via.placeholder.com/60x60/E91E63/ffffff?text=Eucerin",
+  //         blockchain: {
+  //           status: 'verified',
+  //           transactionHash: '0x3c6d9e1f5a8b7c4d3e2f9a6b5c8e7f4a3b2d1c94a7c1b9e2f8d3a6b5c4e8f7a2',
+  //           ipfsCID: 'QmZ2X4Y6W8Kp4L3m2N1B6V7C9X8Z2Q1W4E5R6T7Y8U9I0O1P2'
+  //         }
+  //       }
+  //     ]
+  //   },
+  //   {
+  //     id: 'MED123458',
+  //     customer: {
+  //       name: 'Lê Văn C',
+  //       phone: '0912345678',
+  //       email: 'levanc@email.com'
+  //     },
+  //     status: 'completed',
+  //     orderDate: '2024-03-13T09:15:00',
+  //     completedDate: '2024-03-13T16:30:00',
+  //     totalAmount: 185000,
+  //     shippingAddress: {
+  //       name: 'Lê Văn C',
+  //       phone: '0912345678',
+  //       address: '789 Đường Lê Lợi, P. Bến Thành, Q.1, TP.HCM'
+  //     },
+  //     paymentMethod: 'banking',
+  //     shippingMethod: 'standard',
+  //     items: [
+  //       {
+  //         id: 4,
+  //         name: "Amoxicillin 500mg",
+  //         price: 85000,
+  //         quantity: 1,
+  //         image: "https://via.placeholder.com/60x60/9C27B0/ffffff?text=Amoxicillin",
+  //         prescription: true,
+  //         blockchain: {
+  //           status: 'pending',
+  //           transactionHash: '0x9e1f5a8b7c4d3e2f9a6b5c8e7f4a3b2d1c94a7c1b9e2f8d3a6b5c4e8f7a2b3',
+  //           ipfsCID: 'QmC3X5Y7W9Kp4L3m2N1B6V7C9X8Z2Q1W4E5R6T7Y8U9I0O1P2'
+  //         }
+  //       }
+  //     ]
+  //   },
+  //   {
+  //     id: 'MED123459',
+  //     customer: {
+  //       name: 'Phạm Thị D',
+  //       phone: '0923456789',
+  //       email: 'phamthid@email.com'
+  //     },
+  //     status: 'cancelled',
+  //     orderDate: '2024-03-12T14:20:00',
+  //     cancelledDate: '2024-03-12T15:30:00',
+  //     totalAmount: 270000,
+  //     shippingAddress: {
+  //       name: 'Phạm Thị D',
+  //       phone: '0923456789',
+  //       address: '321 Đường Cách Mạng Tháng 8, P. Bến Thành, Q.1, TP.HCM'
+  //     },
+  //     paymentMethod: 'cod',
+  //     shippingMethod: 'standard',
+  //     cancelReason: 'Khách hàng hủy',
+  //     items: [
+  //       {
+  //         id: 5,
+  //         name: "Calcium D3",
+  //         price: 135000,
+  //         quantity: 2,
+  //         image: "https://via.placeholder.com/60x60/FF5722/ffffff?text=Calcium+D3",
+  //         blockchain: {
+  //           status: 'verified',
+  //           transactionHash: '0x1f5a8b7c4d3e2f9a6b5c8e7f4a3b2d1c94a7c1b9e2f8d3a6b5c4e8f7a2b3c6',
+  //           ipfsCID: 'QmD4X6Y8W0Kp4L3m2N1B6V7C9X8Z2Q1W4E5R6T7Y8U9I0O1P2'
+  //         }
+  //       }
+  //     ]
+  //   }
+  // ]);
 
+  useEffect(()=>{
+    fetchOrders();
+  },[pharmacyId])
+
+  const fetchOrders = async () => {
+    try{
+      const res = await fetch(`${API}/api/order/pharmacy/${pharmacyId}`,
+        {headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${localStorage.getItem("token")}`, // nếu cần
+            },
+          });
+      const data = await res.json();
+      if(data) {
+        setOrders(data)
+      }
+    } catch (err) {
+      console.log(err);
+    } finally {
+      setLoading(false)
+    }
+  }
+  console.log(orders)
   // Format tiền
   const formatPrice = (price: any) => {
     return new Intl.NumberFormat('vi-VN').format(price) + 'đ';
@@ -333,68 +359,74 @@ const PharmacyOrder: React.FC = () => {
             </button>
           </div>
         </div>
+            
+        {loading ? (
+          <div className="loading-container">
+            <div className="loading-spinner"></div>
+            <p>Đang tải...</p>
+          </div>
+        ) : (
+          <>
+            {/* Danh sách đơn hàng */}
+            <div className="orders-list">
+              {filteredOrders.length === 0 ? (
+                <div className="empty-orders">
+                  <div className="empty-icon">📦</div>
+                  <h3>Không có đơn hàng nào</h3>
+                  <p>Hiện không có đơn hàng nào phù hợp với bộ lọc</p>
+                </div>
+              ) : (
+                filteredOrders.map(order => (
+                  <div key={order.id} className="order-card">
+                    <div className="order-header">
+                      <div className="order-info">
+                        <h3 className="order-id">#{order.id}</h3>
+                        <div className="customer-info">
+                          <span className="customer-name">{order.customer.name}</span>
+                          <span className="customer-phone">{order.customer.phone}</span>
+                        </div>
+                      </div>
+                      <div className="order-meta">
+                        {renderOrderStatus(order.status)}
+                        <span className="order-date">{formatDate(order.orderDate)}</span>
+                      </div>
+                    </div>
 
-        {/* Danh sách đơn hàng */}
-        <div className="orders-list">
-          {filteredOrders.length === 0 ? (
-            <div className="empty-orders">
-              <div className="empty-icon">📦</div>
-              <h3>Không có đơn hàng nào</h3>
-              <p>Hiện không có đơn hàng nào phù hợp với bộ lọc</p>
-            </div>
-          ) : (
-            filteredOrders.map(order => (
-              <div key={order.id} className="order-card">
-                <div className="order-header">
-                  <div className="order-info">
-                    <h3 className="order-id">#{order.id}</h3>
-                    <div className="customer-info">
-                      <span className="customer-name">{order.customer.name}</span>
-                      <span className="customer-phone">{order.customer.phone}</span>
+                    <div className="order-content">
+                      <div className="order-items-preview">
+                        {order.items.slice(0, 3).map((item: any) => (
+                          <div key={item.id} className="item-preview">
+                            <img src={item.image} alt={item.name} />
+                            <span>{item.name} × {item.quantity}</span>
+                          </div>
+                        ))}
+                        {order.items.length > 3 && (
+                          <div className="more-items">+{order.items.length - 3} sản phẩm khác</div>
+                        )}
+                      </div>
+
+                      <div className="order-total">
+                        <span className="total-label">Tổng tiền:</span>
+                        <span className="total-amount">{formatPrice(order.totalAmount)}</span>
+                      </div>
+                    </div>
+
+                    <div className="order-footer">
+                      <div className="order-actions">
+                        <button
+                          className="action-btn view-details"
+                          onClick={() => openOrderDetail(order)}
+                        >
+                          👁️ Xem chi tiết
+                        </button>
+                        {renderActionButtons(order)}
+                      </div>
                     </div>
                   </div>
-                  <div className="order-meta">
-                    {renderOrderStatus(order.status)}
-                    <span className="order-date">{formatDate(order.orderDate)}</span>
-                  </div>
-                </div>
-
-                <div className="order-content">
-                  <div className="order-items-preview">
-                    {order.items.slice(0, 3).map(item => (
-                      <div key={item.id} className="item-preview">
-                        <img src={item.image} alt={item.name} />
-                        <span>{item.name} × {item.quantity}</span>
-                      </div>
-                    ))}
-                    {order.items.length > 3 && (
-                      <div className="more-items">+{order.items.length - 3} sản phẩm khác</div>
-                    )}
-                  </div>
-
-                  <div className="order-total">
-                    <span className="total-label">Tổng tiền:</span>
-                    <span className="total-amount">{formatPrice(order.totalAmount)}</span>
-                  </div>
-                </div>
-
-                <div className="order-footer">
-                  <div className="order-actions">
-                    <button
-                      className="action-btn view-details"
-                      onClick={() => openOrderDetail(order)}
-                    >
-                      👁️ Xem chi tiết
-                    </button>
-                    {renderActionButtons(order)}
-                  </div>
-                </div>
-              </div>
-            ))
-          )}
-        </div>
-
-        {/* Modal chi tiết đơn hàng */}
+                ))
+              )}
+            </div>
+                    {/* Modal chi tiết đơn hàng */}
         {showDetailModal && selectedOrder && (
           <div className="modal-overlay">
             <div className="order-detail-modal">
@@ -559,6 +591,13 @@ const PharmacyOrder: React.FC = () => {
             </div>
           </div>
         )}
+        </>
+      )}
+
+    
+
+
+
       </div>
     </div>
   );

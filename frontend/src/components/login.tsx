@@ -72,9 +72,10 @@ const Login: React.FC = () => {
         // lưu token để dùng cho các request sau
         localStorage.setItem("token", data.token);
         localStorage.setItem("role", data.user.role);
+        localStorage.setItem("userId", data.user.id);
         // ví dụ điều hướng sang trang dashboard
         if (data.user.role === "user") {
-          window.location.href = "/user/home";
+          window.location.href = "/";
         } else if (data.user.role === "pharmacy") {
           window.location.href = "/pharmacy/home";
         } else if (data.user.role === "distributor") {
