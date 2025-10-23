@@ -1,4 +1,5 @@
 const Distributor = require("../models/Distributor");
+const DistributorProduct = require("../models/DistributorProduct");
 
 exports.getAllDistributors = async (req, res) => {
   try {
@@ -41,3 +42,43 @@ exports.updateDistributor = async (req, res) => {
   }
 };
 
+exports.getDistributorProducts = async (req, res) => {
+  try {
+    const { distributorId } = req.params;
+    const products = await DistributorProduct.find({ distributor: distributorId })
+      .populate("distributor", "companyName licenseNumber");
+    res.status(200).json(products);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Lỗi server" });
+  }
+};
+
+exports.updateDistributorProduct = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const updatedProduct = await DistributorProduct.findByIdAndUpdate(
+      id,
+      req.body,
+      { new: true }
+    );
+
+    if (!updatedProduct) {
+      return res.status(404).json({ error: "Product not found" });
+    }
+
+    res.json(updatedProduct);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+exports.getAllDistributorsProducts = async (req, res) => {
+  try {
+    const products = await DistributorProduct.find().populate("distributor", "companyName licenseNumber");
+    res.status(200).json(products);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Lỗi server" });
+  }
+};

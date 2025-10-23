@@ -1,4 +1,5 @@
 const Pharmacy = require("../models/Pharmacy");
+const PharmacyProduct = require('../models/PharmacyProduct');
 
 exports.getAllPharmacies = async (req, res) => {
   try {
@@ -40,3 +41,4 @@ exports.updatePharmacy = async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 };
+

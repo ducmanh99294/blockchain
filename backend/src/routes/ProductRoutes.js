@@ -3,14 +3,16 @@ const router = express.Router();
 const productController = require("../controllers/ProductController");
 
 // CRUD cho sản phẩm
-router.post("/", productController.createProduct);
+router.post("/distributor", productController.createDistributorProduct);
+router.post("/pharmacy", productController.createPharmacyProduct);
 router.get("/recommend", productController.getRecommendedProducts);
 router.get("/lastest", productController.getLatestProducts);
 router.get("/random", productController.getRandomProducts);
 router.get("/pharmacy/:pharmacyId", productController.getProductsByPharmacy);
 router.get("/", productController.getProducts);
 router.get("/:id", productController.getProductById);
-router.put("/:id", productController.updateProduct);
+
+router.put("/distributor/:id", productController.updateProductBlockchainInfo);
 router.delete("/:id", productController.deleteProduct);
 
 

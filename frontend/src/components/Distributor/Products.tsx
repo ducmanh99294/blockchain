@@ -1,21 +1,47 @@
 import React, { useState, useEffect } from 'react';
+import { PinataSDK } from "pinata-web3";
 import { 
   FaBox, FaPlus, FaSearch, FaEye, FaCloudUploadAlt, 
   FaCheckCircle, FaClock, FaFileAlt, FaShieldAlt 
 } from 'react-icons/fa';
 import '../../assets/css/Distributor/products.css';
-
+import quanLiThuocABI from './../../abi/quanLiThuoc.json';
+import { ethers } from 'ethers';
 
 const DistributorProduct: React.FC = () => {
   const [products, setProducts] = useState<any>([]);
+  const [categories, setCategories] = useState<any>([]);
   const [filteredProducts, setFilteredProducts] = useState<any>([]);
   const [searchTerm, setSearchTerm] = useState<any>('');
   const [selectedProduct, setSelectedProduct] = useState<any>(null);
   const [showModal, setShowModal] = useState(false);
+  const [showModalAdd, setShowModalAdd] = useState(false);
   const [showRegisterModal, setShowRegisterModal] = useState(false);
+  const [originInfo, setOriginInfo] = useState<any>({});
+  const [originImages, setOriginImages] = useState<any | File[]>([]);
 
+  const [formdata, setFormdata] = useState<any>({
+    name: "",
+    description: "",
+    category: "",
+    brand: "",
+    image: [],  
+    usage: "",   
+  });
+  const [loading, setLoading] = useState(false);
+
+  const distributorId = localStorage.getItem('userId');
+  const token = localStorage.getItem('token')
+  const contractAddress = import.meta.env.VITE_CONTRACT_ADDRESS;
+
+  const pinata = new PinataSDK({
+  pinataJwt: import.meta.env.VITE_PINATA_JWT,
+  pinataGateway: "orange-efficient-liger-682.mypinata.cloud",
+});
   // Giả lập dữ liệu sản phẩm
   useEffect(() => {
+    fetchCategories();
+    fetchDistributorProducts();
     const mockProducts = [
       {
         id: 1,
@@ -79,8 +105,7 @@ const DistributorProduct: React.FC = () => {
       }
     ];
     
-    setProducts(mockProducts);
-    setFilteredProducts(mockProducts);
+    setFilteredProducts(products);
   }, []);
 
   // Xử lý tìm kiếm
@@ -99,34 +124,103 @@ const DistributorProduct: React.FC = () => {
   };
 
   // Đăng ký lên blockchain
-  const handleRegisterToBlockchain = (product: any) => {
+  const handleOpenRegisterModal = (product: any) => {
     setSelectedProduct(product);
     setShowRegisterModal(true);
   };
 
-  // Giả lập đăng ký lên blockchain
-  const confirmRegistration = () => {
-    // Giả lập cập nhật trạng thái
-    const updatedProducts = products.map((p: any) => 
-      p.id === selectedProduct.id ? {...p, status: "pending"} : p
-    );
-    
-    setProducts(updatedProducts);
-    setShowRegisterModal(false);
-    
-    // Giả lập sau 3 giây sẽ verified
-    setTimeout(() => {
-      const verifiedProducts = products.map((p: any) => 
-        p.id === selectedProduct.id ? {
-          ...p, 
-          status: "verified", 
-          transactionHash: "0x" + Math.random().toString(16).substr(2, 64)
-        } : p
-      );
-      setProducts(verifiedProducts);
-    }, 3000);
-  };
+const handleRegisterToBlockchain = async (
+  product: any,          
+  originImages: File[],  
+  originInfo: string     
+) => {
+  
+  // Kiểm tra đầu vào
+  if (!originInfo.trim()) {
+    alert("Vui lòng nhập thông tin nguồn gốc!");
+    return;
+  }
+  if (!originImages || originImages.length === 0) {
+    alert("Vui lòng chọn ít nhất 1 hình ảnh chứng từ!");
+    return;
+  }
+  if (!product || !product._id || product.price === undefined) {
+    alert("Lỗi: Dữ liệu sản phẩm (ID hoặc Giá) bị thiếu.");
+    return;
+  }
 
+  // setLoading(true); 
+  try {
+    console.log("Đang tải hình ảnh lên IPFS...");
+    const uploadedCIDs: string[] = [];
+    for (const file of originImages) {
+      const uploadRes = await pinata.upload.file(file);
+      const ipfsHash = uploadRes.IpfsHash || uploadRes.cid;
+      uploadedCIDs.push(ipfsHash);
+    }
+    const imageCIDString = JSON.stringify(uploadedCIDs);
+    console.log("Uploaded CIDs:", imageCIDString);
+
+    // ✅ 2. Kết nối MetaMask
+    if (!window.ethereum) {
+      alert("Vui lòng cài đặt MetaMask trước!");
+      // setLoading(false);
+      return;
+    }
+
+    const provider = new ethers.BrowserProvider(window.ethereum);
+    const signer = await provider.getSigner();
+
+    // Khởi tạo contract (Đảm bảo 2 biến này là MỚI NHẤT)
+    const contract = new ethers.Contract(
+      contractAddress,  
+      quanLiThuocABI.abi, 
+      signer
+    );
+
+    const productId = "0x" + product._id;
+    const giaBanSiString = product.price.toString();
+
+    console.log("Đang gửi giao dịch (đã tối ưu) với 4 tham số:");
+    console.log("1. id (uint256):", productId);
+    console.log("2. giaBanSi (uint256):", giaBanSiString);
+    console.log("3. nguonGoc (string):", originInfo);
+    console.log("4. ipfsHash (string):", imageCIDString);
+
+    // ✅ 4. Gọi hàm contract với đúng 4 tham số
+    const tx = await contract.xacThucNguonGoc(
+      productId,
+      giaBanSiString,
+      originInfo,
+      imageCIDString
+    );
+
+    console.log(`Đang chờ giao dịch (tx: ${tx.hash})...`);
+    await tx.wait();
+
+    // ✅ 5. (Rất nên làm) Cập nhật lại Mongo
+    await fetch(`http://localhost:3000/api/distributor/products/${product._id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        blockchainTx: tx.hash,      
+        ipfsCidString: imageCIDString,
+        originInfo: originInfo,
+          imagesOrigin: originImages.map(f => f.name),
+        status: "verified"
+      })
+    });
+    
+    alert("✅ Đăng ký và xác thực sản phẩm lên blockchain thành công!");
+
+  } catch (error) {
+    console.error("Lỗi đăng ký/xác thực blockchain:", error);
+    alert("❌ Đăng ký/xác thực thất bại! Kiểm tra console.");
+  } finally {
+    // (Tùy chọn) Tắt cờ loading
+    // setLoading(false);
+  }
+};
   // Định dạng số tiền
   const formatCurrency = (amount: any) => {
     return new Intl.NumberFormat('vi-VN', {
@@ -147,6 +241,73 @@ const DistributorProduct: React.FC = () => {
     }
   };
 
+  const fetchCategories = async () => {
+    try {
+      const res = await fetch("http://localhost:3000/api/category", {
+        headers: {
+          "Authorization": `Bearer ${token}`
+        }
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setCategories(data);
+      } else {
+        console.error("Failed to fetch categories:", await res.text());
+      }
+    } catch (error) {
+      console.error("Error fetching categories:", error);
+    }
+  };
+
+  const fetchDistributorProducts = async () => {
+    try {
+      const res = await fetch(`http://localhost:3000/api/distributor/${distributorId}/products`, {  
+        headers: {
+          "Authorization": `Bearer ${token}`
+        }
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setProducts(data);
+        setFilteredProducts(data);
+      } else {
+        console.error("Failed to fetch distributor products:", await res.text());
+      }
+    } catch (error) {
+      console.error("Error fetching distributor products:", error);
+    }
+  };
+
+  const handleAddProduct = async () => {
+    setLoading(true);
+    console.log(JSON.stringify({
+        ...formdata,
+        distributor: distributorId,
+      },null,2));
+    try {
+      const res = await fetch("http://localhost:3000/api/product/distributor", {
+        method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${token}`,
+      },
+      body: JSON.stringify({
+        ...formdata,
+        distributor: distributorId,
+      }),
+    });
+
+    if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+      const data = await res.json();
+      setProducts([...products, data.product]);
+      setShowModalAdd(false);
+  } catch (error) {
+    console.error("Error adding product:", error);
+  } finally {
+    setLoading(false);
+  }
+  };
+
   return (
     <div className="product-management">
       <header className="page-header">
@@ -164,7 +325,7 @@ const DistributorProduct: React.FC = () => {
             onChange={(e) => setSearchTerm(e.target.value)}
           />
         </div>
-        <button className="btn btn-primary">
+        <button className="btn btn-primary" onClick={() => setShowModalAdd(true)}>
           <FaPlus /> Thêm sản phẩm
         </button>
       </div>
@@ -209,7 +370,7 @@ const DistributorProduct: React.FC = () => {
               {product.status !== "verified" && (
                 <button 
                   className="btn btn-primary"
-                  onClick={() => handleRegisterToBlockchain(product)}
+                  onClick={() => handleOpenRegisterModal(product)}
                 >
                   <FaCloudUploadAlt /> Đăng ký Blockchain
                 </button>
@@ -232,6 +393,7 @@ const DistributorProduct: React.FC = () => {
                 <div className="detail-image">
                   <img src={selectedProduct.image} alt={selectedProduct.name} />
                 </div>
+                
                 <div className="detail-info">
                   <h2>{selectedProduct.name}</h2>
                   <p className="description">{selectedProduct.description}</p>
@@ -239,11 +401,11 @@ const DistributorProduct: React.FC = () => {
                   <div className="detail-grid">
                     <div className="detail-item">
                       <span className="label">Nhà sản xuất:</span>
-                      <span className="value">{selectedProduct.manufacturer}</span>
+                      <span className="value">{selectedProduct.distributor.companyName}</span>
                     </div>
                     <div className="detail-item">
                       <span className="label">Số lô:</span>
-                      <span className="value">{selectedProduct.batchNumber}</span>
+                      <span className="value">{selectedProduct._id.slice(1,6)}</span>
                     </div>
                     <div className="detail-item">
                       <span className="label">Hạn sử dụng:</span>
@@ -251,7 +413,7 @@ const DistributorProduct: React.FC = () => {
                     </div>
                     <div className="detail-item">
                       <span className="label">Số giấy phép:</span>
-                      <span className="value">{selectedProduct.license}</span>
+                      <span className="value">{selectedProduct.distributor.licenseNumber}</span>
                     </div>
                     <div className="detail-item">
                       <span className="label">Giá bán sỉ:</span>
@@ -294,7 +456,7 @@ const DistributorProduct: React.FC = () => {
                   className="btn btn-primary"
                   onClick={() => {
                     setShowModal(false);
-                    handleRegisterToBlockchain(selectedProduct);
+                    handleRegisterToBlockchain(selectedProduct, originImages[0], originInfo);
                   }}
                 >
                   <FaCloudUploadAlt /> Đăng ký lên Blockchain
@@ -305,51 +467,183 @@ const DistributorProduct: React.FC = () => {
         </div>
       )}
 
-      {/* Modal đăng ký blockchain */}
       {showRegisterModal && selectedProduct && (
         <div className="modal-overlay">
           <div className="modal">
+            {/* ===== Header ===== */}
             <div className="modal-header">
               <h2>Đăng ký sản phẩm lên Blockchain</h2>
-              <button className="close-btn" onClick={() => setShowRegisterModal(false)}>×</button>
+              <button
+                className="close-btn"
+                onClick={() => setShowRegisterModal(false)}
+              >
+                ×
+              </button>
             </div>
+
+            {/* ===== Body ===== */}
             <div className="modal-body">
               <div className="blockchain-registration">
                 <div className="registration-info">
                   <h3>{selectedProduct.name}</h3>
-                  <p>Bạn đang thực hiện đăng ký thông tin sản phẩm lên blockchain. Thao tác này sẽ:</p>
+                  <p>
+                    Bạn sắp thực hiện đăng ký thông tin sản phẩm này lên blockchain.
+                    Thao tác này sẽ:
+                  </p>
                   <ul>
-                    <li>Tạo hash cho thông tin sản phẩm</li>
-                    <li>Lưu chứng từ nguồn gốc lên IPFS</li>
-                    <li>Ghi dữ liệu lên blockchain</li>
-                    <li>Thiết lập sản phẩm như nguồn gốc xác thực cho các nhà thuốc</li>
+                    <li>Tạo hash duy nhất cho metadata sản phẩm</li>
+                    <li>Lưu thông tin nguồn gốc lên IPFS</li>
+                    <li>Ghi giao dịch xác thực lên blockchain</li>
+                    <li>Đánh dấu sản phẩm là "Đã xác thực nguồn gốc"</li>
                   </ul>
-                  
-                  <div className="registration-docs">
-                    <h4>Tài liệu đính kèm:</h4>
-                    <div className="doc-list">
-                      <div className="doc-item">
-                        <FaFileAlt />
-                        <span>Giấy phép lưu hành - {selectedProduct.license}.pdf</span>
-                      </div>
-                      <div className="doc-item">
-                        <FaFileAlt />
-                        <span>Chứng nhận nguồn gốc - {selectedProduct.batchNumber}.pdf</span>
-                      </div>
-                    </div>
+
+                  {/* Nhập thông tin nguồn gốc */}
+                  <div className="form-group mt-3">
+                    <label>Thông tin nguồn gốc xuất xứ:</label>
+                    <textarea
+                      placeholder="Nhập mô tả nguồn gốc, nơi sản xuất, số lô, giấy phép..."
+                      value={originInfo}
+                      onChange={(e) => setOriginInfo(e.target.value)}
+                      rows={4}
+                    />
+                  </div>
+
+                  <div className="form-group mt-3">
+                    <label>Tải lên hình ảnh chứng từ:</label>
+                    <input 
+                      type="file" 
+                      accept="image/*" 
+                      multiple
+                      onChange={(e) => setOriginImages(Array.from(e.target.files || []))} 
+                    />
+                    {originImages.length > 0 && <p>📎 {originImages.map(img => img.name).join(", ")}</p>}
                   </div>
                 </div>
               </div>
             </div>
+
+            {/* ===== Footer ===== */}
             <div className="modal-footer">
-              <button className="btn btn-secondary" onClick={() => setShowRegisterModal(false)}>Hủy bỏ</button>
-              <button className="btn btn-primary" onClick={confirmRegistration}>
+              <button
+                className="btn btn-secondary"
+                onClick={() => setShowRegisterModal(false)}
+              >
+                Hủy bỏ
+              </button>
+              <button
+                className="btn btn-primary"
+                onClick={async () => {
+                  if (!originInfo.trim()) {
+                    alert("Vui lòng nhập thông tin nguồn gốc trước khi đăng ký!");
+                    return;
+                  }
+                  await handleRegisterToBlockchain(selectedProduct, originImages, originInfo);
+                  setShowRegisterModal(false);
+                }}
+              >
                 <FaCloudUploadAlt /> Xác nhận đăng ký
               </button>
             </div>
           </div>
         </div>
       )}
+
+      {showModalAdd && (
+        <div className="modal-overlay">
+          <div className="modal">
+            <div className="modal-header">
+              <h2>Thêm sản phẩm mới</h2>
+              <button className="close-btn" onClick={() => setShowModalAdd(false)}>×</button>
+            </div>
+
+            <div className="modal-body">
+              <div className="add-product-form">
+                
+                {/* Tên sản phẩm */}
+                <div className="form-group">
+                  <label>Tên sản phẩm:</label>
+                  <input 
+                    type="text"
+                    value={formdata.name}
+                    onChange={(e) => setFormdata({ ...formdata, name: e.target.value })}
+                    placeholder="Nhập tên sản phẩm"
+                  />
+                </div>
+
+                {/* Mô tả */}
+                <div className="form-group">
+                  <label>Mô tả:</label>
+                  <textarea
+                    value={formdata.description}
+                    onChange={(e) => setFormdata({ ...formdata, description: e.target.value })}
+                    placeholder="Nhập mô tả chi tiết"
+                  />
+                </div>
+
+                {/* Danh mục */}
+                <div className="form-group">
+                  <label>Danh mục:</label>
+                  <select
+                    value={formdata.category}
+                    onChange={(e) => setFormdata({ ...formdata, category: e.target.value })}
+                  >
+                    <option value="">-- Chọn danh mục --</option>
+                    {categories.map((cat: any) => (
+                      <option key={cat._id} value={cat._id}>{cat.name}</option>
+                    ))}
+                  </select>
+                </div>
+
+                {/* Thương hiệu */}
+                <div className="form-group">
+                  <label>Thương hiệu:</label>
+                  <input 
+                    type="text"
+                    value={formdata.brand}
+                    onChange={(e) => setFormdata({ ...formdata, brand: e.target.value })}
+                    placeholder="Nhập thương hiệu"
+                  />
+                </div>
+
+                {/* Hướng dẫn sử dụng */}
+                <div className="form-group">
+                  <label>Hướng dẫn sử dụng:</label>
+                  <textarea
+                    value={formdata.usage}
+                    onChange={(e) => setFormdata({ ...formdata, usage: e.target.value })}
+                    placeholder="Ví dụ: Uống 2 lần mỗi ngày..."
+                  />
+                </div>
+
+                {/* Ảnh (nhiều link, cách nhau dấu phẩy) */}
+                <div className="form-group">
+                  <label>Ảnh sản phẩm (URL):</label>
+                  <input
+                    type="text"
+                    value={formdata.image.join(", ")}
+                    onChange={(e) => {
+                      const imgs = e.target.value.split(",").map((s) => s.trim());
+                      setFormdata({ ...formdata, image: imgs });
+                    }}
+                    placeholder="Nhập nhiều link ảnh, cách nhau bằng dấu phẩy"
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div className="modal-footer">
+              <button className="btn btn-secondary" onClick={() => setShowModalAdd(false)}>
+                Hủy bỏ
+              </button>
+
+              <button className="btn btn-primary" onClick={handleAddProduct} disabled={loading}>
+                {loading ? "Đang thêm..." : "Thêm sản phẩm"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 };

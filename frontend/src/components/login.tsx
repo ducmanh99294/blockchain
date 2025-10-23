@@ -63,8 +63,8 @@ const Login: React.FC = () => {
           role: activeRole
         })
       });
-
       const data = await response.json();
+      console.log(data);
       if (!response.ok) {
         setError(data.message || "Đăng nhập thất bại");
       } else {

@@ -1,7 +1,7 @@
 const hre = require("hardhat");
 
 async function main() {
-  const QuanLiThuoc = await hre.ethers.getContractFactory("quanLiThuoc");
+  const QuanLiThuoc = await hre.ethers.getContractFactory("QuanLyThuoc");
   const quanLiThuoc = await QuanLiThuoc.deploy();
 
   // Đợi transaction confirm

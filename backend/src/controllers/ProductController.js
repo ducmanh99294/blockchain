@@ -1,38 +1,81 @@
 const Product = require("../models/Product");
 const Category = require("../models/Category");
+const Distributor = require("../models/Distributor");
+const DistributorProduct = require('../models/DistributorProduct');
 
-// ➕ Thêm sản phẩm
-exports.createProduct = async (req, res) => {
+// Thêm sản phẩm
+exports.createDistributorProduct = async (req, res) => {
   try {
-    const { name, description, price, discountPrice, quantity, category, brand, image } = req.body;
+    const {distributor,name,description,category,brand,image,usage} = req.body;
 
-    const product = new Product({
+    const distributorExist = await Distributor.findById(distributor);
+    if (!distributorExist) {
+      return res.status(404).json({ message: "Nhà phân phối không tồn tại" });
+    }
+
+    const newProduct = new DistributorProduct({
+      distributor,
       name,
       description,
-      price,
-      discountPrice,
-      quantity,
       category,
       brand,
       image,
-
-      // 📌 Blockchain integration
-      // blockchainHash: "...", // Tính hash của sản phẩm và lưu
-      // blockchainTx: "...",   // Transaction hash khi ghi on-chain
-      // cid: "...",            // CID từ IPFS (nếu upload metadata)
+      usage,
     });
 
-    await product.save();
+    await newProduct.save();
 
-    await Category.findByIdAndUpdate(product.category, { $inc: { productCount: 1 } });
-
-    res.status(201).json({ message: "Product created successfully", product });
-  } catch (err) {
-    res.status(500).json({ message: err.message });
+    res.status(201).json({
+      message: "Tạo sản phẩm thành công (chưa xác thực blockchain)",
+      product: newProduct,
+    });
+  } catch (error) {
+    console.error("Lỗi khi tạo sản phẩm:", error);
+    res.status(500).json({ message: "Lỗi server", error: error.message });
   }
 };
 
-// 📋 Lấy danh sách sản phẩm
+exports.createPharmacyProduct = async (req, res) => {
+  try {
+    // 1. Lấy thông tin BÁN HÀNG
+    const { 
+      masterProductId, // ID của sản phẩm gốc (DistributorProduct)
+      price, 
+      discountPrice, 
+      quantity, 
+      prescription 
+    } = req.body;
+
+    // 2. Lấy ID của nhà thuốc đã đăng nhập
+    const pharmacyId = req.user.id; // Lấy từ middleware
+
+    // 3. Tạo niêm yết bán mới
+    const newPharmacyProduct = new PharmacyProduct({
+      masterProduct: masterProductId,
+      pharmacy: pharmacyId,
+      price,
+      discountPrice,
+      quantity,
+      prescription,
+    });
+
+    // 4. (Tùy chọn) Bạn có thể ghi 1 giao dịch blockchain
+    // xác nhận việc "nhập hàng" này và lưu tx_hash vào đây.
+
+    // 5. Lưu vào DB
+    await newPharmacyProduct.save();
+
+    res.status(201).json({ 
+      message: "Pharmacy product listed successfully", 
+      product: newPharmacyProduct
+    });
+
+  } catch (err) {
+    res.status(500).json({ message: "Server error: " + err.message });
+  }
+};
+
+// Lấy danh sách sản phẩm
 exports.getProducts = async (req, res) => {
   try {
     const products = await Product.find();
@@ -42,7 +85,7 @@ exports.getProducts = async (req, res) => {
   }
 };
 
-// 🔎 Lấy chi tiết sản phẩm
+// Lấy chi tiết sản phẩm
 exports.getProductById = async (req, res) => {
   try {
     const product = await Product.findById(req.params.id);
@@ -66,25 +109,43 @@ exports.getProductsByPharmacy = async (req, res) => {
   }
 }
 
-// ✏️ Sửa sản phẩm
-exports.updateProduct = async (req, res) => {
+// Sửa sản phẩm
+exports.updateProductBlockchainInfo = async (req, res) => {
   try {
-    const updates = req.body;
+    const { blockchainHash, blockchainTx, cid } = req.body;
+    const productId = req.params.id;
+    const distributorId = req.user.id;
 
-    // 📌 Blockchain integration
-    // Nếu có cập nhật sản phẩm => có thể tạo hash mới và lưu lại
-    // updates.blockchainHash = "...";
-    // updates.blockchainTx = "...";
+    // 1. Tìm sản phẩm
+    const product = await DistributorProduct.findById(productId);
 
-    const product = await Product.findByIdAndUpdate(req.params.id, updates, { new: true });
-    if (!product) return res.status(404).json({ message: "Product not found" });
-    res.json({ message: "Product updated successfully", product });
+    if (!product) {
+      return res.status(404).json({ message: "Product not found" });
+    }
+
+    // 2. Kiểm tra quyền: Chỉ distributor tạo ra sản phẩm mới được cập nhật
+    if (product.distributor.toString() !== distributorId) {
+      return res.status(403).json({ message: "User not authorized to update this product" });
+    }
+
+    // 3. Cập nhật thông tin blockchain
+    product.blockchainHash = blockchainHash;
+    product.blockchainTx = blockchainTx;
+    product.cid = cid;
+
+    await product.save();
+
+    res.status(200).json({
+      message: "Blockchain info updated successfully",
+      product: product
+    });
+
   } catch (err) {
-    res.status(500).json({ message: err.message });
+    res.status(500).json({ message: "Server error: " + err.message });
   }
 };
 
-// ❌ Xóa sản phẩm
+// Xóa sản phẩm
 exports.deleteProduct = async (req, res) => {
   try {
     const product = await Product.findByIdAndDelete(req.params.id);

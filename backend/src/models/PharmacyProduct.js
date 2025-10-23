@@ -1,40 +1,36 @@
+// models/PharmacyProduct.js
 const mongoose = require("mongoose");
 
-const PharmacyProductSchema = new mongoose.Schema(
-  {
-    productId: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Product", // Tham chiếu sản phẩm gốc
-      required: true,
-    },
-    pharmacyId: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Pharmacy", // Thuộc về nhà thuốc nào
-      required: true,
-    },
-    distributorId: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Distributor", // Nếu có distributor cung cấp
-    },
-
-    // Các trường quản lý riêng cho Pharmacy
-    stock: { type: Number, default: 0 },        // tồn kho
-    minStock: { type: Number, default: 0 },     // tồn kho tối thiểu
-    price: { type: Number, required: true },    // giá bán do Pharmacy set
-    expiryDate: { type: Date },                 // hạn sử dụng
-    batchNumber: { type: String },              // lô sản xuất
-
-    // Blockchain
-    blockchainStatus: {
-      type: String,
-      enum: ["not_registered", "pending", "verified"],
-      default: "not_registered",
-    },
-    transactionHash: { type: String },
-    ipfsCID: { type: String },
-    registeredDate: { type: Date, default: Date.now },
+const PharmacyProductSchema = new mongoose.Schema({
+  // Liên kết đến sản phẩm gốc (quan trọng nhất)
+  masterProduct: { 
+    type: mongoose.Schema.Types.ObjectId, 
+    ref: "DistributorProduct", 
+    required: true 
   },
-  { timestamps: true }
-);
+  
+  // Nhà thuốc đang bán sản phẩm này
+  pharmacy: { 
+    type: mongoose.Schema.Types.ObjectId, 
+    ref: "Pharmacy", 
+    required: true 
+  },
+  
+  // Thông tin bán hàng của nhà thuốc
+  price: { type: Number, required: true },
+  discountPrice: { type: Number },
+  quantity: { type: Number, default: 0 },
+  prescription: { type: Boolean, default: false }, // Yêu cầu đơn thuốc
+
+  // Chỉ số bán hàng
+  viewCount: { type: Number, default: 0 },
+  likeCount: { type: Number, default: 0 },
+  sellCount: { type: Number, default: 0 },
+
+  createdAt: { type: Date, default: Date.now }
+});
+
+// Đảm bảo mỗi nhà thuốc chỉ có 1 bản ghi cho 1 sản phẩm gốc
+PharmacyProductSchema.index({ masterProduct: 1, pharmacy: 1 }, { unique: true });
 
 module.exports = mongoose.model("PharmacyProduct", PharmacyProductSchema);

@@ -21,6 +21,7 @@ import DistributorOrder from "./components/Distributor/Order";
 import DistributorBatch from "./components/Distributor/Batch";
 import DistributorProduct from "./components/Distributor/Products";
 import DistributorReports from "./components/Distributor/Report";
+import PharmacyShop from "./components/Pharmacy/Shop";
 
 
 // Component xử lý layout theo route
@@ -47,6 +48,7 @@ const AppContent: React.FC = () => {
       <Route path="/pharmacy/report" element={<PharmacyReport/>}/>
       <Route path="/pharmacy/account" element={<PharmacyAccount/>}/>
       <Route path="/pharmacy/supplier" element={<PharmacySupplierOrders/>}/>
+      <Route path="/pharmacy/shop" element={<PharmacyShop/>}/>
 
       {/* DISTRIBUTOR */}
       <Route path="/distributor/home" element={<DistributorHome/>}/>

@@ -6,7 +6,6 @@ const PharmacyProduct: React.FC = () => {
   const [viewMode, setViewMode] = useState('grid'); // grid or table
   const [selectedProduct, setSelectedProduct] = useState<any>(null);
   const [showDetailModal, setShowDetailModal] = useState(false);
-  const [showRegisterModal, setShowRegisterModal] = useState(false);
   const [loading, setLoading] = useState(true);
   const [products, setProducts] = useState<any[]>([]);
 
@@ -128,31 +127,6 @@ const PharmacyProduct: React.FC = () => {
       day: 'numeric'
     });
   };
-
-  // Hiển thị trạng thái blockchain
-  const renderBlockchainStatus = (status: any) => {
-    switch (status) {
-      case 'verified':
-        return (
-          <span className="status-badge verified">
-            ✅ Verified
-          </span>
-        );
-      case 'pending':
-        return (
-          <span className="status-badge pending">
-            ⏳ Pending
-          </span>
-        );
-      default:
-        return (
-          <span className="status-badge not-registered">
-            ❌ Not Registered
-          </span>
-        );
-    }
-  };
-
   // Hiển thị trạng thái tồn kho
   const renderStockStatus = (stock: any, minStock: any) => {
     if (stock === 0) {
@@ -164,57 +138,39 @@ const PharmacyProduct: React.FC = () => {
     }
   };
 
+  const renderBlockchainStatus = (status: any) => {
+    switch (status) {
+      case 'verified':
+        return (
+          <span className="status-badge verified">
+            ✅ Đã xác thực
+          </span>
+        );
+      case 'pending':
+        return (
+          <span className="status-badge pending">
+            ⏳ Đang chờ
+          </span>
+        );
+      case 'not_verified': // Đổi từ 'not_registered'
+        return (
+          <span className="status-badge not-registered">
+            ❌ Chưa xác thực
+          </span>
+        );
+      default:
+        return (
+          <span className="status-badge not-registered">
+            ❌ Không rõ
+          </span>
+        );
+    }
+  };
+
   // Mở modal chi tiết
   const openProductDetail = (product: any) => {
     setSelectedProduct(product);
     setShowDetailModal(true);
-  };
-
-  // Mở modal đăng ký blockchain
-  const openRegisterModal = (product: any) => {
-    setSelectedProduct(product);
-    setShowRegisterModal(true);
-  };
-
-  // Đăng ký lên blockchain
-  const registerOnBlockchain = async (productId: any) => {
-    // Giả lập gọi API đăng ký blockchain
-    alert(`Đang đăng ký sản phẩm ${productId} lên blockchain...`);
-    
-    // Simulate blockchain registration
-    setTimeout(() => {
-      setProducts(products.map(product =>
-        product.id === productId
-          ? {
-              ...product,
-              blockchainStatus: 'pending',
-              transactionHash: '0x' + Math.random().toString(16).substr(2, 64)
-            }
-          : product
-      ));
-      alert('Đã gửi yêu cầu đăng ký lên blockchain!');
-      setShowRegisterModal(false);
-    }, 2000);
-  };
-
-  // Xác minh lại trên blockchain
-  const verifyOnBlockchain = async (productId: any) => {
-    // Giả lập gọi API xác minh
-    alert(`Đang xác minh sản phẩm ${productId} trên blockchain...`);
-    
-    // Simulate blockchain verification
-    setTimeout(() => {
-      setProducts(products.map(product =>
-        product.id === productId
-          ? {
-              ...product,
-              blockchainStatus: 'verified',
-              blockchainTimestamp: new Date().toISOString()
-            }
-          : product
-      ));
-      alert('Xác minh thành công! Dữ liệu hợp lệ trên blockchain.');
-    }, 1500);
   };
 
   return (
@@ -241,8 +197,11 @@ const PharmacyProduct: React.FC = () => {
                 📋 Table
               </button>
             </div>
-            <button className="add-product-btn">
-              ＋ Thêm sản phẩm
+            <button
+              className="add-product-btn"
+              onClick={() => { window.location.href = '/pharmacy/shop'; }}
+            >
+              ＋ mua thuốc
             </button>
           </div>
         </div>
@@ -289,7 +248,7 @@ const PharmacyProduct: React.FC = () => {
                   <img src={product.image} alt={product.name} />
                   <div className="product-badges">
                     {renderStockStatus(product.stock, product.minStock)}
-                    {renderBlockchainStatus(product.blockchainStatus)}
+                    {renderBlockchainStatus(product.status)}
                   </div>
                 </div>
 
@@ -319,14 +278,6 @@ const PharmacyProduct: React.FC = () => {
                     >
                       Xem chi tiết
                     </button>
-                    {product.blockchainStatus !== 'verified' && (
-                      <button
-                        className="action-btn register"
-                        onClick={() => openRegisterModal(product)}
-                      >
-                        {product.blockchainStatus === 'pending' ? 'Kiểm tra' : 'Đăng ký'}
-                      </button>
-                    )}
                   </div>
                 </div>
               </div>
@@ -368,7 +319,7 @@ const PharmacyProduct: React.FC = () => {
                       <span className="distributor">{product.distributor}</span>
                     </td>
                     <td>
-                      {renderBlockchainStatus(product.blockchainStatus)}
+                      {renderBlockchainStatus(product.status)}
                     </td>
                     <td>
                       <div className="action-buttons">
@@ -379,15 +330,6 @@ const PharmacyProduct: React.FC = () => {
                         >
                           👁️
                         </button>
-                        {product.blockchainStatus !== 'verified' && (
-                          <button
-                            className="action-btn register"
-                            onClick={() => openRegisterModal(product)}
-                            title={product.blockchainStatus === 'pending' ? 'Kiểm tra trạng thái' : 'Đăng ký blockchain'}
-                          >
-                            {product.blockchainStatus === 'pending' ? '🔄' : '⛓️'}
-                          </button>
-                        )}
                       </div>
                     </td>
                   </tr>
@@ -501,12 +443,6 @@ const PharmacyProduct: React.FC = () => {
 
                 <div className="modal-actions">
                   <button
-                    className="action-btn verify"
-                    onClick={() => verifyOnBlockchain(selectedProduct.id)}
-                  >
-                    🔍 Verify on Blockchain
-                  </button>
-                  <button
                     className="action-btn close"
                     onClick={() => setShowDetailModal(false)}
                   >
@@ -518,58 +454,6 @@ const PharmacyProduct: React.FC = () => {
           </div>
         )}
 
-        {/* Modal đăng ký blockchain */}
-        {showRegisterModal && selectedProduct && (
-          <div className="modal-overlay">
-            <div className="register-modal">
-              <div className="modal-header">
-                <h2>Đăng ký lên Blockchain</h2>
-                <button className="close-btn" onClick={() => setShowRegisterModal(false)}>×</button>
-              </div>
-
-              <div className="modal-content">
-                <div className="product-preview">
-                  <img src={selectedProduct.image} alt={selectedProduct.name} />
-                  <div>
-                    <h3>{selectedProduct.name}</h3>
-                    <p>{selectedProduct.category}</p>
-                  </div>
-                </div>
-
-                <div className="registration-info">
-                  <h4>Thông tin sẽ được ghi lên blockchain:</h4>
-                  <ul>
-                    <li>Tên sản phẩm: {selectedProduct.name}</li>
-                    <li>Nhà sản xuất: {selectedProduct.manufacturer}</li>
-                    <li>Nhà phân phối: {selectedProduct.distributor}</li>
-                    <li>Hạn sử dụng: {formatDate(selectedProduct.expiryDate)}</li>
-                    <li>Mã sản phẩm: {selectedProduct.id}</li>
-                  </ul>
-
-                  <div className="blockchain-note">
-                    <p>⚠️ Lưu ý: Dữ liệu một khi đã ghi lên blockchain sẽ không thể thay đổi.</p>
-                    <p>Chi phí gas: ~0.002 ETH (ước tính)</p>
-                  </div>
-                </div>
-
-                <div className="modal-actions">
-                  <button
-                    className="action-btn confirm"
-                    onClick={() => registerOnBlockchain(selectedProduct.id)}
-                  >
-                    ⛓️ Xác nhận đăng ký
-                  </button>
-                  <button
-                    className="action-btn cancel"
-                    onClick={() => setShowRegisterModal(false)}
-                  >
-                    Hủy
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
         </>
         )}
 

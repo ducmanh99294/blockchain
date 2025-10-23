@@ -153,17 +153,24 @@ exports.login = async (req, res) => {
       { expiresIn: "8h" }
     );
 
-    let extraInfo = null;
+    let extraId = user._id;
     if (role === "pharmacy") {
-      extraInfo = await Pharmacy.findOne({ userId: user._id });
+      const pharmacy = await Pharmacy.findOne({ userId: user._id });
+      if (pharmacy) extraId = pharmacy._id;
+      else {
+        console.warn(`Pharmacy not found for user ${user._id}`);
+      }
     } else if (role === "distributor") {
-      extraInfo = await Distributor.findOne({ userId: user._id });
+      const distributor = await Distributor.findOne({ userId: user._id });
+      if (distributor) extraId = distributor._id;
+      else {
+        console.warn(`Distributor not found for user ${user._id}`);
+      }
     }
-
     res.json({
       message: "Login successful",
       token,
-      user: { id: user._id, name: user.name, role: user.role }
+      user: { id: extraId, name: user.name, role: user.role }
     });
   } catch (err) {
     res.status(500).json({ error: err.message });

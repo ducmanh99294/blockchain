@@ -1,71 +1,105 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-contract quanLiThuoc {
-    struct DrugBatch {
-        uint256 batchId;               // ID lô thuốc
-        string drugName;               // Tên thuốc
-        uint256 manufactureDate;       // Ngày sản xuất (timestamp)
-        uint256 expiryDate;            // Hạn sử dụng (timestamp)
-        address manufacturer;          // Địa chỉ ví nhà sản xuất
-        address currentOwner;          // Chủ sở hữu hiện tại
-        string ipfsHash;               // Hash metadata ngoài chuỗi (IPFS)
-        bool exists;                   // Kiểm tra lô có tồn tại hay không
+import "@openzeppelin/contracts/access/Ownable.sol";
+
+contract QuanLyThuoc is Ownable {
+    constructor() Ownable(msg.sender) {}
+
+    struct Thuoc {
+        uint256 id; 
+        string nguonGoc;
+        string ipfsHash;
+        address nhaPhanPhoi; 
+        address nhaThuoc;
+        address nguoiTieuDung;
+        uint256 giaBanSi;
+        uint256 giaBanLe;
+        bool duocXacThuc;
+        bool daBanChoNhaThuoc;
+        bool daBanChoNguoiTieuDung;
     }
 
-    struct TransferHistory {
-        address from;
-        address to;
-        uint256 timestamp;
-    }
+    mapping(uint256 => Thuoc) public danhSachThuoc;
+    
+    event XacThucNguonGoc(uint256 id, string nguonGoc, string ipfsHash, address nhaPhanPhoi);
+    event BanChoNhaThuoc(uint256 id, address nhaThuoc, uint256 gia);
+    event BanChoNguoiTieuDung(uint256 id, address nguoiTieuDung, uint256 gia);
 
-    mapping(uint256 => DrugBatch) public batches; // batchId → thông tin lô thuốc
-    mapping(uint256 => TransferHistory[]) public batchTransfers; // lịch sử giao dịch
-
-    uint256 public nextBatchId = 1;
-
-    event BatchCreated(uint256 batchId, string drugName, address manufacturer);
-    event BatchTransferred(uint256 batchId, address from, address to);
-
-    // Tạo lô thuốc mới (chỉ manufacturer gọi)
-    function createBatch(
-        string memory _drugName,
-        uint256 _manufactureDate,
-        uint256 _expiryDate,
-        string memory _ipfsHash
+    /**
+     * @dev Đăng ký sản phẩm (đã tối ưu)
+     * Chỉ lưu các thông tin cần thiết cho logic on-chain.
+     */
+    function xacThucNguonGoc(
+        uint256 id,
+        uint256 giaBanSi,
+        string memory nguonGoc,
+        string memory ipfsHash
     ) public {
-        batches[nextBatchId] = DrugBatch({
-            batchId: nextBatchId,
-            drugName: _drugName,
-            manufactureDate: _manufactureDate,
-            expiryDate: _expiryDate,
-            manufacturer: msg.sender,
-            currentOwner: msg.sender,
-            ipfsHash: _ipfsHash,
-            exists: true
+        require(danhSachThuoc[id].nhaPhanPhoi == address(0), "ID san pham nay da duoc dang ky");
+        require(giaBanSi > 0, "Gia ban si phai lon hon 0");
+
+        danhSachThuoc[id] = Thuoc({
+            id: id,
+            nguonGoc: nguonGoc,
+            ipfsHash: ipfsHash,
+            nhaPhanPhoi: msg.sender,
+            nhaThuoc: address(0),
+            nguoiTieuDung: address(0),
+            giaBanSi: giaBanSi,
+            giaBanLe: 0,
+            duocXacThuc: true,
+            daBanChoNhaThuoc: false,
+            daBanChoNguoiTieuDung: false
         });
 
-        emit BatchCreated(nextBatchId, _drugName, msg.sender);
-        nextBatchId++;
+        emit XacThucNguonGoc(id, nguonGoc, ipfsHash, msg.sender);
     }
 
-    // Chuyển quyền sở hữu (Manufacturer → Pharmacy → Consumer)
-    function transferBatch(uint256 _batchId, address _to) public {
-        require(batches[_batchId].exists, "Batch does not exist");
-        require(batches[_batchId].currentOwner == msg.sender, "Not batch owner");
+    //
+    // --- CÁC HÀM KHÁC GIỮ NGUYÊN ---
+    // (Vì chúng ta đã giữ lại giaBanSi nên chúng vẫn hoạt động)
+    //
 
-        batches[_batchId].currentOwner = _to;
-        batchTransfers[_batchId].push(
-            TransferHistory(msg.sender, _to, block.timestamp)
-        );
+    function muaChoNhaThuoc(uint256 id) public payable {
+        Thuoc storage t = danhSachThuoc[id];
+        require(t.nhaPhanPhoi != address(0), "San pham khong ton tai"); 
+        require(!t.daBanChoNhaThuoc, "Thuoc da duoc ban cho nha thuoc");
+        require(msg.value == t.giaBanSi, "Sai so tien gui vao");
 
-        emit BatchTransferred(_batchId, msg.sender, _to);
+        payable(t.nhaPhanPhoi).transfer(msg.value);
+        t.nhaThuoc = msg.sender;
+        t.daBanChoNhaThuoc = true;
+
+        emit BanChoNhaThuoc(id, msg.sender, msg.value);
     }
 
-    // Lấy lịch sử giao dịch của lô thuốc
-    function getTransferHistory(uint256 _batchId) 
-        public view returns (TransferHistory[] memory) 
+    function datGiaBanLe(uint256 id, uint256 giaBanLe) public {
+        Thuoc storage t = danhSachThuoc[id];
+        require(t.nhaThuoc == msg.sender, "Chi nha thuoc moi duoc dat gia");
+        require(t.daBanChoNhaThuoc, "Thuoc chua duoc mua tu distributor");
+        require(giaBanLe > t.giaBanSi, "Gia ban le phai lon hon gia ban si");
+        t.giaBanLe = giaBanLe;
+    }
+
+    function muaTuNguoiTieuDung(uint256 id) public payable {
+        Thuoc storage t = danhSachThuoc[id];
+        require(t.giaBanLe > 0, "Nha thuoc chua dat gia ban le");
+        require(!t.daBanChoNguoiTieuDung, "Thuoc da duoc ban cho nguoi tieu dung");
+        require(msg.value == t.giaBanLe, "Sai so tien gui vao");
+
+        payable(t.nhaThuoc).transfer(msg.value);
+        t.nguoiTieuDung = msg.sender;
+        t.daBanChoNguoiTieuDung = true;
+
+        emit BanChoNguoiTieuDung(id, msg.sender, msg.value);
+    }
+
+    function xemThongTinThuoc(uint256 id)
+        public
+        view
+        returns (Thuoc memory)
     {
-        return batchTransfers[_batchId];
+        return danhSachThuoc[id];
     }
 }
