@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { 
   FaSearch, FaShoppingCart, FaFilter, FaSortAmountDown,
   FaShieldAlt, FaBox, FaStore, FaClipboardList,
@@ -41,7 +41,7 @@ const PharmacyShop = () => {
 
     // Lọc theo từ khóa tìm kiếm
     if (searchTerm) {
-      filtered = filtered.filter(product =>
+      filtered = filtered.filter((product: any) =>
         product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
         product.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
         product.manufacturer.toLowerCase().includes(searchTerm.toLowerCase())
@@ -50,11 +50,11 @@ const PharmacyShop = () => {
 
     // Lọc theo danh mục
     if (selectedCategory !== 'all') {
-      filtered = filtered.filter(product => product.category === selectedCategory);
+      filtered = filtered.filter((product: any) => product.category === selectedCategory);
     }
 
     // Sắp xếp
-    filtered = [...filtered].sort((a, b) => {
+    filtered = [...filtered].sort((a: any, b: any) => {
       switch (sortBy) {
         case 'price':
           return a.price - b.price;
@@ -79,7 +79,7 @@ const PharmacyShop = () => {
         throw new Error('Lỗi khi lấy danh sách sản phẩm');
       }
       const data = await res.json();
-      const availableProducts = data.filter(p => p.status === 'verified' && p.stock > 0);
+      const availableProducts = data.filter((p: any) => p.status === 'verified' && p.stock > 0);
       setProducts(availableProducts);
       setFilteredProducts(availableProducts);
     } catch (error) {
@@ -95,12 +95,12 @@ const PharmacyShop = () => {
     setBlockchainData(null); // Xóa dữ liệu cũ
 
     try {
-      if (!window.ethereum) {
+      if (!(window as any).ethereum) {
         alert("Vui lòng cài đặt MetaMask!");
         throw new Error("MetaMask not found");
       }
 
-      const provider = new ethers.BrowserProvider(window.ethereum);
+      const provider = new ethers.BrowserProvider((window as any).ethereum);
       const contract = new ethers.Contract(contractAddress, quanLiThuocABI.abi, provider);
 
       const productId = "0x" + product._id;
@@ -128,12 +128,12 @@ const PharmacyShop = () => {
   };
 
   // Thêm sản phẩm vào giỏ hàng
-  const addToCart = (product) => {
-    const existingItem = cart.find(item => item._id === product._id);
+  const addToCart = (product: any) => {
+    const existingItem = cart.find((item: any) => item._id === product._id);
     
     if (existingItem) {
       if (existingItem.quantity + 1 <= product.stock) {
-        setCart(cart.map(item =>
+        setCart(cart.map((item: any) =>
           item.id === product.id
             ? { ...item, quantity: item.quantity + 1 }
             : item
@@ -145,11 +145,11 @@ const PharmacyShop = () => {
   };
 
   // Cập nhật số lượng sản phẩm trong giỏ hàng
-  const updateQuantity = (productId, newQuantity) => {
-    const product = products.find(p => p._id === productId);
+  const updateQuantity = (productId: any, newQuantity: any) => {
+    const product = products.find((p: any) => p._id === productId);
     
     if (newQuantity >= product.minOrder && newQuantity <= product.stock) {
-      setCart(cart.map(item =>
+      setCart(cart.map((item: any) =>
         item._id === productId
           ? { ...item, quantity: newQuantity }
           : item
@@ -161,21 +161,21 @@ const PharmacyShop = () => {
   }; 
 
   const removeFromCart = (productId: any) => {
-    setCart(cart.filter(item => item._id !== productId));
+    setCart(cart.filter((item: any) => item._id !== productId));
   };
 
   // Tính tổng tiền
   const getTotalPrice = () => {
-    return cart.reduce((total, item) => total + (item.wholesalePrice * item.quantity), 0);
+    return cart.reduce((total: any, item: any) => total + (item.wholesalePrice * item.quantity), 0);
   };
 
   // Tính tổng số lượng
   const getTotalItems = () => {
-    return cart.reduce((total, item) => total + item.quantity, 0);
+    return cart.reduce((total: any, item: any) => total + item.quantity, 0);
   };
 
   // Định dạng số tiền
-  const formatCurrency = (amount) => {
+  const formatCurrency = (amount: any) => {
     return new Intl.NumberFormat('vi-VN', {
       style: 'currency',
       currency: 'VND'
@@ -269,7 +269,7 @@ const PharmacyShop = () => {
 
       {/* Products Grid */}
       <div className="products-grid">
-        {filteredProducts.map(product => (
+        {filteredProducts.map((product: any) => (
          <div key={product._id} className="product-card"> {/* 11. Sửa 'id' -> '_id' */}
             <div className="product-image">
               <img src={product.image[0]} alt={product.name} /> {/* 11. Sửa 'image' -> 'image[0]' */}
@@ -354,7 +354,7 @@ const PharmacyShop = () => {
           ) : (
             <>
         <div className="cart-items">
-          {cart.map(item => (
+          {cart.map((item: any) => (
             <div key={item._id} className="cart-item"> 
               <div className="item-info">
           <h4>{item.name}</h4>
@@ -415,7 +415,7 @@ const PharmacyShop = () => {
             <div className="modal-body">
               <div className="order-summary">
                 <h4>Chi tiết đơn hàng</h4>
-                {cart.map(item => (
+                {cart.map((item: any) => (
                   <div key={item._id} className="order-item">
                     <span>{item.name} x {item.quantity}</span>
                     <span>{formatCurrency(item.giaBanSi * item.quantity)}</span>

@@ -42,68 +42,6 @@ const DistributorProduct: React.FC = () => {
   useEffect(() => {
     fetchCategories();
     fetchDistributorProducts();
-    const mockProducts = [
-      {
-        id: 1,
-        name: "Paracetamol 500mg",
-        description: "Thuốc giảm đau, hạ sốt",
-        image: "https://via.placeholder.com/80x80/4CAF50/FFFFFF?text=P",
-        price: 120000,
-        stock: 1500,
-        expiryDate: "2024-12-31",
-        license: "VD-12345-2020",
-        cid: "QmXoypizjW3WknFiJnKLwHCnL72vedxjQkDDP1mXWo6uco",
-        transactionHash: "0x4a8c5d87a2b3c9e1f0d8e7c2b3a9f8e7d6c5b4a3f2e1d0c9b8a7f6e5d4c3b2a1",
-        status: "verified",
-        manufacturer: "Công ty Dược phẩm ABC",
-        batchNumber: "B20230501"
-      },
-      {
-        id: 2,
-        name: "Amoxicillin 250mg",
-        description: "Kháng sinh điều trị nhiễm khuẩn",
-        image: "https://via.placeholder.com/80x80/2196F3/FFFFFF?text=A",
-        price: 185000,
-        stock: 800,
-        expiryDate: "2024-10-15",
-        license: "VD-54321-2021",
-        cid: "QmY7yz7pX9z2cJ4KnLwHCnL72vedxjQkDDP1mXWo6uco",
-        transactionHash: null,
-        status: "pending",
-        manufacturer: "Công ty Dược phẩm XYZ",
-        batchNumber: "B20230615"
-      },
-      {
-        id: 3,
-        name: "Vitamin C 1000mg",
-        description: "Bổ sung vitamin C, tăng sức đề kháng",
-        image: "https://via.placeholder.com/80x80/FF9800/FFFFFF?text=V",
-        price: 95000,
-        stock: 2000,
-        expiryDate: "2025-03-20",
-        license: "VD-98765-2022",
-        cid: null,
-        transactionHash: null,
-        status: "not_verified",
-        manufacturer: "Công ty Dược phẩm Sunshine",
-        batchNumber: "B20230720"
-      },
-      {
-        id: 4,
-        name: "Metformin 500mg",
-        description: "Điều trị đái tháo đường type 2",
-        image: "https://via.placeholder.com/80x80/9C27B0/FFFFFF?text=M",
-        price: 135000,
-        stock: 1200,
-        expiryDate: "2024-11-30",
-        license: "VD-13579-2021",
-        cid: "QmZ3pz7pX9z2cJ4KnLwHCnL72vedxjQkDDP1mXWo6uco",
-        transactionHash: "0x5b9c6d87a2b3c9e1f0d8e7c2b3a9f8e7d6c5b4a3f2e1d0c9b8a7f6e5d4c3b2a1",
-        status: "verified",
-        manufacturer: "Công ty Dược phẩm Medico",
-        batchNumber: "B20230415"
-      }
-    ];
     
     setFilteredProducts(products);
   }, []);
@@ -129,98 +67,98 @@ const DistributorProduct: React.FC = () => {
     setShowRegisterModal(true);
   };
 
-const handleRegisterToBlockchain = async (
-  product: any,          
-  originImages: File[],  
-  originInfo: string     
-) => {
-  
-  // Kiểm tra đầu vào
-  if (!originInfo.trim()) {
-    alert("Vui lòng nhập thông tin nguồn gốc!");
-    return;
-  }
-  if (!originImages || originImages.length === 0) {
-    alert("Vui lòng chọn ít nhất 1 hình ảnh chứng từ!");
-    return;
-  }
-  if (!product || !product._id || product.price === undefined) {
-    alert("Lỗi: Dữ liệu sản phẩm (ID hoặc Giá) bị thiếu.");
-    return;
-  }
-
-  // setLoading(true); 
-  try {
-    console.log("Đang tải hình ảnh lên IPFS...");
-    const uploadedCIDs: string[] = [];
-    for (const file of originImages) {
-      const uploadRes = await pinata.upload.file(file);
-      const ipfsHash = uploadRes.IpfsHash || uploadRes.cid;
-      uploadedCIDs.push(ipfsHash);
+  const handleRegisterToBlockchain = async (
+    product: any,          
+    originImages: File[],  
+    originInfo: string     
+  ) => {
+    
+    // Kiểm tra đầu vào
+    if (!originInfo.trim()) {
+      alert("Vui lòng nhập thông tin nguồn gốc!");
+      return;
     }
-    const imageCIDString = JSON.stringify(uploadedCIDs);
-    console.log("Uploaded CIDs:", imageCIDString);
-
-    // ✅ 2. Kết nối MetaMask
-    if (!window.ethereum) {
-      alert("Vui lòng cài đặt MetaMask trước!");
-      // setLoading(false);
+    if (!originImages || originImages.length === 0) {
+      alert("Vui lòng chọn ít nhất 1 hình ảnh chứng từ!");
+      return;
+    }
+    if (!product || !product._id || product.price === undefined) {
+      alert("Lỗi: Dữ liệu sản phẩm (ID hoặc Giá) bị thiếu.");
       return;
     }
 
-    const provider = new ethers.BrowserProvider(window.ethereum);
-    const signer = await provider.getSigner();
+    // setLoading(true); 
+    try {
+      console.log("Đang tải hình ảnh lên IPFS...");
+      const uploadedCIDs: string[] = [];
+      for (const file of originImages) {
+        const uploadRes = await pinata.upload.file(file);
+        const ipfsHash = uploadRes.IpfsHash || (uploadRes as any).cid;
+        uploadedCIDs.push(ipfsHash);
+      }
+      const imageCIDString = JSON.stringify(uploadedCIDs);
+      console.log("Uploaded CIDs:", imageCIDString);
 
-    // Khởi tạo contract (Đảm bảo 2 biến này là MỚI NHẤT)
-    const contract = new ethers.Contract(
-      contractAddress,  
-      quanLiThuocABI.abi, 
-      signer
-    );
+      // ✅ 2. Kết nối MetaMask
+      if (!(window as any).ethereum) {
+        alert("Vui lòng cài đặt MetaMask trước!");
+        // setLoading(false);
+        return;
+      }
 
-    const productId = "0x" + product._id;
-    const giaBanSiString = product.price.toString();
+      const provider = new ethers.BrowserProvider((window as any).ethereum);
+      const signer = await provider.getSigner();
 
-    console.log("Đang gửi giao dịch (đã tối ưu) với 4 tham số:");
-    console.log("1. id (uint256):", productId);
-    console.log("2. giaBanSi (uint256):", giaBanSiString);
-    console.log("3. nguonGoc (string):", originInfo);
-    console.log("4. ipfsHash (string):", imageCIDString);
+      // Khởi tạo contract (Đảm bảo 2 biến này là MỚI NHẤT)
+      const contract = new ethers.Contract(
+        contractAddress,  
+        quanLiThuocABI.abi, 
+        signer
+      );
 
-    // ✅ 4. Gọi hàm contract với đúng 4 tham số
-    const tx = await contract.xacThucNguonGoc(
-      productId,
-      giaBanSiString,
-      originInfo,
-      imageCIDString
-    );
+      const productId = "0x" + product._id;
+      const giaBanSiString = product.price.toString();
 
-    console.log(`Đang chờ giao dịch (tx: ${tx.hash})...`);
-    await tx.wait();
+      console.log("Đang gửi giao dịch (đã tối ưu) với 4 tham số:");
+      console.log("1. id (uint256):", productId);
+      console.log("2. giaBanSi (uint256):", giaBanSiString);
+      console.log("3. nguonGoc (string):", originInfo);
+      console.log("4. ipfsHash (string):", imageCIDString);
 
-    // ✅ 5. (Rất nên làm) Cập nhật lại Mongo
-    await fetch(`http://localhost:3000/api/distributor/products/${product._id}`, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        blockchainTx: tx.hash,      
-        ipfsCidString: imageCIDString,
-        originInfo: originInfo,
-          imagesOrigin: originImages.map(f => f.name),
-        status: "verified"
-      })
-    });
-    
-    alert("✅ Đăng ký và xác thực sản phẩm lên blockchain thành công!");
+      // ✅ 4. Gọi hàm contract với đúng 4 tham số
+      const tx = await contract.xacThucNguonGoc(
+        productId,
+        giaBanSiString,
+        originInfo,
+        imageCIDString
+      );
 
-  } catch (error) {
-    console.error("Lỗi đăng ký/xác thực blockchain:", error);
-    alert("❌ Đăng ký/xác thực thất bại! Kiểm tra console.");
-  } finally {
-    // (Tùy chọn) Tắt cờ loading
-    // setLoading(false);
-  }
-};
+      console.log(`Đang chờ giao dịch (tx: ${tx.hash})...`);
+      await tx.wait();
+
+      // ✅ 5. (Rất nên làm) Cập nhật lại Mongo
+      await fetch(`http://localhost:3000/api/distributor/products/${product._id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          blockchainTx: tx.hash,      
+          ipfsCidString: imageCIDString,
+          originInfo: originInfo,
+            imagesOrigin: originImages.map(f => f.name),
+          status: "verified"
+        })
+      });
+      
+      alert("✅ Đăng ký và xác thực sản phẩm lên blockchain thành công!");
+
+    } catch (error) {
+      console.error("Lỗi đăng ký/xác thực blockchain:", error);
+      alert("❌ Đăng ký/xác thực thất bại! Kiểm tra console.");
+    } finally {
+      // (Tùy chọn) Tắt cờ loading
+      // setLoading(false);
+    }
+  };
   // Định dạng số tiền
   const formatCurrency = (amount: any) => {
     return new Intl.NumberFormat('vi-VN', {
@@ -516,7 +454,7 @@ const handleRegisterToBlockchain = async (
                       multiple
                       onChange={(e) => setOriginImages(Array.from(e.target.files || []))} 
                     />
-                    {originImages.length > 0 && <p>📎 {originImages.map(img => img.name).join(", ")}</p>}
+                    {originImages.length > 0 && <p>📎 {originImages.map((img: any) => img.name).join(", ")}</p>}
                   </div>
                 </div>
               </div>

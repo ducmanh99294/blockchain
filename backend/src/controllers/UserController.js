@@ -4,7 +4,7 @@ const jwt = require("jsonwebtoken");
 
 const JWT_SECRET = process.env.JWT_SECRET || "secret_key";
 
-// 🟡 Lấy thông tin user hiện tại
+// ấy thông tin user hiện tại
 exports.getProfile = async (req, res) => {
   try {
     const user = await User.findById(req.user.id).select("-password");
@@ -15,7 +15,7 @@ exports.getProfile = async (req, res) => {
   }
 };
 
-// 🟢 Update user
+// Update user
 exports.updateUser = async (req, res) => {
   try {
     const { id } = req.params;
@@ -36,7 +36,7 @@ exports.updateUser = async (req, res) => {
 };
 
 
-// 🟢 Lấy tất cả user
+// Lấy tất cả user
 exports.getAllUser = async (req, res) => {
   try {
     const users = await User.find().select("-password");
@@ -46,7 +46,7 @@ exports.getAllUser = async (req, res) => {
   }
 };
 
-// 🔴 Ban user (chuyển role → banner)
+// Ban user (chuyển role → banner)
 exports.banUser = async (req, res) => {
   try {
     const user = await User.findByIdAndUpdate(
@@ -61,7 +61,7 @@ exports.banUser = async (req, res) => {
   }
 };
 
-// 🟢 Unban user (chuyển role → user)
+// Unban user (chuyển role → user)
 exports.unbanUser = async (req, res) => {
   try {
     const user = await User.findByIdAndUpdate(
@@ -76,7 +76,7 @@ exports.unbanUser = async (req, res) => {
   }
 };
 
-// 🟠 Thêm user (admin)
+// Thêm user (admin)
 exports.addUser = async (req, res) => {
   try {
     const { name, username, email, password, phone, address, role } = req.body;
@@ -106,7 +106,7 @@ exports.addUser = async (req, res) => {
   }
 };
 
-// 🔴 Logout user
+// Logout user
 exports.logout = async (req, res) => {
   try {
     // Nếu chỉ dùng JWT thì logout chỉ là để client xóa token

@@ -197,7 +197,7 @@ const handleApplyCoupon = async () => {
             <p>Hãy thêm một số sản phẩm để bắt đầu mua sắm</p>
             <button 
               className="continue-shopping-btn"
-              onClick={() => window.location.href = '/user/category'}
+              onClick={() => window.location.href = '/category'}
             >
               Tiếp tục mua sắm
             </button>

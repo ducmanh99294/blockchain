@@ -16,18 +16,25 @@ import PharmacyReport from "./components/Pharmacy/Reports";
 import PharmacyProduct from "./components/Pharmacy/Products";
 import PharmacyAccount from "./components/Pharmacy/Account";
 import PharmacySupplierOrders from "./components/Pharmacy/SupplierOrders";
+
+import DistributorAccount from "./components/Distributor/Account";
 import DistributorHome from "./components/Distributor/Home";
 import DistributorOrder from "./components/Distributor/Order";
 import DistributorBatch from "./components/Distributor/Batch";
 import DistributorProduct from "./components/Distributor/Products";
 import DistributorReports from "./components/Distributor/Report";
 import PharmacyShop from "./components/Pharmacy/Shop";
+import Header from "./components/header";
+import Footer from "./components/footer";
 
-
+import "./App.css";
 // Component xử lý layout theo route
 const AppContent: React.FC = () => {
+  const noHeaderFooterPaths = ["/login", "/register"];
+  const hideHeaderFooter = noHeaderFooterPaths.includes(location.pathname);
   return (
     <>
+    {!hideHeaderFooter && <Header />}
     <Routes>
       <Route path="/login" element={<Login/>} />
       <Route path="/register" element={<Register/>} />
@@ -42,7 +49,7 @@ const AppContent: React.FC = () => {
       <Route path="/account" element={<Account/>}/>
 
       {/* PHARMACY */}
-      <Route path="/pharmacy/home" element={<PharmacyHome/>}/>
+      <Route path="/pharmacy" element={<PharmacyHome/>}/>
       <Route path="/pharmacy/orders" element={<PharmacyOrder/>}/>
       <Route path="/pharmacy/products" element={<PharmacyProduct/>}/>
       <Route path="/pharmacy/report" element={<PharmacyReport/>}/>
@@ -51,14 +58,15 @@ const AppContent: React.FC = () => {
       <Route path="/pharmacy/shop" element={<PharmacyShop/>}/>
 
       {/* DISTRIBUTOR */}
-      <Route path="/distributor/home" element={<DistributorHome/>}/>
+      <Route path="/distributor" element={<DistributorHome/>}/>
       <Route path="/distributor/orders" element={<DistributorOrder/>}/>
       <Route path="/distributor/batch" element={<DistributorBatch/>}/>
       <Route path="/distributor/products" element={<DistributorProduct/>}/>
       <Route path="/distributor/reports" element={<DistributorReports/>}/>
-      <Route path="/distributor/account" element={<DistributorReports/>}/>
+      <Route path="/distributor/account" element={<DistributorAccount/>}/>
 
     </Routes>
+    {!hideHeaderFooter && <Footer />}
     </>
   );
 };
