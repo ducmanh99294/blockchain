@@ -28,4 +28,10 @@ router.put("/:id", OrderController.updateOrder);
 // Xóa đơn hàng
 router.delete("/:id", OrderController.deleteOrder);
 
+// -----------------PharmacyOrder-----------------
+router.post("/pharmacy/create", OrderController.createPharmacyOrder);
+
+// Lấy tất cả đơn hàng
+router.get("/pharmacy/all", OrderController.getAllPharmacyOrders);
+
 module.exports = router;

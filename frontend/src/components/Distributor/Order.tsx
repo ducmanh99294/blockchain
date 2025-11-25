@@ -15,6 +15,8 @@ const DistributorOrder: React.FC = () => {
   const [statusFilter, setStatusFilter] = useState('all');
   const [actionLoading, setActionLoading] = useState(false);
 
+  const API = 'http://localhost:3000'
+  const userId = localStorage.getItem("userId")
   // Giả lập dữ liệu đơn hàng
   useEffect(() => {
     const mockOrders = [
@@ -84,11 +86,22 @@ const DistributorOrder: React.FC = () => {
         notes: "Đã giao hàng thành công"
       }
     ];
-    
-    setOrders(mockOrders);
-    setFilteredOrders(mockOrders);
+    fetchOrders();    
   }, []);
 
+  const fetchOrders = async () => {
+    try {
+      const res = await fetch(`${API}/api/pharmacy/order/distributor/${userId}`)
+      if(!res.ok) {
+        console.log("err");
+      }
+      const data = await res.json();
+      setOrders(data);
+      setFilteredOrders(data)
+    } catch (err) {
+      console.error("err: ", err);
+    }
+  }
   // Xử lý tìm kiếm và lọc
   useEffect(() => {
     let filtered = orders;
@@ -99,12 +112,12 @@ const DistributorOrder: React.FC = () => {
     }
     
     // Lọc theo từ khóa tìm kiếm
-    if (searchTerm) {
-      filtered = filtered.filter((order: any) => 
-        order.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        order.pharmacy.toLowerCase().includes(searchTerm.toLowerCase())
-      );
-    }
+    // if (searchTerm) {
+    //   filtered = filtered.filter((order: any) => 
+    //     order.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    //     order.pharmacy.toLowerCase().includes(searchTerm.toLowerCase())
+    //   );
+    // }
     
     setFilteredOrders(filtered);
   }, [searchTerm, statusFilter, orders]);
@@ -143,30 +156,71 @@ const DistributorOrder: React.FC = () => {
   };
 
   // Cập nhật trạng thái giao hàng
-  const handleUpdateStatus = async (orderId: any, newStatus: any) => {
-    setActionLoading(true);
-    
-    // Giả lập gọi API để cập nhật trạng thái
-    try {
-      // Giả lập thời gian xử lý
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      
-      // Cập nhật trạng thái đơn hàng
-      const updatedOrders = orders.map((order: any) => 
-        order.id === orderId ? {
-          ...order, 
-          status: newStatus,
-          ...(newStatus === "completed" ? { deliveryDate: new Date().toISOString().split('T')[0] } : {})
-        } : order
-      );
-      
-      setOrders(updatedOrders);
-    } catch (error) {
-      console.error("Lỗi khi cập nhật trạng thái:", error);
-    } finally {
-      setActionLoading(false);
+const handleUpdateStatus = async (orderId: any, newStatus: any) => {
+  console.log()
+  setActionLoading(true);
+  try {
+    const res = await fetch(`${API}/api/pharmacy/order/${orderId._id}`, {
+      method: "PUT",
+      headers: { 
+        'Content-Type': 'application/json' 
+      },
+      body: JSON.stringify({status: newStatus})
+    });
+
+    if (!res.ok) {
+      console.log("err");
+      return;
     }
-  };
+
+    // Lấy dữ liệu đơn hàng vừa cập nhật (giả sử API trả về đơn hàng mới)
+    const updatedOrder = await res.json();
+    console.log(updatedOrder)
+    if (newStatus === "completed") {
+      // Tạo PharmacyProduct cho từng item trong đơn
+      for (const item of updatedOrder.items) {
+        const productBody = {
+          masterProduct: item.distributorProductId,
+          pharmacy: updatedOrder.pharmacyId,
+          price: item.price,
+          discountPrice: 0,
+          quantity: item.quantity,
+          prescription: false, 
+          available: false,
+        };
+        console.log(JSON.stringify(productBody,null,2))
+        const createProductRes = await fetch(`${API}/api/product/pharmacy`, {
+          method: "POST",
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(productBody)
+        });
+
+        if (!createProductRes.ok) {
+          console.error("Lỗi khi tạo sản phẩm cho pharmacy", await createProductRes.text());
+        }
+      }
+    }
+
+    const updatedOrders = orders.map((order: any) => 
+      order._id === orderId._id ? {
+        ...order, 
+        status: newStatus,
+        ...(newStatus === "completed" ? { 
+          deliveryDate: new Date().toISOString().split('T')[0], 
+        } : {})
+      } : order
+    );
+
+    setOrders(updatedOrders);
+
+  } catch (error) {
+    console.error("Lỗi khi cập nhật trạng thái:", error);
+  } finally {
+    setActionLoading(false);
+  }
+};
 
   // Định dạng số tiền
   const formatCurrency = (amount: any) => {
@@ -202,6 +256,7 @@ const DistributorOrder: React.FC = () => {
     return orders.filter((order: any) => order.status === status).length;
   };
 
+  console.log(orders)
   return (
     <div className="order-management">
       <header className="page-header">
@@ -283,15 +338,15 @@ const DistributorOrder: React.FC = () => {
           <div>Thao tác</div>
         </div>
         <div className="table-body">
-          {filteredOrders.map((order: any) => (
-            <div key={order.id} className="table-row">
-              <div className="order-id">{order.id}</div>
+          {filteredOrders.length > 0  && filteredOrders.map((order: any) => (
+            <div key={order._id} className="table-row">
+              <div className="order-id">{order._id}</div>
               <div className="pharmacy-info">
-                <div className="pharmacy-name">{order.pharmacy}</div>
+                <div className="pharmacy-name">{order.pharmacyId.username}</div>
                 <div className="pharmacy-address">{order.pharmacyAddress}</div>
               </div>
-              <div className="order-date">{formatDate(order.orderDate)}</div>
-              <div className="order-total">{formatCurrency(order.totalAmount)}</div>
+              <div className="order-date">{formatDate(order.createdAt)}</div>
+              <div className="order-total">{formatCurrency(order.totalPrice)}</div>
               <div className="order-status">{renderStatus(order.status)}</div>
               <div className="order-actions">
                 <button 
@@ -304,7 +359,7 @@ const DistributorOrder: React.FC = () => {
                 {order.status === "pending" && (
                   <button 
                     className="btn btn-primary"
-                    onClick={() => handleConfirmOrder(order.id)}
+                    onClick={() => handleUpdateStatus(order, "processing")}
                     disabled={actionLoading}
                   >
                     <FaShieldAlt /> Xác nhận
@@ -314,7 +369,7 @@ const DistributorOrder: React.FC = () => {
                 {order.status === "processing" && (
                   <button 
                     className="btn btn-warning"
-                    onClick={() => handleUpdateStatus(order.id, "shipped")}
+                    onClick={() => handleUpdateStatus(order, "shipped")}
                     disabled={actionLoading}
                   >
                     <FaTruck /> Giao hàng
@@ -324,7 +379,7 @@ const DistributorOrder: React.FC = () => {
                 {order.status === "shipped" && (
                   <button 
                     className="btn btn-success"
-                    onClick={() => handleUpdateStatus(order.id, "completed")}
+                    onClick={() => handleUpdateStatus(order, "completed")}
                     disabled={actionLoading}
                   >
                     <FaCheckCircle /> Hoàn thành
@@ -352,7 +407,7 @@ const DistributorOrder: React.FC = () => {
                     <div className="info-grid">
                       <div className="info-item">
                         <span className="label">Tên nhà thuốc:</span>
-                        <span className="value">{selectedOrder.pharmacy}</span>
+                        <span className="value">{selectedOrder.pharmacyId.username}</span>
                       </div>
                       <div className="info-item">
                         <span className="label">Địa chỉ:</span>
@@ -366,7 +421,7 @@ const DistributorOrder: React.FC = () => {
                     <div className="info-grid">
                       <div className="info-item">
                         <span className="label">Ngày đặt:</span>
-                        <span className="value">{formatDate(selectedOrder.orderDate)}</span>
+                        <span className="value">{formatDate(selectedOrder.createdAt)}</span>
                       </div>
                       <div className="info-item">
                         <span className="label">Trạng thái:</span>
@@ -400,15 +455,15 @@ const DistributorOrder: React.FC = () => {
                       </div>
                       {selectedOrder.items.map((item: any, index: any) => (
                         <div key={index} className="item-row">
-                          <div className="product-name">{item.product}</div>
+                          <div className="product-name">{item.name}</div>
                           <div className="quantity">{item.quantity}</div>
                           <div className="price">{formatCurrency(item.price)}</div>
-                          <div className="total">{formatCurrency(item.total)}</div>
+                          <div className="total">{formatCurrency(item.price * item.quantity)}</div>
                         </div>
                       ))}
                       <div className="items-footer">
                         <div className="grand-total">
-                          Tổng cộng: {formatCurrency(selectedOrder.totalAmount)}
+                          Tổng cộng: {formatCurrency(selectedOrder.totalPrice)}
                         </div>
                       </div>
                     </div>

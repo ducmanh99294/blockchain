@@ -5,7 +5,8 @@ import {
   FaTimes, FaPlus, FaMinus, FaCheckCircle,
   FaLink,
   FaImage,
-  FaCube
+  FaCube,
+  FaCreditCard
 } from 'react-icons/fa';
 import { ethers } from 'ethers';
 import '../../assets/css/Pharmacy/shop.css';
@@ -16,23 +17,40 @@ const PharmacyShop = () => {
   const [products, setProducts] = useState<any>([]);
   const [filteredProducts, setFilteredProducts] = useState<any>([]);
   const [cart, setCart] = useState<any>([]);
+  const [shippingNotes, setShippingNotes] = useState("");
+  const [payment, setPayment] = useState<any>([]);
+  const [shippingMethods, setShippingMethods] = useState<any>([]);
   const [searchTerm, setSearchTerm] = useState<any>('');
-  const [selectedCategory, setSelectedCategory] = useState<any>('all');
   const [sortBy, setSortBy] = useState<any>('name');
   const [showCart, setShowCart] = useState(false);
   const [showCheckout, setShowCheckout] = useState(false);
+  const [shippingInfo, setShippingInfo] = useState<any>({   
+    fullName: "",
+    phone: "",
+    address: "",
+    ward: "",
+    district: "",
+    city: "",
+  });
 
+  const [selectedPayment, setSelectedPayment] = useState("");
+  const [selectedShipping, setSelectedShipping] = useState("");
   const [showBlockchainModal, setShowBlockchainModal] = useState(false);
   const [selectedProductForModal, setSelectedProductForModal] = useState<any>(null);
   const [blockchainData, setBlockchainData] = useState<any>(null);
   const [isFetchingData, setIsFetchingData] = useState(false);
 
   const API = 'http://localhost:3000'
+  const userId = localStorage.getItem("userId");
+  const token = localStorage.getItem("token");
   const contractAddress = import.meta.env.VITE_CONTRACT_ADDRESS;
 
   // Giả lập dữ liệu sản phẩm
   useEffect(() => {
     fetchProducts();
+    fetchCart();
+    fetchMethodPayment();
+    fetchMethodShipping();
   }, []);
 
   // Xử lý tìm kiếm và lọc
@@ -46,11 +64,6 @@ const PharmacyShop = () => {
         product.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
         product.manufacturer.toLowerCase().includes(searchTerm.toLowerCase())
       );
-    }
-
-    // Lọc theo danh mục
-    if (selectedCategory !== 'all') {
-      filtered = filtered.filter((product: any) => product.category === selectedCategory);
     }
 
     // Sắp xếp
@@ -70,7 +83,7 @@ const PharmacyShop = () => {
     });
 
     setFilteredProducts(filtered);
-  }, [searchTerm, selectedCategory, sortBy, products]);
+  }, [searchTerm, sortBy, products]);
 
   const fetchProducts = async () => {
     try {
@@ -87,8 +100,45 @@ const PharmacyShop = () => {
     }
   };
 
+  const fetchMethodPayment = async () => {
+    try {
+      const res = await fetch(`${API}/api/payment`)
+      if(!res.ok){
+        console.log("err")
+      }
+      const data = await res.json();
+      setPayment(data);
+    } catch (err) {
+      console.log(err)
+    }
+  }
+
+  const fetchCart = async () => {
+    try {
+      const res = await fetch(`${API}/api/cart/pharmacy/${userId}`)
+      if(!res.ok) {
+        console.log("err");
+      }
+      const data = await res.json();
+      setCart(data);
+    } catch (err) {
+      console.log(err)
+    }
+  }
+
+  const fetchMethodShipping = async () => {
+    try {
+      const res = await fetch(`${API}/api/shipping`)
+      if (!res.ok) {console.log("err")}
+      const data = await res.json();
+      setShippingMethods(data)
+    } catch (err) {
+      console.log(err)
+    }
+  }
+
   const openBlockchainDetails = async (product: any) => {
-    // 1. Mở modal và hiển thị loading
+    // Mở modal và hiển thị loading
     setSelectedProductForModal(product); // Dùng state riêng để modal không bị giật
     setShowBlockchainModal(true);
     setIsFetchingData(true);
@@ -128,53 +178,91 @@ const PharmacyShop = () => {
   };
 
   // Thêm sản phẩm vào giỏ hàng
-  const addToCart = (product: any) => {
-    const existingItem = cart.find((item: any) => item._id === product._id);
-    
-    if (existingItem) {
-      if (existingItem.quantity + 1 <= product.stock) {
-        setCart(cart.map((item: any) =>
-          item.id === product.id
-            ? { ...item, quantity: item.quantity + 1 }
-            : item
-        ));
+  const addToCart = async (product: any) => {
+    try {
+      const res = await fetch(`${API}/api/cart/pharmacy/${userId}/add`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          distributorProductId: product._id,
+          name: product.name,
+          price: product.price,
+          quantity: 1,
+        })
+      });
+      if(!res.ok) {
+        console.log("err")
       }
-    } else {
-      setCart([...cart, { ...product, quantity: product.minOrder }]);
+      const data = await res.json();
+      setCart(data);
+      console.log("success")
+    } catch (err) {
+      console.log(err);
     }
   };
-
   // Cập nhật số lượng sản phẩm trong giỏ hàng
-  const updateQuantity = (productId: any, newQuantity: any) => {
-    const product = products.find((p: any) => p._id === productId);
-    
-    if (newQuantity >= product.minOrder && newQuantity <= product.stock) {
-      setCart(cart.map((item: any) =>
-        item._id === productId
-          ? { ...item, quantity: newQuantity }
-          : item
-      ));
-    } else if (newQuantity === 0) {
-      // Nếu số lượng về 0, xóa khỏi giỏ
-      removeFromCart(productId);
+  const updateQuantity = async (product: any, newQuantity: any) => {
+    console.log("product", product)
+    const productId = product.distributorProductId?._id || product.distributorProductId;
+    try {
+      const res = await fetch(`${API}/api/cart/pharmacy/${userId}/${productId}`,{
+        method: "PUT",
+        headers: {
+        "Content-Type": "application/json",
+        },
+        body: JSON.stringify({        
+          quantity: newQuantity
+        })
+      })
+      if(!res.ok){
+        console.log("err");
+        return;
+      }
+      const data = await res.json();
+      setCart(data);
+
+    } catch (err) {
+      console.log(err);
     }
   }; 
 
-  const removeFromCart = (productId: any) => {
-    setCart(cart.filter((item: any) => item._id !== productId));
+  const removeFromCart = async (product: any) => {
+    const productId = product.distributorProductId?._id || product.distributorProductId;
+    window.confirm("bạn có chắc bỏ sản phẩm này ra khỏi giỏ hàng chứ")
+        try {
+      const res = await fetch(`${API}/api/cart/pharmacy/${userId}/${productId}`,{
+        method: "DELETE",
+        headers: {
+        "Content-Type": "application/json",
+        }
+      })
+      if(!res.ok){
+        console.log("err");
+        return;
+      }
+      const data = await res.json();
+        setCart(data);
+    } catch (err) {
+      console.log(err);
+    }
   };
 
-  // Tính tổng tiền
   const getTotalPrice = () => {
-    return cart.reduce((total: any, item: any) => total + (item.wholesalePrice * item.quantity), 0);
+    if (!cart || !cart.items || !Array.isArray(cart.items)) {
+      return 0;
+    }
+    return cart.items.reduce((total: any, item: any) => total + (item.price * item.quantity), 0);
   };
 
-  // Tính tổng số lượng
   const getTotalItems = () => {
-    return cart.reduce((total: any, item: any) => total + item.quantity, 0);
+    if (!cart || !cart.items || !Array.isArray(cart.items)) {
+      return 0;
+    }
+    return cart.items.reduce((total: any, item: any) => total + item.quantity, 0);
   };
 
-  // Định dạng số tiền
   const formatCurrency = (amount: any) => {
     return new Intl.NumberFormat('vi-VN', {
       style: 'currency',
@@ -182,26 +270,118 @@ const PharmacyShop = () => {
     }).format(amount);
   };
 
-  // Xử lý đặt hàng
-  const handleCheckout = () => {
-    if (cart.length === 0) return;
-    
-    // Ở đây sẽ gọi API để tạo đơn hàng
-    alert('Đơn hàng đã được gửi thành công!');
-    setCart([]);
-    setShowCheckout(false);
-    setShowCart(false);
+  const handleCheckout = async () => {
+    if (!cart || !cart.items || cart.items.length === 0) {
+      alert("Giỏ hàng của bạn đang trống!");
+      return;
+    }
+
+    if (!selectedShipping || !selectedPayment) {
+      alert("Vui lòng chọn phương thức vận chuyển và thanh toán.");
+      return;
+    }
+
+    const subtotal = getTotalPrice();
+    const totalPrice = subtotal;
+
+    const orderItems = cart.items.map((item: any) => ({
+      distributorProductId: item.distributorProductId._id,
+      name: item.name,
+      price: item.price,
+      quantity: item.quantity
+    }));
+
+    if (selectedPayment === "69119adc5a8a0343f7799523") {
+
+      try {
+        if (!(window as any).ethereum) {
+          alert("Vui lòng cài đặt MetaMask trước!");
+          return;
+        }
+
+        //-----------------------------------------------
+        // 1. Kết nối ví
+        //-----------------------------------------------
+        const accounts = await (window as any).ethereum.request({
+          method: "eth_requestAccounts"
+        });
+        const sender = accounts[0];
+
+        //-----------------------------------------------
+        // 2. Tạo provider & signer & contract
+        //-----------------------------------------------
+        const provider = new ethers.BrowserProvider((window as any).ethereum);
+        const signer = await provider.getSigner();
+        const contract = new ethers.Contract(
+          contractAddress,
+          quanLiThuocABI.abi,
+          signer
+        );
+
+        //-----------------------------------------------
+        // 3. Lặp qua từng sản phẩm và mua trên blockchain
+        //-----------------------------------------------
+        for (const item of cart.items) {
+            const productId = "0x" + item.distributorProductId._id;  // convert ObjectId -> hex
+
+          // Lấy thông tin thuốc từ blockchain
+          const info = await contract.xemThongTinThuoc(productId);
+          const giaBanSi = info.giaBanSi; // BigInt
+
+          //-----------------------------------------------
+          // 4. Gửi giao dịch mua thuốc
+          //-----------------------------------------------
+          const tx = await contract.muaChoNhaThuoc(productId, {
+            value: giaBanSi
+          });
+
+          console.log("Đang chờ xác nhận giao dịch...");
+          await tx.wait();
+          console.log("Thanh toán blockchain xong:", tx.hash);
+        }
+
+        alert("Thanh toán ETH thành công!");
+
+      } catch (err) {
+        console.error("Lỗi thanh toán ETH:", err);
+        alert("Thanh toán ETH thất bại!");
+        return;
+      }
+    }
+
+    // =============== TẠO ĐƠN HÀNG BACKEND ==================
+    try {
+      const res = await fetch(`${API}/api/pharmacy/order/create`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          pharmacyId: userId,
+          items: orderItems,
+          shippingInfo: shippingInfo,
+          shippingMethod: selectedShipping,
+          paymentMethod: selectedPayment,
+          subtotal: subtotal,
+          shippingFee: 0,
+          totalPrice: totalPrice
+        })
+      });
+
+      if (!res.ok) {
+        alert("Tạo đơn hàng thất bại!");
+        return;
+      }
+
+      alert("Đơn hàng đã được gửi thành công!");
+      setCart(null);
+      setShowCheckout(false);
+      setShowCart(false);
+
+    } catch (err) {
+      console.log(err);
+    }
   };
 
-  // Danh mục sản phẩm
-  const categories = [
-    { value: 'all', label: 'Tất cả danh mục' },
-    { value: 'giadung', label: 'Thuốc gia dụng' },
-    { value: 'khangsinh', label: 'Kháng sinh' },
-    { value: 'tpc', label: 'Thực phẩm chức năng' },
-    { value: 'tieuduong', label: 'Tiểu đường' },
-    { value: 'tieuhoa', label: 'Tiêu hóa' }
-  ];
+    // console.log(products)
 
   return (
     <div className="pharmacy-shop">
@@ -239,20 +419,6 @@ const PharmacyShop = () => {
 
         <div className="filters">
           <div className="filter-group">
-            <FaFilter />
-            <select
-              value={selectedCategory}
-              onChange={(e) => setSelectedCategory(e.target.value)}
-            >
-              {categories.map(category => (
-                <option key={category.value} value={category.value}>
-                  {category.label}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <div className="filter-group">
             <FaSortAmountDown />
             <select
               value={sortBy}
@@ -272,7 +438,7 @@ const PharmacyShop = () => {
         {filteredProducts.map((product: any) => (
          <div key={product._id} className="product-card"> {/* 11. Sửa 'id' -> '_id' */}
             <div className="product-image">
-              <img src={product.image[0]} alt={product.name} /> {/* 11. Sửa 'image' -> 'image[0]' */}
+              <img src={product.image} alt={product.name} /> {/* 11. Sửa 'image' -> 'image[0]' */}
               {/* 11. Sửa 'isBlockchainVerified' -> 'status' */}
               {product.status === 'verified' && ( 
                 <div className="blockchain-badge" title="Đã xác thực blockchain">
@@ -343,62 +509,96 @@ const PharmacyShop = () => {
 
       {/* Shopping Cart Sidebar */}
       {showCart && (
-      <div className="cart-sidebar">
-        <div className="cart-header">
-                {/* ... */}
-        </div>
-
-        <div className="cart-content">
-          {cart.length === 0 ? (
-            <div className="empty-cart">{/* ... */}</div>
-          ) : (
-            <>
-        <div className="cart-items">
-          {cart.map((item: any) => (
-            <div key={item._id} className="cart-item"> 
-              <div className="item-info">
-          <h4>{item.name}</h4>
-          <p className="item-manufacturer">{item.manufacturer?.name}</p>
-          <div className="item-price">
-            {formatCurrency(item.price)}/sản phẩm
-          </div>
-              </div>
-
-              <div className="quantity-controls">
-          <button
-            onClick={() => updateQuantity(item._id, item.quantity - 1)} 
-            disabled={item.quantity <= 1} // Sửa logic minOrder
-          >
-            <FaMinus />
-          </button>
-          <span>{item.quantity}</span>
-          <button
-            onClick={() => updateQuantity(item._id, item.quantity + 1)}
-            disabled={item.quantity >= item.stock}
-          >
-            <FaPlus />
-          </button>
-              </div>
-              <div className="item-total">
-            {formatCurrency(item.giaBanSi * item.quantity)}
-              </div>
-
-              <button
-          className="remove-btn"
-          onClick={() => removeFromCart(item._id)}
-              >
-          <FaTimes />
+        <div className="modal-overlay" onClick={() => setShowCart(false)}>
+          <div className="cart-sidebar" onClick={(e) => e.stopPropagation()}>
+            <div className="cart-header">
+              <h3>
+                <FaShoppingCart />
+                Đơn hàng của bạn
+              </h3>
+              <button className="close-btn" onClick={() => setShowCart(false)}>
+                <FaTimes />
               </button>
             </div>
-          ))}
-        </div>
+            <div className="cart-content">
+              {(!cart || !cart.items || cart.items.length === 0) ? (
+                <div className="empty-cart">
+                  <FaShoppingCart />
+                  <p>Giỏ hàng của bạn đang trống</p>
+                </div>
+              ) : (
+                <div className="cart-items">
+                  {cart.items.map((item: any) => (
+                    <div key={item._id || item.distributorProductId._id} className="cart-item">
+                      <div className="item-info">
+                        <h4>{item.name}</h4>
+                        <p className="item-manufacturer">
+                          {item.manufacturer?.name}
+                        </p>
+                        <div className="item-price">
+                          {formatCurrency(item.price)}/sản phẩm
+                        </div>
+                      </div>
 
-        <div className="cart-summary">{/* ... */}</div>
-        <div className="cart-actions">{/* ... */}</div>
-            </>
-          )}
+                      <div className="quantity-controls">
+                        <button
+                          onClick={() => updateQuantity(item, item.quantity - 1)}
+                          disabled={item.quantity <= 1}
+                        >
+                          <FaMinus />
+                        </button>
+                        <span>{item.quantity}</span>
+                        <button
+                          onClick={() => updateQuantity(item, item.quantity + 1)}
+                          disabled={item.quantity >= item.distributorProductId?.stock}
+                        >
+                          <FaPlus />
+                        </button>
+                      </div>
+
+                      <div className="item-total">
+                        {formatCurrency(item.price * item.quantity)}
+                      </div>
+
+                      <button
+                        className="remove-btn"
+                        onClick={() => removeFromCart(item)}
+                      >
+                        <FaTimes />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {cart && cart.items && cart.items.length > 0 && (
+              <>
+                <div className="cart-summary">
+                  <div className="summary-row">
+                    <span>Tạm tính ({getTotalItems()} sản phẩm)</span>
+                    <span>{formatCurrency(getTotalPrice())}</span>
+                  </div>
+                  <div className="summary-row total">
+                    <span>Tổng cộng</span>
+                    <span>{formatCurrency(getTotalPrice())}</span>
+                  </div>
+                </div>
+
+                <div className="cart-actions">
+                  <button
+                    className="btn btn-primary"
+                    style={{ width: '100%', justifyContent: 'center' }}
+                    onClick={() => setShowCheckout(true)}
+                  >
+                    <FaCreditCard /> Tiến hành thanh toán
+                  </button>
+                </div>
+              </>
+            )}
+
+          </div>
         </div>
-      </div>
       )}
 
       {/* Checkout Modal */}
@@ -415,10 +615,10 @@ const PharmacyShop = () => {
             <div className="modal-body">
               <div className="order-summary">
                 <h4>Chi tiết đơn hàng</h4>
-                {cart.map((item: any) => (
+                {cart && cart.items && cart.items.map((item: any) => (
                   <div key={item._id} className="order-item">
                     <span>{item.name} x {item.quantity}</span>
-                    <span>{formatCurrency(item.giaBanSi * item.quantity)}</span>
+                    <span>{formatCurrency(item.price * item.quantity)}</span>
                   </div>
                 ))}
                 <div className="order-total">
@@ -427,17 +627,61 @@ const PharmacyShop = () => {
                 </div>
               </div>
 
-              <div className="shipping-info">
-                <h4>Thông tin giao hàng</h4>
-                <div className="form-group">
-                  <label>Địa chỉ nhà thuốc:</label>
-                  <input type="text" defaultValue="123 Đường Láng, Hà Nội" />
-                </div>
-                <div className="form-group">
-                  <label>Ghi chú:</label>
-                  <textarea placeholder="Ghi chú cho đơn hàng..." />
-                </div>
-              </div>
+        <div className="shipping-info">
+          <h4>Thông tin giao hàng & Thanh toán</h4>
+          
+          <div className="form-group">
+            <label>Địa chỉ nhà thuốc:</label>
+            <input 
+              placeholder="123 xo viet nghe tinh..." 
+              type="text" 
+              value={shippingInfo.address}
+              onChange={(e) => setShippingInfo(e.target.value)}
+            />
+          </div>
+
+          <div className="form-group">
+            <label>Ghi chú:</label>
+            <textarea 
+              placeholder="Ghi chú cho đơn hàng..." 
+              value={shippingNotes}
+              onChange={(e) => setShippingNotes(e.target.value)}
+            />
+          </div>
+
+          {/* THÊM DROPDOWN CHO SHIPPING */}
+          <div className="form-group">
+            <label>Phương thức vận chuyển:</label>
+            <select 
+              value={selectedShipping}
+              onChange={(e) => setSelectedShipping(e.target.value)}
+            >
+              <option value="">-- Chọn vận chuyển --</option>
+              {shippingMethods.map((method: any) => (
+                <option key={method._id} value={method._id}>
+                  {method.name} - {formatCurrency(method.price)}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {/* THÊM DROPDOWN CHO PAYMENT */}
+          <div className="form-group">
+            <label>Phương thức thanh toán:</label>
+            <select 
+              value={selectedPayment}
+              onChange={(e) => setSelectedPayment(e.target.value)}
+            >
+              <option value="">-- Chọn thanh toán --</option>
+              {payment.map((method: any) => (
+                <option key={method._id} value={method._id}>
+                  {method.name}
+                </option>
+              ))}
+            </select>
+          </div>
+
+        </div>
             </div>
 
             <div className="modal-footer">

@@ -12,24 +12,18 @@ contract QuanLyThuoc is Ownable {
         string ipfsHash;
         address nhaPhanPhoi; 
         address nhaThuoc;
-        address nguoiTieuDung;
         uint256 giaBanSi;
         uint256 giaBanLe;
+        uint256 soLuong;
         bool duocXacThuc;
-        bool daBanChoNhaThuoc;
-        bool daBanChoNguoiTieuDung;
     }
 
     mapping(uint256 => Thuoc) public danhSachThuoc;
     
     event XacThucNguonGoc(uint256 id, string nguonGoc, string ipfsHash, address nhaPhanPhoi);
     event BanChoNhaThuoc(uint256 id, address nhaThuoc, uint256 gia);
-    event BanChoNguoiTieuDung(uint256 id, address nguoiTieuDung, uint256 gia);
 
-    /**
-     * @dev Đăng ký sản phẩm (đã tối ưu)
-     * Chỉ lưu các thông tin cần thiết cho logic on-chain.
-     */
+
     function xacThucNguonGoc(
         uint256 id,
         uint256 giaBanSi,
@@ -45,31 +39,23 @@ contract QuanLyThuoc is Ownable {
             ipfsHash: ipfsHash,
             nhaPhanPhoi: msg.sender,
             nhaThuoc: address(0),
-            nguoiTieuDung: address(0),
             giaBanSi: giaBanSi,
             giaBanLe: 0,
             duocXacThuc: true,
-            daBanChoNhaThuoc: false,
-            daBanChoNguoiTieuDung: false
+            daBanChoNhaThuoc: false
         });
 
         emit XacThucNguonGoc(id, nguonGoc, ipfsHash, msg.sender);
     }
 
-    //
-    // --- CÁC HÀM KHÁC GIỮ NGUYÊN ---
-    // (Vì chúng ta đã giữ lại giaBanSi nên chúng vẫn hoạt động)
-    //
-
     function muaChoNhaThuoc(uint256 id) public payable {
         Thuoc storage t = danhSachThuoc[id];
         require(t.nhaPhanPhoi != address(0), "San pham khong ton tai"); 
-        require(!t.daBanChoNhaThuoc, "Thuoc da duoc ban cho nha thuoc");
+        require(quantity > 0, "So luong phai > 0");
         require(msg.value == t.giaBanSi, "Sai so tien gui vao");
 
         payable(t.nhaPhanPhoi).transfer(msg.value);
         t.nhaThuoc = msg.sender;
-        t.daBanChoNhaThuoc = true;
 
         emit BanChoNhaThuoc(id, msg.sender, msg.value);
     }
@@ -80,19 +66,6 @@ contract QuanLyThuoc is Ownable {
         require(t.daBanChoNhaThuoc, "Thuoc chua duoc mua tu distributor");
         require(giaBanLe > t.giaBanSi, "Gia ban le phai lon hon gia ban si");
         t.giaBanLe = giaBanLe;
-    }
-
-    function muaTuNguoiTieuDung(uint256 id) public payable {
-        Thuoc storage t = danhSachThuoc[id];
-        require(t.giaBanLe > 0, "Nha thuoc chua dat gia ban le");
-        require(!t.daBanChoNguoiTieuDung, "Thuoc da duoc ban cho nguoi tieu dung");
-        require(msg.value == t.giaBanLe, "Sai so tien gui vao");
-
-        payable(t.nhaThuoc).transfer(msg.value);
-        t.nguoiTieuDung = msg.sender;
-        t.daBanChoNguoiTieuDung = true;
-
-        emit BanChoNguoiTieuDung(id, msg.sender, msg.value);
     }
 
     function xemThongTinThuoc(uint256 id)

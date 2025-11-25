@@ -14,7 +14,7 @@ exports.getAllPharmacies = async (req, res) => {
 exports.getPharmacyById = async (req, res) => {
   try {
     const { id } = req.params;
-    const pharmacy = await Pharmacy.findById(id).populate('userId', 'name email phone');
+    const pharmacy = await Pharmacy.findById(id).populate('userId', 'email');
     if (!pharmacy) return res.status(404).json({ message: "Nhà thuốc không tồn tại" });
     res.status(200).json(pharmacy);
   } catch (err) {

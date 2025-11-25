@@ -27,6 +27,8 @@ const DistributorProduct: React.FC = () => {
     brand: "",
     image: [],  
     usage: "",   
+    price: 0,
+    stock: 0
   });
   const [loading, setLoading] = useState(false);
 
@@ -96,10 +98,10 @@ const DistributorProduct: React.FC = () => {
         const ipfsHash = uploadRes.IpfsHash || (uploadRes as any).cid;
         uploadedCIDs.push(ipfsHash);
       }
-      const imageCIDString = JSON.stringify(uploadedCIDs);
+      const imageCIDString = uploadedCIDs.join(",");
       console.log("Uploaded CIDs:", imageCIDString);
 
-      // ✅ 2. Kết nối MetaMask
+      // 2. Kết nối MetaMask
       if (!(window as any).ethereum) {
         alert("Vui lòng cài đặt MetaMask trước!");
         // setLoading(false);
@@ -109,7 +111,7 @@ const DistributorProduct: React.FC = () => {
       const provider = new ethers.BrowserProvider((window as any).ethereum);
       const signer = await provider.getSigner();
 
-      // Khởi tạo contract (Đảm bảo 2 biến này là MỚI NHẤT)
+      // Khởi tạo contract
       const contract = new ethers.Contract(
         contractAddress,  
         quanLiThuocABI.abi, 
@@ -119,13 +121,7 @@ const DistributorProduct: React.FC = () => {
       const productId = "0x" + product._id;
       const giaBanSiString = product.price.toString();
 
-      console.log("Đang gửi giao dịch (đã tối ưu) với 4 tham số:");
-      console.log("1. id (uint256):", productId);
-      console.log("2. giaBanSi (uint256):", giaBanSiString);
-      console.log("3. nguonGoc (string):", originInfo);
-      console.log("4. ipfsHash (string):", imageCIDString);
-
-      // ✅ 4. Gọi hàm contract với đúng 4 tham số
+      // 4. Gọi hàm contract với đúng 4 tham số
       const tx = await contract.xacThucNguonGoc(
         productId,
         giaBanSiString,
@@ -136,7 +132,7 @@ const DistributorProduct: React.FC = () => {
       console.log(`Đang chờ giao dịch (tx: ${tx.hash})...`);
       await tx.wait();
 
-      // ✅ 5. (Rất nên làm) Cập nhật lại Mongo
+      // 5. (Rất nên làm) Cập nhật lại Mongo
       await fetch(`http://localhost:3000/api/distributor/products/${product._id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
@@ -149,7 +145,7 @@ const DistributorProduct: React.FC = () => {
         })
       });
       
-      alert("✅ Đăng ký và xác thực sản phẩm lên blockchain thành công!");
+      alert(" Đăng ký và xác thực sản phẩm lên blockchain thành công!");
 
     } catch (error) {
       console.error("Lỗi đăng ký/xác thực blockchain:", error);
@@ -171,7 +167,7 @@ const DistributorProduct: React.FC = () => {
   const renderStatus = (status: any) => {
     switch(status) {
       case "verified":
-        return <span className="status verified"><FaCheckCircle /> ✅ Đã xác thực</span>;
+        return <span className="status verified"><FaCheckCircle /> Đã xác thực</span>;
       case "pending":
         return <span className="status pending"><FaClock /> ⏳ Đang xử lý</span>;
       default:
@@ -540,6 +536,28 @@ const DistributorProduct: React.FC = () => {
                     value={formdata.brand}
                     onChange={(e) => setFormdata({ ...formdata, brand: e.target.value })}
                     placeholder="Nhập thương hiệu"
+                  />
+                </div>
+
+                {/* Giá */}
+                <div className="form-group">
+                  <label>Giá:</label>
+                  <input 
+                    type="number"
+                    value={formdata.price}
+                    onChange={(e) => setFormdata({ ...formdata, price: +e.target.value })}
+                    placeholder="Nhập giá"
+                  />
+                </div>
+
+                {/* Kho */}
+                <div className="form-group">
+                  <label>Kho:</label>
+                  <input 
+                    type="number"
+                    value={formdata.stock}
+                     onChange={(e) => setFormdata({ ...formdata, stock: Number(e.target.value) })}
+                    placeholder="Nhập số lượng trong kho"
                   />
                 </div>
 

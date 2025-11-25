@@ -300,10 +300,11 @@
   position: fixed;
   top: 0;
   right: 0;
-  width: 400px;
+  width: 450px;
+  max-width: 90vw;
   height: 100vh;
   background-color: white;
-  box-shadow: -2px 0 8px rgba(0, 0, 0, 0.1);
+  box-shadow: -2px 0 15px rgba(0, 0, 0, 0.15);
   display: flex;
   flex-direction: column;
   z-index: 1000;
@@ -455,13 +456,21 @@
   padding-top: 10px;
 }
 
-.cart-actions {
-  padding: 20px;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
+.cart-actions .btn-primary {
+  padding: 12px 15px; /* Nút to, rõ ràng hơn */
+  font-size: 1rem;
+  font-weight: 600;
 }
 
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideIn {
+  from { transform: translateX(100%); }
+  to { transform: translateX(0); }
+}
 /* Modal */
 .modal-overlay {
   position: fixed;

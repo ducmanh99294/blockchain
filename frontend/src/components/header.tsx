@@ -86,10 +86,8 @@ const Header = () => {
     if ((window as any).ethereum) {
       try {
         const provider = new ethers.BrowserProvider((window as any).ethereum);
-        // Lấy danh sách tài khoản đã được cấp phép
         const accounts = await provider.listAccounts(); 
         if (accounts.length > 0) {
-          // provider.listAccounts() trả về Signer object, lấy address
           setWalletAddress(accounts[0].address); 
         }
       } catch (err) {

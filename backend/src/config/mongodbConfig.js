@@ -11,7 +11,7 @@ const connectMongoDB = async () => {
             connectTimeoutMS: 60000,  // tăng thời gian chờ
             socketTimeoutMS: 60000
         });
-        
+        console.log("connected")
     } catch (error) {
         console.error('MongoDB connection error', error)
     }

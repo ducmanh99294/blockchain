@@ -31,7 +31,7 @@ const DistributorProductSchema = new mongoose.Schema({
 
     // Blockchain 
   blockchainTx: { type: String },     
-  ipfsCidString: { type: String },    
+  ipfsCidString: [{ type: String }],    
 
   createdAt: { type: Date, default: Date.now }
 });

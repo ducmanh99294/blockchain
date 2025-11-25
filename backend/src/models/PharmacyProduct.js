@@ -1,6 +1,7 @@
 // models/PharmacyProduct.js
 const mongoose = require("mongoose");
 
+
 const PharmacyProductSchema = new mongoose.Schema({
   // Liên kết đến sản phẩm gốc (quan trọng nhất)
   masterProduct: { 
@@ -17,11 +18,12 @@ const PharmacyProductSchema = new mongoose.Schema({
   },
   
   // Thông tin bán hàng của nhà thuốc
-  price: { type: Number, required: true },
-  discountPrice: { type: Number },
+  price: { type: Number, required: true, default: 0 },
+  discountPrice: { type: Number, default: 0 },
   quantity: { type: Number, default: 0 },
   prescription: { type: Boolean, default: false }, // Yêu cầu đơn thuốc
 
+  available: { type: Boolean, default: false },
   // Chỉ số bán hàng
   viewCount: { type: Number, default: 0 },
   likeCount: { type: Number, default: 0 },

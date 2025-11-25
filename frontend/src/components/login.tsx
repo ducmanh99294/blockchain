@@ -77,9 +77,9 @@ const Login: React.FC = () => {
         if (data.user.role === "user") {
           window.location.href = "/";
         } else if (data.user.role === "pharmacy") {
-          window.location.href = "/pharmacy/home";
+          window.location.href = "/pharmacy";
         } else if (data.user.role === "distributor") {
-          window.location.href = "/distributor/home";
+          window.location.href = "/distributor";
         }
       }
     } catch (err) {

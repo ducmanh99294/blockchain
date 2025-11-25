@@ -2,11 +2,12 @@ const Product = require("../models/Product");
 const Category = require("../models/Category");
 const Distributor = require("../models/Distributor");
 const DistributorProduct = require('../models/DistributorProduct');
+const PharmacyProduct = require("../models/PharmacyProduct");
 
 // Thêm sản phẩm
 exports.createDistributorProduct = async (req, res) => {
   try {
-    const {distributor,name,description,category,brand,image,usage} = req.body;
+    const {distributor,name,description,category,brand,image,usage,price,stock} = req.body;
 
     const distributorExist = await Distributor.findById(distributor);
     if (!distributorExist) {
@@ -21,6 +22,8 @@ exports.createDistributorProduct = async (req, res) => {
       brand,
       image,
       usage,
+      price,
+      stock,
     });
 
     await newProduct.save();
@@ -37,41 +40,64 @@ exports.createDistributorProduct = async (req, res) => {
 
 exports.createPharmacyProduct = async (req, res) => {
   try {
-    // 1. Lấy thông tin BÁN HÀNG
     const { 
-      masterProductId, // ID của sản phẩm gốc (DistributorProduct)
+      masterProduct, 
+      pharmacy, 
       price, 
       discountPrice, 
       quantity, 
-      prescription 
+      prescription,
+      available
     } = req.body;
 
-    // 2. Lấy ID của nhà thuốc đã đăng nhập
-    const pharmacyId = req.user.id; // Lấy từ middleware
+    if (!pharmacy) {
+      return res.status(400).json({ message: "Missing pharmacy ID" });
+    }
 
-    // 3. Tạo niêm yết bán mới
+    // Tìm xem sản phẩm đã tồn tại chưa
+    let existingProduct = await PharmacyProduct.findOne({
+      masterProduct,
+      pharmacy
+    });
+
+    // Nếu có → update (không tạo mới để tránh duplicate)
+    if (existingProduct) {
+      existingProduct.quantity += quantity;  // cộng dồn số lượng
+      existingProduct.price = price;
+      existingProduct.discountPrice = discountPrice;
+      existingProduct.prescription = prescription;
+      existingProduct.available = available;
+
+      await existingProduct.save();
+
+      return res.status(200).json({
+        message: "Pharmacy product updated (already existed)",
+        product: existingProduct
+      });
+    }
+
+    // Nếu chưa có → tạo mới
     const newPharmacyProduct = new PharmacyProduct({
-      masterProduct: masterProductId,
-      pharmacy: pharmacyId,
+      masterProduct,
+      pharmacy,
       price,
       discountPrice,
       quantity,
       prescription,
+      available
     });
 
-    // 4. (Tùy chọn) Bạn có thể ghi 1 giao dịch blockchain
-    // xác nhận việc "nhập hàng" này và lưu tx_hash vào đây.
-
-    // 5. Lưu vào DB
     await newPharmacyProduct.save();
 
-    res.status(201).json({ 
-      message: "Pharmacy product listed successfully", 
-      product: newPharmacyProduct
+    res.status(201).json({
+      message: "Pharmacy product created successfully",
+      product: newPharmacyProduct,
     });
 
   } catch (err) {
-    res.status(500).json({ message: "Server error: " + err.message });
+    return res.status(500).json({
+      message: "Server error: " + err.message,
+    });
   }
 };
 
@@ -99,10 +125,23 @@ exports.getProductById = async (req, res) => {
 // GET /products/pharmacy/:pharmacyId
 exports.getProductsByPharmacy = async (req, res) => {
   try {
-    const products = await Product.find({ pharmacy: req.params.pharmacyId })
-      .populate("pharmacy", "pharmacyName")
-      .populate("category", "name")
-      .populate("distributor", "name");
+    const products = await PharmacyProduct.find({ pharmacy: req.params.pharmacyId })
+      // .populate("pharmacy", "pharmacyName")
+      .populate({
+        path: "masterProduct",
+        select: "distributor name status image category description usage expiryDate brand blockchainTx ipfsCidString",
+        populate: [
+          {
+            path: "distributor",
+            select: "companyName"
+          },
+          {
+            path: "category",
+            select: "name"
+          }
+        ]
+      })
+
     res.json(products);
   } catch (error) {
     res.status(500).json({ message: "Lỗi server", error });

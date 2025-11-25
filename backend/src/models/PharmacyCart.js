@@ -4,9 +4,9 @@ const CartSchema = new mongoose.Schema({
   userId: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
   items: [
     {
-      productId: { 
+      distributorProductId: { 
         type: mongoose.Schema.Types.ObjectId, 
-        ref: "Product", 
+        ref: "DistributorProduct", 
         required: true
      },
       name: String,
@@ -19,4 +19,4 @@ const CartSchema = new mongoose.Schema({
   ]
 }, { timestamps: true });
 
-module.exports = mongoose.model("Cart", CartSchema);
+module.exports = mongoose.model("PharmacyCart", CartSchema);

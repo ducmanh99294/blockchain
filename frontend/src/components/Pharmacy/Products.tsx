@@ -172,7 +172,8 @@ const PharmacyProduct: React.FC = () => {
     setSelectedProduct(product);
     setShowDetailModal(true);
   };
-
+  
+  console.log(selectedProduct)
   return (
     <div className="product-management-page">
       <div className="management-container">
@@ -232,7 +233,7 @@ const PharmacyProduct: React.FC = () => {
           </div>
         </div>
 
-        {loading ? (
+        {loading ===null ? (
           <div className="loading-container">
             <div className="loading-spinner"></div>
             <p>Đang tải...</p>
@@ -245,16 +246,16 @@ const PharmacyProduct: React.FC = () => {
             {products.map(product => (
               <div key={product.id} className="product-card">
                 <div className="product-image">
-                  <img src={product.image} alt={product.name} />
+                  <img src={product.masterProduct.image} alt={product.masterProduct.name} />
                   <div className="product-badges">
-                    {renderStockStatus(product.stock, product.minStock)}
-                    {renderBlockchainStatus(product.status)}
+                    {renderStockStatus(product.masterProduct.stock, 99)}
+                    {renderBlockchainStatus(product.masterProduct.status)}
                   </div>
                 </div>
 
                 <div className="product-info">
-                  <h3 className="product-name">{product.name}</h3>
-                  <p className="product-category">{product.category}</p>
+                  <h3 className="product-name">{product.masterProduct.name}</h3>
+                  <p className="product-category">{product.masterProduct.category.name}</p>
                   
                   <div className="product-details">
                     <div className="detail-row">
@@ -263,11 +264,11 @@ const PharmacyProduct: React.FC = () => {
                     </div>
                     <div className="detail-row">
                       <span>Tồn kho:</span>
-                      <span>{product.stock} / {product.minStock}</span>
+                      <span>{product.quantity} / 99</span>
                     </div>
                     <div className="detail-row">
                       <span>Nhà phân phối:</span>
-                      <span className="distributor">{product.distributor}</span>
+                      <span className="distributor">{product.masterProduct.distributor.companyName}</span>
                     </div>
                   </div>
 
@@ -301,25 +302,25 @@ const PharmacyProduct: React.FC = () => {
                   <tr key={product.id}>
                     <td>
                       <div className="product-cell">
-                        <img src={product.image} alt={product.name} />
+                        <img src={product.masterProduct.image} alt={product.masterProduct.name} />
                         <div>
-                          <div className="product-name">{product.name}</div>
-                          <div className="product-category">{product.category}</div>
+                          <div className="product-name">{product.masterProduct.name}</div>
+                          <div className="product-category">{product.masterProduct.category.name}</div>
                         </div>
                       </div>
                     </td>
                     <td>{formatPrice(product.price)}</td>
                     <td>
                       <div className="stock-cell">
-                        {product.stock}
-                        {renderStockStatus(product.stock, product.minStock)}
+                        {product.quantity}
+                        {renderStockStatus(product.quantity, 99)}
                       </div>
                     </td>
                     <td>
-                      <span className="distributor">{product.distributor}</span>
+                      <span className="distributor">{product.masterProduct.distributor.companyName}</span>
                     </td>
                     <td>
-                      {renderBlockchainStatus(product.status)}
+                      {renderBlockchainStatus(product.masterProduct.status)}
                     </td>
                     <td>
                       <div className="action-buttons">
@@ -350,13 +351,13 @@ const PharmacyProduct: React.FC = () => {
 
               <div className="modal-content">
                 <div className="product-main-info">
-                  <img src={selectedProduct.image} alt={selectedProduct.name} />
+                  <img src={selectedProduct.masterProduct.image} alt={selectedProduct.masterProduct.name} />
                   <div className="product-header">
-                    <h3>{selectedProduct.name}</h3>
-                    <p>{selectedProduct.category}</p>
+                    <h3>{selectedProduct.masterProduct.name}</h3>
+                    <p>{selectedProduct.masterProduct.category.name}</p>
                     <div className="product-badges">
-                      {renderStockStatus(selectedProduct.stock, selectedProduct.minStock)}
-                      {renderBlockchainStatus(selectedProduct.blockchainStatus)}
+                      {renderStockStatus(selectedProduct.quantity, 0)}
+                      {renderBlockchainStatus(selectedProduct.masterProduct.status)}
                     </div>
                   </div>
                 </div>
@@ -370,19 +371,19 @@ const PharmacyProduct: React.FC = () => {
                     </div>
                     <div className="detail-row">
                       <span>Tồn kho:</span>
-                      <span>{selectedProduct.stock} (Tối thiểu: {selectedProduct.minStock})</span>
+                      <span>{selectedProduct.quantity}</span>
                     </div>
                     <div className="detail-row">
                       <span>Nhà sản xuất:</span>
-                      <span>{selectedProduct.manufacturer}</span>
+                      <span>{selectedProduct.masterProduct.brand}</span>
                     </div>
                     <div className="detail-row">
                       <span>Nhà phân phối:</span>
-                      <span>{selectedProduct.distributor}</span>
+                      <span>{selectedProduct.masterProduct.distributor.companyName}</span>
                     </div>
                     <div className="detail-row">
                       <span>HSD:</span>
-                      <span>{formatDate(selectedProduct.expiryDate)}</span>
+                      <span>{formatDate(selectedProduct.masterProduct.expiryDate)}</span>
                     </div>
                   </div>
 
@@ -390,44 +391,44 @@ const PharmacyProduct: React.FC = () => {
                     <h4>Thông tin sử dụng</h4>
                     <div className="detail-row">
                       <span>Công dụng:</span>
-                      <span>{selectedProduct.description}</span>
+                      <span>{selectedProduct.masterProduct.description}</span>
                     </div>
                     <div className="detail-row">
                       <span>Cách dùng:</span>
-                      <span>{selectedProduct.usage}</span>
+                      <span>{selectedProduct.masterProduct.usage}</span>
                     </div>
                     <div className="detail-row">
                       <span>Tác dụng phụ:</span>
-                      <span>{selectedProduct.sideEffects}</span>
+                      <span>không</span>
                     </div>
                   </div>
 
-                  {selectedProduct.blockchainStatus !== 'not_registered' && (
+                  {selectedProduct.masterProduct.status !== 'not_verified' && (
                     <div className="detail-section">
                       <h4>Thông tin Blockchain</h4>
-                      {selectedProduct.transactionHash && (
+                      {selectedProduct.masterProduct.blockchainTx && (
                         <div className="detail-row">
                           <span>Transaction Hash:</span>
                           <a
-                            href={`https://etherscan.io/tx/${selectedProduct.transactionHash}`}
+                            href={`https://etherscan.io/tx/${selectedProduct.masterProduct.blockchainTx}`}
                             target="_blank"
                             rel="noopener noreferrer"
                             className="blockchain-link"
                           >
-                            {selectedProduct.transactionHash.slice(0, 16)}... ↗
+                            {selectedProduct.masterProduct.blockchainTx.slice(0, 16)}... ↗
                           </a>
                         </div>
                       )}
-                      {selectedProduct.ipfsCID && (
+                      {selectedProduct.masterProduct.ipfsCidString && (
                         <div className="detail-row">
                           <span>IPFS CID:</span>
                           <a
-                            href={`https://ipfs.io/ipfs/${selectedProduct.ipfsCID}`}
+                            href={`https://ipfs.io/ipfs/${selectedProduct.masterProduct.ipfsCidString}`}
                             target="_blank"
                             rel="noopener noreferrer"
                             className="blockchain-link"
                           >
-                            {selectedProduct.ipfsCID.slice(0, 16)}... ↗
+                            {selectedProduct.masterProduct.ipfsCidString.slice(0, 16)}... ↗
                           </a>
                         </div>
                       )}
