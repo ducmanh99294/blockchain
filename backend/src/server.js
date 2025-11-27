@@ -15,7 +15,6 @@ const HOST = process.env.HOST || 'localhost';
 const PORT = process.env.PORT || 3000;
 const cookieParser = require('cookie-parser');
 
-const medicineRouter = require('./routes/MedicineRoutes');
 const certificateRouter = require('./routes/CertificateRoutes');
 const transactionRouter = require('./routes/TransactionRoutes');
 const userRouter = require('./routes/UserRoutes');
@@ -102,7 +101,6 @@ process.on('uncaughtException', (err) => {
 });
 
 // Routes
-app.use("/api/medicine", medicineRouter);
 app.use("/api/certificate", certificateRouter);
 app.use("/api/transaction", transactionRouter);
 app.use("/api/user", userRouter);
