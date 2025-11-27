@@ -195,6 +195,7 @@ const Home: React.FC = () => {
     }
   };
 
+  // console.log(recommendProducts)
   return (
     <div className="user-home">
       {/* Banner khuyến mãi */}
@@ -284,7 +285,7 @@ const Home: React.FC = () => {
           {recommendProducts.map(product => (
             <div key={product._id} className="product-card">
               <div className="product-image">
-                <img src={product.image} alt={product.name} />
+                <img src={product.masterProduct.image} alt={product.masterProduct.name} />
                 {product.originalPrice && (
                   <span className="discount-badge">
                     -{Math.round((1 - product.price / product.originalPrice) * 100)}%
@@ -292,8 +293,8 @@ const Home: React.FC = () => {
                 )}
               </div>
               <div className="product-info">
-                <h3>{product.name}</h3>
-                <p>{product.description}</p>
+                <h3>{product.masterProduct.name}</h3>
+                <p>{product.masterProduct.description}</p>
                 <div className="product-rating">
                   ⭐ ({product.rating})
               
@@ -315,40 +316,6 @@ const Home: React.FC = () => {
           ))}
         </div>
         )}
-        <div className="products-grid">
-          {recommendProducts.map(product => (
-            <div key={product._id} className="product-card">
-              <div className="product-image">
-                <img src={product.image} alt={product.name} />
-                {product.originalPrice && (
-                  <span className="discount-badge">
-                    -{Math.round((1 - product.price / product.originalPrice) * 100)}%
-                  </span>
-                )}
-              </div>
-              <div className="product-info">
-                <h3>{product.name}</h3>
-                <p>{product.description}</p>
-                <div className="product-rating">
-                  ⭐ ({product.rating})
-              
-                </div>
-                <div className="product-price">
-                  <span className="current-price">{product.price.toLocaleString()}đ</span>
-                  {product.originalPrice && (
-                    <span className="original-price">{product.originalPrice.toLocaleString()}đ</span>
-                  )}
-                </div>
-                <button 
-                  className="add-to-cart-btn"
-                  onClick={() => handleAddToCart(product._id)}
-                >
-                  Thêm vào giỏ
-                </button>
-              </div>
-            </div>
-          ))}
-        </div>
       </section>
 
       {/* Sản phẩm đề xuất */}
@@ -363,10 +330,10 @@ const Home: React.FC = () => {
         <div className="recommended-products">
           {randomProducts.map(product => (
             <div key={product._id} className="recommended-card">
-              <img src={product.image} alt={product.name} />
+              <img src={product.masterProduct.image} alt={product.masterProduct.name} />
               <div className="recommended-info">
-                <h3>{product.name}</h3>
-                <p>{product.description}</p>
+                <h3>{product.masterProduct.name}</h3>
+                <p>{product.masterProduct.description}</p>
                 <div className="product-rating">
                   {'⭐'.repeat(Math.floor(product.rating))}
                 </div>

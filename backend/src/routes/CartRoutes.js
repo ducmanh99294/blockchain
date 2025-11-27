@@ -5,8 +5,8 @@ const cartController = require("../controllers/CartController");
 
 // CRUD routes
 // router.get("/:id", cartController.getCertificates);
-router.get("/:userId", cartController.getCart);
-router.post("/:userId/add", cartController.addToCart);
+router.get("/user/:userId", cartController.getCart);
+router.post("/user/:userId/add", cartController.addToCart);
 router.put("/user/:userId/item/:productId", cartController.updateQuantity);
 router.delete("/user/:userId/item/:productId", cartController.deleteCart);
 

@@ -12,6 +12,7 @@ router.get("/pharmacy/:pharmacyId", productController.getProductsByPharmacy);
 router.get("/", productController.getProducts);
 router.get("/:id", productController.getProductById);
 
+router.put("/pharmacy/:id", productController.updateProduct);
 router.put("/distributor/:id", productController.updateProductBlockchainInfo);
 router.delete("/:id", productController.deleteProduct);
 

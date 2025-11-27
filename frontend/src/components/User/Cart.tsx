@@ -177,6 +177,7 @@ const handleApplyCoupon = async () => {
     return new Intl.NumberFormat('vi-VN').format(price) + 'đ';
   };
 
+  // console.log(cartItems)
   return (
     <>
         {loading ? (
@@ -224,10 +225,10 @@ const handleApplyCoupon = async () => {
             {cartItems.map((item: any) => (
               <div key={item._id} className="cart-item">
                 <div className="item-info">
-                  <img src={item.productId.image} alt={item.productId.name} className="item-image" />
+                  <img src={item.productId.masterProduct.image} alt={item.productId.masterProduct.name} className="item-image" />
                   <div className="item-details">
-                    <h3 className="item-name">{item.productId.name}</h3>
-                    <p className="item-manufacturer">{item.productId.manufacturer}</p>
+                    <h3 className="item-name">{item.productId.masterProduct.name}</h3>
+                    <p className="item-manufacturer">{item.productId.masterProduct.distributor.companyName}</p>
                     {item.productId.prescription && (
                       <span className="prescription-badge">Cần kê đơn</span>
                     )}
@@ -249,7 +250,6 @@ const handleApplyCoupon = async () => {
                   <button 
                     className="quantity-btn"
                     onClick={() => handleQuantityChange(item.productId._id, item.quantity - 1)}
-                    disabled={item.productId.quantity <= 1}
                   >
                     -
                   </button>

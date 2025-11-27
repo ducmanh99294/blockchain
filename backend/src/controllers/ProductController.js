@@ -104,12 +104,28 @@ exports.createPharmacyProduct = async (req, res) => {
 // Lấy danh sách sản phẩm
 exports.getProducts = async (req, res) => {
   try {
-    const products = await Product.find();
+    const products = await PharmacyProduct.find({ available: true })
+          .populate({
+            path: "masterProduct",
+            select: "distributor name status image category description usage expiryDate brand blockchainTx ipfsCidString",
+            populate: [
+              {
+                path: "distributor",
+                select: "companyName"
+              },
+              {
+                path: "category",
+                select: "name"
+              }
+            ]
+          })
+          // .populate("pharmacy", "pharmacyName" );
     res.json(products);
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
 };
+
 
 // Lấy chi tiết sản phẩm
 exports.getProductById = async (req, res) => {
@@ -220,9 +236,23 @@ exports.checkout = async (req, res) => {
 
 exports.getRecommendedProducts = async (req, res) => {
   try {
-    const products = await Product.find()
+    const products = await PharmacyProduct.find({available: true})
       .sort({ purchaseCount: -1 })  
-      .limit(6);                  
+      .limit(6)
+          .populate({
+            path: "masterProduct",
+            select: "distributor name status image category description usage expiryDate brand blockchainTx ipfsCidString",
+            populate: [
+              {
+                path: "distributor",
+                select: "companyName"
+              },
+              {
+                path: "category",
+                select: "name"
+              }
+            ]
+          });                  
     
     res.json(products);
   } catch (err) {
@@ -244,11 +274,47 @@ exports.getLatestProducts = async (req, res) => {
 
 exports.getRandomProducts = async (req, res) => {
   try {
-    const products = await Product.aggregate([
-      { $sample: { size: 6 } }
-    ]);
+    const size = 6;
+    const count = await PharmacyProduct.countDocuments({ available: true });
+    if (count === 0) {
+      return res.json([]);
+    }
+
+    // Giới hạn random để tránh skip vượt quá số lượng
+    const maxSkip = count - size > 0 ? count - size : 0;
+    const random = Math.floor(Math.random() * (maxSkip + 1)); // random từ 0 đến maxSkip
+
+    const products = await PharmacyProduct.find({ available: true })
+      .skip(random)
+      .limit(size)
+      .populate({
+        path: "masterProduct",
+        select: "distributor name status image category description usage expiryDate brand blockchainTx ipfsCidString",
+        populate: [
+          { path: "distributor", select: "companyName" },
+          { path: "category", select: "name" }
+        ]
+      });
+
     res.json(products);
   } catch (error) {
     res.status(500).json({ message: "Lỗi khi lấy sản phẩm ngẫu nhiên", error: error.message });
+  }
+};
+
+exports.updateProduct = async (req, res) => {
+  try {
+    const productId = req.params.id;
+    const updateData = req.body;
+    const updatedProduct = await PharmacyProduct.findByIdAndUpdate(productId, updateData, { new: true });
+    if (!updatedProduct) {
+      return res.status(404).json({ message: "Product not found" });
+    }
+    res.json({
+      message: "Product updated successfully",
+      product: updatedProduct
+    });
+  } catch (error) {
+    res.status(500).json({ message: "Server error: " + error.message });
   }
 };

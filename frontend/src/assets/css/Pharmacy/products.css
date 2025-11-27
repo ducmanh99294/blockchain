@@ -545,6 +545,91 @@
   font-size: 0.9rem;
 }
 
+.edit-row {
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.edit-row label {
+  width: 120px;
+  font-weight: 500;
+}
+
+.edit-input {
+  flex: 1;
+  padding: 8px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  margin-right: 8px;
+}
+
+.currency, .unit {
+  color: #666;
+  min-width: 40px;
+}
+
+.action-btn.save {
+  background-color: #28a745;
+}
+
+.action-btn.save:hover {
+  background-color: #218838;
+}
+
+.action-btn.save:disabled {
+  background-color: #6c757d;
+  cursor: not-allowed;
+}
+/* Toggle switch */
+.toggle-switch {
+  display: flex;
+  align-items: center;
+}
+
+.toggle-input {
+  display: none;
+}
+
+.toggle-label {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  padding: 8px 16px;
+  background: #f0f0f0;
+  border-radius: 20px;
+  transition: background 0.3s;
+}
+
+.toggle-input:checked + .toggle-label {
+  background: #e8f5e8;
+}
+
+.toggle-text {
+  font-weight: 500;
+  margin-left: 8px;
+}
+
+/* Status styles */
+.status.active {
+  color: #28a745;
+  font-weight: 500;
+}
+
+.status.inactive {
+  color: #dc3545;
+  font-weight: 500;
+}
+
+.badge.inactive {
+  background: #dc3545;
+  color: white;
+}
+
+.status-cell {
+  display: flex;
+  align-items: center;
+}
 /* Responsive Design */
 @media (max-width: 1024px) {
   .product-details-grid {

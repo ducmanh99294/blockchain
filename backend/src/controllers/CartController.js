@@ -5,15 +5,31 @@ const PharmacyCart = require("../models/PharmacyCart");
 exports.getCart = async (req, res) => {
   try {
     const cart = await Cart.findOne({ userId: req.params.userId })
-      .populate("items.productId");
-      
+      .populate({
+        path: "items.productId",
+        populate: {
+          path: "masterProduct",
+          // Bạn có thể chọn select những trường cần thiết, ví dụ:
+          select: "distributor name status image category description usage expiryDate brand blockchainTx ipfsCidString",
+          populate: [
+            {
+              path: "distributor",
+              select: "companyName"
+            },
+            {
+              path: "category",
+              select: "name"
+            }
+          ]
+        }
+      });
+
     res.json(cart || { userId: req.params.userId, items: [] });
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: "Lỗi server" });
   }
 };
-
 
 // Thêm sản phẩm vào giỏ
 exports.addToCart = async (req, res) => {

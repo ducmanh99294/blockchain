@@ -32,7 +32,6 @@ const PharmacyProductSchema = new mongoose.Schema({
   createdAt: { type: Date, default: Date.now }
 });
 
-// Đảm bảo mỗi nhà thuốc chỉ có 1 bản ghi cho 1 sản phẩm gốc
 PharmacyProductSchema.index({ masterProduct: 1, pharmacy: 1 }, { unique: true });
 
 module.exports = mongoose.model("PharmacyProduct", PharmacyProductSchema);

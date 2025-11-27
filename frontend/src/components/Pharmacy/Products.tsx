@@ -8,6 +8,8 @@ const PharmacyProduct: React.FC = () => {
   const [showDetailModal, setShowDetailModal] = useState(false);
   const [loading, setLoading] = useState(true);
   const [products, setProducts] = useState<any[]>([]);
+  const [saving, setSaving] = useState(false);
+  const [editedProduct, setEditedProduct] = useState<any>(null);
 
   const pharmacyId = localStorage.getItem("userId");
   const API = 'http://localhost:3000'
@@ -167,300 +169,441 @@ const PharmacyProduct: React.FC = () => {
     }
   };
 
-  // Mở modal chi tiết
-  const openProductDetail = (product: any) => {
-    setSelectedProduct(product);
-    setShowDetailModal(true);
-  };
-  
-  console.log(selectedProduct)
-  return (
-    <div className="product-management-page">
-      <div className="management-container">
-        {/* Header */}
-        <div className="management-header">
-          <div className="header-left">
-            <h1>Quản Lý Sản Phẩm</h1>
-            <p>Quản lý danh sách sản phẩm và xác minh blockchain</p>
-          </div>
-          <div className="header-right">
-            <div className="view-toggle">
-              <button
-                className={`view-btn ${viewMode === 'grid' ? 'active' : ''}`}
-                onClick={() => setViewMode('grid')}
-              >
-                🏠 Grid
-              </button>
-              <button
-                className={`view-btn ${viewMode === 'table' ? 'active' : ''}`}
-                onClick={() => setViewMode('table')}
-              >
-                📋 Table
-              </button>
-            </div>
+const handleFieldChange = (field: string, value: any) => {
+  setEditedProduct((prev: any) => ({
+    ...prev,
+    [field]: value
+  }));
+};
+
+
+const handleSaveProduct = async () => {
+  if (!editedProduct) return;
+  setSaving(true);
+  try {
+    const res = await fetch(`${API}/api/product/pharmacy/${selectedProduct._id}`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        price: editedProduct.price,
+        quantity: editedProduct.quantity,
+        available: editedProduct.available
+      })
+    });
+
+    if (!res.ok) {
+      throw new Error("API update failed");
+    }
+
+    const updated = await res.json();
+
+    // Cập nhật state products với editedProduct thay vì dữ liệu từ API
+    const newList = products.map(p =>
+      p._id === selectedProduct._id
+        ? { 
+            ...p, 
+            price: editedProduct.price,
+            quantity: editedProduct.quantity,
+            available: editedProduct.available,
+            // Giữ nguyên các trường khác từ API nếu cần
+            ...updated
+          }
+        : p
+    );
+
+    setProducts(newList);
+
+    // Cập nhật lại selectedProduct với editedProduct
+    setSelectedProduct((prev: any) => ({
+      ...prev,
+      price: editedProduct.price,
+      quantity: editedProduct.quantity,
+      available: editedProduct.available
+    }));
+
+    setShowDetailModal(false);
+
+    // Hiển thị thông báo thành công (tuỳ chọn)
+    console.log("Cập nhật sản phẩm thành công!");
+
+  } catch (err) {
+    console.error("Lỗi khi cập nhật sản phẩm:", err);
+    // Có thể thêm thông báo lỗi cho người dùng ở đây
+  } finally {
+    setSaving(false);
+  }
+};
+
+// Cập nhật hàm openProductDetail
+const openProductDetail = (product:any) => {
+  setSelectedProduct(product);
+  setEditedProduct({
+    price: product.price,
+    quantity: product.quantity,
+    available: product.available
+  });
+  setShowDetailModal(true);
+};
+
+  // console.log(selectedProduct)
+return (
+  <div className="product-management-page">
+    <div className="management-container">
+      {/* Header */}
+      <div className="management-header">
+        <div className="header-left">
+          <h1>Quản Lý Sản Phẩm</h1>
+          <p>Quản lý danh sách sản phẩm và xác minh blockchain</p>
+        </div>
+        <div className="header-right">
+          <div className="view-toggle">
             <button
-              className="add-product-btn"
-              onClick={() => { window.location.href = '/pharmacy/shop'; }}
+              className={`view-btn ${viewMode === 'grid' ? 'active' : ''}`}
+              onClick={() => setViewMode('grid')}
             >
-              ＋ mua thuốc
+              🏠 Grid
+            </button>
+            <button
+              className={`view-btn ${viewMode === 'table' ? 'active' : ''}`}
+              onClick={() => setViewMode('table')}
+            >
+              📋 Table
             </button>
           </div>
+          <button
+            className="add-product-btn"
+            onClick={() => { window.location.href = '/pharmacy/shop'; }}
+          >
+            ＋ mua thuốc
+          </button>
         </div>
+      </div>
 
-        {/* Thống kê nhanh */}
-        <div className="quick-stats">
-          <div className="stat-item">
-            <span className="stat-number">{products.length}</span>
-            <span className="stat-label">Tổng sản phẩm</span>
-          </div>
-          <div className="stat-item">
-            <span className="stat-number">
-              {products.filter(p => p.blockchainStatus === 'verified').length}
-            </span>
-            <span className="stat-label">Đã xác minh</span>
-          </div>
-          <div className="stat-item">
-            <span className="stat-number">
-              {products.filter(p => p.stock === 0).length}
-            </span>
-            <span className="stat-label">Hết hàng</span>
-          </div>
-          <div className="stat-item">
-            <span className="stat-number">
-              {products.filter(p => p.stock > 0 && p.stock <= p.minStock).length}
-            </span>
-            <span className="stat-label">Sắp hết</span>
-          </div>
+      {/* Thống kê nhanh */}
+      <div className="quick-stats">
+        <div className="stat-item">
+          <span className="stat-number">{products.length}</span>
+          <span className="stat-label">Tổng sản phẩm</span>
         </div>
+        <div className="stat-item">
+          <span className="stat-number">
+            {products.filter(p => p.blockchainStatus === 'verified').length}
+          </span>
+          <span className="stat-label">Đã xác minh</span>
+        </div>
+        <div className="stat-item">
+          <span className="stat-number">
+            {products.filter(p => p.stock === 0).length}
+          </span>
+          <span className="stat-label">Hết hàng</span>
+        </div>
+        <div className="stat-item">
+          <span className="stat-number">
+            {products.filter(p => p.stock > 0 && p.stock <= p.minStock).length}
+          </span>
+          <span className="stat-label">Sắp hết</span>
+        </div>
+        <div className="stat-item">
+          <span className="stat-number">
+            {products.filter(p => p.available).length}
+          </span>
+          <span className="stat-label">Đang bán</span>
+        </div>
+      </div>
 
-        {loading ===null ? (
-          <div className="loading-container">
-            <div className="loading-spinner"></div>
-            <p>Đang tải...</p>
-          </div>
-        ) : (
-          <>        
+      {loading === null ? (
+        <div className="loading-container">
+          <div className="loading-spinner"></div>
+          <p>Đang tải...</p>
+        </div>
+      ) : (
+        <>        
           {/* Danh sách sản phẩm */}
-        {viewMode === 'grid' ? (
-          <div className="products-grid">
-            {products.map(product => (
-              <div key={product.id} className="product-card">
-                <div className="product-image">
-                  <img src={product.masterProduct.image} alt={product.masterProduct.name} />
-                  <div className="product-badges">
-                    {renderStockStatus(product.masterProduct.stock, 99)}
-                    {renderBlockchainStatus(product.masterProduct.status)}
+          {viewMode === 'grid' ? (
+            <div className="products-grid">
+              {products.map(product => (
+                <div key={product.id} className="product-card">
+                  <div className="product-image">
+                    <img src={product.masterProduct.image} alt={product.masterProduct.name} />
+                    <div className="product-badges">
+                      {renderStockStatus(product.masterProduct.stock, 99)}
+                      {renderBlockchainStatus(product.masterProduct.status)}
+                      {!product.available && <span className="badge inactive">❌ Ngừng bán</span>}
+                    </div>
+                  </div>
+
+                  <div className="product-info">
+                    <h3 className="product-name">{product.masterProduct.name}</h3>
+                    <p className="product-category">{product.masterProduct.category.name}</p>
+                    
+                    <div className="product-details">
+                      <div className="detail-row">
+                        <span>Giá bán:</span>
+                        <span className="product-price">{formatPrice(product.price)}</span>
+                      </div>
+                      <div className="detail-row">
+                        <span>Tồn kho:</span>
+                        <span>{product.quantity} / 99</span>
+                      </div>
+                      <div className="detail-row">
+                        <span>Trạng thái:</span>
+                        <span className={`status ${product.available ? 'active' : 'inactive'}`}>
+                          {product.available ? '🟢 Đang bán' : '🔴 Ngừng bán'}
+                        </span>
+                      </div>
+                      <div className="detail-row">
+                        <span>Nhà phân phối:</span>
+                        <span className="distributor">{product.masterProduct.distributor.companyName}</span>
+                      </div>
+                    </div>
+
+                    <div className="product-actions">
+                      <button
+                        className="action-btn view-details"
+                        onClick={() => openProductDetail(product)}
+                      >
+                        ✏️ Sửa sản phẩm
+                      </button>
+                    </div>
                   </div>
                 </div>
+              ))}
+            </div>
+          ) : (
+            <div className="products-table">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Sản phẩm</th>
+                    <th>Giá bán</th>
+                    <th>Tồn kho</th>
+                    <th>Trạng thái</th>
+                    <th>Nhà phân phối</th>
+                    <th>Blockchain</th>
+                    <th>Thao tác</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {products.map(product => (
+                    <tr key={product.id}>
+                      <td>
+                        <div className="product-cell">
+                          <img src={product.masterProduct.image} alt={product.masterProduct.name} />
+                          <div>
+                            <div className="product-name">{product.masterProduct.name}</div>
+                            <div className="product-category">{product.masterProduct.category.name}</div>
+                          </div>
+                        </div>
+                      </td>
+                      <td>{formatPrice(product.price)}</td>
+                      <td>
+                        <div className="stock-cell">
+                          {product.quantity}
+                          {renderStockStatus(product.quantity, 99)}
+                        </div>
+                      </td>
+                      <td>
+                        <div className="status-cell">
+                          <span className={`status ${product.available ? 'active' : 'inactive'}`}>
+                            {product.available ? '🟢 Đang bán' : '🔴 Ngừng bán'}
+                          </span>
+                        </div>
+                      </td>
+                      <td>
+                        <span className="distributor">{product.masterProduct.distributor.companyName}</span>
+                      </td>
+                      <td>
+                        {renderBlockchainStatus(product.masterProduct.status)}
+                      </td>
+                      <td>
+                        <div className="action-buttons">
+                          <button
+                            className="action-btn edit"
+                            onClick={() => openProductDetail(product)}
+                            title="Sửa sản phẩm"
+                          >
+                            ✏️ Sửa
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
 
-                <div className="product-info">
-                  <h3 className="product-name">{product.masterProduct.name}</h3>
-                  <p className="product-category">{product.masterProduct.category.name}</p>
-                  
-                  <div className="product-details">
-                    <div className="detail-row">
-                      <span>Giá bán:</span>
-                      <span className="product-price">{formatPrice(product.price)}</span>
-                    </div>
-                    <div className="detail-row">
-                      <span>Tồn kho:</span>
-                      <span>{product.quantity} / 99</span>
-                    </div>
-                    <div className="detail-row">
-                      <span>Nhà phân phối:</span>
-                      <span className="distributor">{product.masterProduct.distributor.companyName}</span>
+          {/* Modal chi tiết & chỉnh sửa sản phẩm */}
+          {showDetailModal && selectedProduct && (
+            <div className="modal-overlay">
+              <div className="product-detail-modal">
+                <div className="modal-header">
+                  <h2>Chỉnh sửa sản phẩm</h2>
+                  <button className="close-btn" onClick={() => setShowDetailModal(false)}>×</button>
+                </div>
+
+                <div className="modal-content">
+                  <div className="product-main-info">
+                    <img src={selectedProduct.masterProduct.image} alt={selectedProduct.masterProduct.name} />
+                    <div className="product-header">
+                      <h3>{selectedProduct.masterProduct.name}</h3>
+                      <p>{selectedProduct.masterProduct.category.name}</p>
+                      <div className="product-badges">
+                        {renderStockStatus(selectedProduct.quantity, 0)}
+                        {renderBlockchainStatus(selectedProduct.masterProduct.status)}
+                        {!selectedProduct.available && <span className="badge inactive">❌ Ngừng bán</span>}
+                      </div>
                     </div>
                   </div>
 
-                  <div className="product-actions">
+                  <div className="product-details-grid">
+                    <div className="detail-section">
+                      <h4>Thông tin có thể chỉnh sửa</h4>
+                      
+                      {/* Giá bán - có thể chỉnh sửa */}
+                      <div className="edit-row">
+                        <label>Giá bán:</label>
+                        <input
+                          type="number"
+                          value={editedProduct?.price || ''}
+                          onChange={(e) => handleFieldChange('price', e.target.value)}
+                          className="edit-input"
+                          placeholder="Nhập giá bán"
+                        />
+                        <span className="currency">VND</span>
+                      </div>
+
+                      {/* Tồn kho - có thể chỉnh sửa */}
+                      <div className="edit-row">
+                        <label>Tồn kho:</label>
+                        <input
+                          type="number"
+                          value={editedProduct?.quantity || ''}
+                          onChange={(e) => handleFieldChange('quantity', e.target.value)}
+                          className="edit-input"
+                          placeholder="Nhập số lượng tồn kho"
+                          min="0"
+                          max="99"
+                        />
+                        <span className="unit">/ 99</span>
+                      </div>
+
+                      {/* Trạng thái bán hàng - có thể chỉnh sửa */}
+                      <div className="edit-row">
+                        <label>Trạng thái:</label>
+                        <div className="toggle-switch">
+                        <input
+                          type="checkbox"
+                          id="status-toggle"
+                          checked={Boolean(editedProduct?.available)}
+                          onChange={(e) => handleFieldChange('available', e.target.checked)}
+                          className="toggle-input"
+                        />
+                          <label htmlFor="status-toggle" className="toggle-label">
+                            <span className="toggle-text">
+                              {editedProduct?.available ?? selectedProduct.available ? '🟢 Đang bán' : '🔴 Ngừng bán'}
+                            </span>
+                          </label>
+                        </div>
+                      </div>
+
+                      {/* Hiển thị thông tin không thể chỉnh sửa */}
+                      <div className="detail-row">
+                        <span>Nhà sản xuất:</span>
+                        <span>{selectedProduct.masterProduct.brand}</span>
+                      </div>
+                      <div className="detail-row">
+                        <span>Nhà phân phối:</span>
+                        <span>{selectedProduct.masterProduct.distributor.companyName}</span>
+                      </div>
+                      <div className="detail-row">
+                        <span>HSD:</span>
+                        <span>{formatDate(selectedProduct.masterProduct.expiryDate)}</span>
+                      </div>
+                    </div>
+
+                    <div className="detail-section">
+                      <h4>Thông tin sử dụng</h4>
+                      <div className="detail-row">
+                        <span>Công dụng:</span>
+                        <span>{selectedProduct.masterProduct.description}</span>
+                      </div>
+                      <div className="detail-row">
+                        <span>Cách dùng:</span>
+                        <span>{selectedProduct.masterProduct.usage}</span>
+                      </div>
+                      <div className="detail-row">
+                        <span>Tác dụng phụ:</span>
+                        <span>không</span>
+                      </div>
+                    </div>
+
+                    {selectedProduct.masterProduct.status !== 'not_verified' && (
+                      <div className="detail-section">
+                        <h4>Thông tin Blockchain</h4>
+                        {selectedProduct.masterProduct.blockchainTx && (
+                          <div className="detail-row">
+                            <span>Transaction Hash:</span>
+                            <a
+                              href={`https://etherscan.io/tx/${selectedProduct.masterProduct.blockchainTx}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="blockchain-link"
+                            >
+                              {selectedProduct.masterProduct.blockchainTx.slice(0, 16)}... ↗
+                            </a>
+                          </div>
+                        )}
+                        {selectedProduct.masterProduct.ipfsCidString && (
+                          <div className="detail-row">
+                            <span>IPFS CID:</span>
+                            <a
+                              href={`https://ipfs.io/ipfs/${selectedProduct.masterProduct.ipfsCidString}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="blockchain-link"
+                            >
+                              {selectedProduct.masterProduct.ipfsCidString.slice(0, 16)}... ↗
+                            </a>
+                          </div>
+                        )}
+                        {selectedProduct.blockchainTimestamp && (
+                          <div className="detail-row">
+                            <span>Xác minh lúc:</span>
+                            <span>{new Date(selectedProduct.blockchainTimestamp).toLocaleString('vi-VN')}</span>
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="modal-actions">
                     <button
-                      className="action-btn view-details"
-                      onClick={() => openProductDetail(product)}
+                      className="action-btn save"
+                      onClick={handleSaveProduct}
+                      disabled={saving}
                     >
-                      Xem chi tiết
+                      {saving ? 'Đang lưu...' : '💾 Lưu thay đổi'}
+                    </button>
+                    <button
+                      className="action-btn cancel"
+                      onClick={() => setShowDetailModal(false)}
+                      disabled={saving}
+                    >
+                      Hủy
                     </button>
                   </div>
                 </div>
               </div>
-            ))}
-          </div>
-        ) : (
-          <div className="products-table">
-            <table>
-              <thead>
-                <tr>
-                  <th>Sản phẩm</th>
-                  <th>Giá bán</th>
-                  <th>Tồn kho</th>
-                  <th>Nhà phân phối</th>
-                  <th>Blockchain</th>
-                  <th>Thao tác</th>
-                </tr>
-              </thead>
-              <tbody>
-                {products.map(product => (
-                  <tr key={product.id}>
-                    <td>
-                      <div className="product-cell">
-                        <img src={product.masterProduct.image} alt={product.masterProduct.name} />
-                        <div>
-                          <div className="product-name">{product.masterProduct.name}</div>
-                          <div className="product-category">{product.masterProduct.category.name}</div>
-                        </div>
-                      </div>
-                    </td>
-                    <td>{formatPrice(product.price)}</td>
-                    <td>
-                      <div className="stock-cell">
-                        {product.quantity}
-                        {renderStockStatus(product.quantity, 99)}
-                      </div>
-                    </td>
-                    <td>
-                      <span className="distributor">{product.masterProduct.distributor.companyName}</span>
-                    </td>
-                    <td>
-                      {renderBlockchainStatus(product.masterProduct.status)}
-                    </td>
-                    <td>
-                      <div className="action-buttons">
-                        <button
-                          className="action-btn view"
-                          onClick={() => openProductDetail(product)}
-                          title="Xem chi tiết"
-                        >
-                          👁️
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
-
-        {/* Modal chi tiết sản phẩm */}
-        {showDetailModal && selectedProduct && (
-          <div className="modal-overlay">
-            <div className="product-detail-modal">
-              <div className="modal-header">
-                <h2>Chi tiết sản phẩm</h2>
-                <button className="close-btn" onClick={() => setShowDetailModal(false)}>×</button>
-              </div>
-
-              <div className="modal-content">
-                <div className="product-main-info">
-                  <img src={selectedProduct.masterProduct.image} alt={selectedProduct.masterProduct.name} />
-                  <div className="product-header">
-                    <h3>{selectedProduct.masterProduct.name}</h3>
-                    <p>{selectedProduct.masterProduct.category.name}</p>
-                    <div className="product-badges">
-                      {renderStockStatus(selectedProduct.quantity, 0)}
-                      {renderBlockchainStatus(selectedProduct.masterProduct.status)}
-                    </div>
-                  </div>
-                </div>
-
-                <div className="product-details-grid">
-                  <div className="detail-section">
-                    <h4>Thông tin cơ bản</h4>
-                    <div className="detail-row">
-                      <span>Giá bán:</span>
-                      <span>{formatPrice(selectedProduct.price)}</span>
-                    </div>
-                    <div className="detail-row">
-                      <span>Tồn kho:</span>
-                      <span>{selectedProduct.quantity}</span>
-                    </div>
-                    <div className="detail-row">
-                      <span>Nhà sản xuất:</span>
-                      <span>{selectedProduct.masterProduct.brand}</span>
-                    </div>
-                    <div className="detail-row">
-                      <span>Nhà phân phối:</span>
-                      <span>{selectedProduct.masterProduct.distributor.companyName}</span>
-                    </div>
-                    <div className="detail-row">
-                      <span>HSD:</span>
-                      <span>{formatDate(selectedProduct.masterProduct.expiryDate)}</span>
-                    </div>
-                  </div>
-
-                  <div className="detail-section">
-                    <h4>Thông tin sử dụng</h4>
-                    <div className="detail-row">
-                      <span>Công dụng:</span>
-                      <span>{selectedProduct.masterProduct.description}</span>
-                    </div>
-                    <div className="detail-row">
-                      <span>Cách dùng:</span>
-                      <span>{selectedProduct.masterProduct.usage}</span>
-                    </div>
-                    <div className="detail-row">
-                      <span>Tác dụng phụ:</span>
-                      <span>không</span>
-                    </div>
-                  </div>
-
-                  {selectedProduct.masterProduct.status !== 'not_verified' && (
-                    <div className="detail-section">
-                      <h4>Thông tin Blockchain</h4>
-                      {selectedProduct.masterProduct.blockchainTx && (
-                        <div className="detail-row">
-                          <span>Transaction Hash:</span>
-                          <a
-                            href={`https://etherscan.io/tx/${selectedProduct.masterProduct.blockchainTx}`}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="blockchain-link"
-                          >
-                            {selectedProduct.masterProduct.blockchainTx.slice(0, 16)}... ↗
-                          </a>
-                        </div>
-                      )}
-                      {selectedProduct.masterProduct.ipfsCidString && (
-                        <div className="detail-row">
-                          <span>IPFS CID:</span>
-                          <a
-                            href={`https://ipfs.io/ipfs/${selectedProduct.masterProduct.ipfsCidString}`}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="blockchain-link"
-                          >
-                            {selectedProduct.masterProduct.ipfsCidString.slice(0, 16)}... ↗
-                          </a>
-                        </div>
-                      )}
-                      {selectedProduct.blockchainTimestamp && (
-                        <div className="detail-row">
-                          <span>Xác minh lúc:</span>
-                          <span>{new Date(selectedProduct.blockchainTimestamp).toLocaleString('vi-VN')}</span>
-                        </div>
-                      )}
-                    </div>
-                  )}
-                </div>
-
-                <div className="modal-actions">
-                  <button
-                    className="action-btn close"
-                    onClick={() => setShowDetailModal(false)}
-                  >
-                    Đóng
-                  </button>
-                </div>
-              </div>
             </div>
-          </div>
-        )}
-
+          )}
         </>
-        )}
-
-      </div>
+      )}
     </div>
-  );
+  </div>
+);
 };
 
 export default PharmacyProduct;
