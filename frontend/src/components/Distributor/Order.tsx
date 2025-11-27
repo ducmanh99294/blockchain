@@ -91,7 +91,7 @@ const DistributorOrder: React.FC = () => {
 
   const fetchOrders = async () => {
     try {
-      const res = await fetch(`${API}/api/pharmacy/order/distributor/${userId}`)
+      const res = await fetch(`${API}/api/order/distributor/${userId}`)
       if(!res.ok) {
         console.log("err");
       }
@@ -112,12 +112,12 @@ const DistributorOrder: React.FC = () => {
     }
     
     // Lọc theo từ khóa tìm kiếm
-    // if (searchTerm) {
-    //   filtered = filtered.filter((order: any) => 
-    //     order.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    //     order.pharmacy.toLowerCase().includes(searchTerm.toLowerCase())
-    //   );
-    // }
+    if (searchTerm) {
+      filtered = filtered.filter((order: any) => 
+        order._id.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        order.pharmacyId.username.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+    }
     
     setFilteredOrders(filtered);
   }, [searchTerm, statusFilter, orders]);
@@ -253,7 +253,9 @@ const handleUpdateStatus = async (orderId: any, newStatus: any) => {
 
   // Lấy số lượng đơn hàng theo trạng thái
   const getOrderCountByStatus = (status: any) => {
-    return orders.filter((order: any) => order.status === status).length;
+    if (orders) {
+      return orders.filter((order: any) => order.status === status).length;
+    }
   };
 
   console.log(orders)

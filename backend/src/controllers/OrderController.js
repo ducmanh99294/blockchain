@@ -1,8 +1,9 @@
 const Order = require("../models/Order");
+const PharmacyOrder = require("../models/PharmacyOrder");
 const Shipping = require("../models/Shipping");
 const Coupon = require("../models/Coupon");
 const Product = require("../models/Product");
-const { get } = require("mongoose");
+const DistributorProduct = require("../models/DistributorProduct");
 
 const OrderController = {
   //  Tạo đơn hàng
@@ -162,19 +163,19 @@ const OrderController = {
     }
   },
 
-  async getOrderByDistributor(req, res) {
-    try {
-      const orders = await Order.find({ distributorId: req.params.distributorId })
-        .populate("paymentMethod", "name")
-        .populate("userId", "name email")
-        .populate("items.productId", "name price")
-        .populate("shippingMethod", "name price")
-        .populate("coupon", "code discount type");
-      res.json(orders);
-    } catch (error) {
-      res.status(500).json({ message: "Lỗi server", error });
-    }
-  },
+  // async getOrderByDistributor(req, res) {
+  //   try {
+  //     const orders = await Order.find({ distributorId: req.params.distributorId })
+  //       .populate("paymentMethod", "name")
+  //       .populate("userId", "name email")
+  //       .populate("items.productId", "name price")
+  //       .populate("shippingMethod", "name price")
+  //       .populate("coupon", "code discount type");
+  //     res.json(orders);
+  //   } catch (error) {
+  //     res.status(500).json({ message: "Lỗi server", error });
+  //   }
+  // },
 
   // Cập nhật đơn hàng (status, trackingNumber, cancelReason)
   async updateOrder(req, res) {
@@ -250,7 +251,7 @@ const OrderController = {
 
       const totalPrice = Math.max(0, subtotal + shippingFee);
 
-      const newOrder = new Order({
+      const newOrder = new PharmacyOrder({
         pharmacyId,
         items: orderItems,
         shippingInfo,
@@ -275,7 +276,7 @@ const OrderController = {
   // Lấy tất cả đơn hàng (admin)
   async getAllPharmacyOrders(req, res) {
     try {
-      const orders = await Order.find()
+      const orders = await PharmacyOrder.find()
       .populate("paymentMethod", "name")
       .populate("pharmacyId", "name email")
       .populate("shippingMethod", "name price")
@@ -327,35 +328,36 @@ const OrderController = {
   //   }
   // },
 
+  // -----------------Distributor-----------------
   // // Lấy đơn hàng theo nhà phân phối
-  // async getOrderByDistributor(req, res) {
-  //   try {
-  //     const { distributorId } = req.params;
-  //     const products = await DistributorProduct.find({ distributor: distributorId }).select("_id");
-  //     const productIds = products.map(p => p._id);
+  async getOrderByDistributor(req, res) {
+    try {
+      const { distributorId } = req.params;
+      const products = await DistributorProduct.find({ distributor: distributorId }).select("_id");
+      const productIds = products.map(p => p._id);
 
-  //     const orders = await Order.find({ "items.distributorProductId": { $in: productIds } })
-  //       .populate("paymentMethod", "name")
-  //       .populate("pharmacyId", "username email _id")
-  //       .populate("items.distributorProductId", "name price")
-  //       .populate("shippingMethod", "name price");
+      const orders = await PharmacyOrder.find({ "items.distributorProductId": { $in: productIds } })
+        .populate("paymentMethod", "name")
+        .populate("pharmacyId", "username email _id")
+        .populate("items.distributorProductId", "name price")
+        .populate("shippingMethod", "name price");
       
-  //     res.json(orders);
-  //   } catch (error) {
-  //     res.status(500).json({ message: "Lỗi server", error: error.message });
-  //   }
-  // },
+      res.json(orders);
+    } catch (error) {
+      res.status(500).json({ message: "Lỗi server", error: error.message });
+    }
+  },
 
   // // Cập nhật đơn hàng
-  // async updateOrder(req, res) {
-  //   try {
-  //     const updatedOrder = await Order.findByIdAndUpdate(req.params.id, req.body, { new: true });
-  //     if (!updatedOrder) return res.status(404).json({ message: "Không tìm thấy đơn hàng" });
-  //     res.json(updatedOrder);
-  //   } catch (error) {
-  //     res.status(500).json({ message: "Lỗi server", error });
-  //   }
-  // },
+  async updateDistributorOrder(req, res) {
+    try {
+      const updatedOrder = await PharmacyOrder.findByIdAndUpdate(req.params.id, req.body, { new: true });
+      if (!updatedOrder) return res.status(404).json({ message: "Không tìm thấy đơn hàng" });
+      res.json(updatedOrder);
+    } catch (error) {
+      res.status(500).json({ message: "Lỗi server", error });
+    }
+  },
 
   // // Xóa đơn hàng
   // async deleteOrder(req, res) {
