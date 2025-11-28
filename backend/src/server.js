@@ -85,9 +85,9 @@ app.use((req, res, next) => {
   next();
 });
 
-// Start server
-server.listen(PORT, () => {
-  console.info(`Server is running on http://${HOST}:${PORT}`);
+app.use((req, res, next) => {
+  console.log("REQUEST ĐẾN BACKEND:", req.method, req.originalUrl);
+  next();
 });
 
 // Handle errors
@@ -123,4 +123,9 @@ app.use((req, res, next) => {
     success: false,
     message: `Không tìm thấy tài nguyên: ${req.originalUrl}`,
   });
+});
+
+// Start server
+server.listen(PORT, () => {
+  console.info(`Server is running on http://${HOST}:${PORT}`);
 });

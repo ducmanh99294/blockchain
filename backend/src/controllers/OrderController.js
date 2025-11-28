@@ -2,8 +2,9 @@ const Order = require("../models/Order");
 const PharmacyOrder = require("../models/PharmacyOrder");
 const Shipping = require("../models/Shipping");
 const Coupon = require("../models/Coupon");
-const Product = require("../models/Product");
 const DistributorProduct = require("../models/DistributorProduct");
+const PharmacyProduct = require("../models/PharmacyProduct");
+const PharmacyCart = require("../models/PharmacyCart");
 
 const OrderController = {
   //  Tạo đơn hàng
@@ -16,7 +17,7 @@ const OrderController = {
       const orderItems = [];
 
       for (const item of items) {
-        const product = await Product.findById(item.productId);
+        const product = await PharmacyProduct.findById(item.productId);
         if (!product) return res.status(404).json({ message: "Sản phẩm không tồn tại" });
 
         orderItems.push({

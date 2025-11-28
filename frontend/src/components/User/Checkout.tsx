@@ -2,6 +2,8 @@
 import React, { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import '../../assets/css/User/checkout.css';
+import { ethers } from "ethers";
+import quanlithuocABI from './../../abi/quanLiThuoc.json';
 
 const Checkout: React.FC = () => {
   const [cartItems, setCartItems] = useState<any[]>([]);
@@ -18,6 +20,7 @@ const Checkout: React.FC = () => {
   const location = useLocation();
   const API = "http://localhost:3000";
   const userId = localStorage.getItem("userId");
+  const contractAddress = import.meta.env.VITE_CONTRACT_ADDRESS;
 
   useEffect(() => {
     fetchData();
@@ -55,7 +58,7 @@ const Checkout: React.FC = () => {
     }
   };
 
-  // ✅ Tính toán tổng tiền
+  // Tính toán tổng tiền
   const calculateTotals = () => {
     const subtotal = cartItems.reduce(
       (total, item) => total + item.productId.price * item.quantity,
@@ -72,20 +75,20 @@ const Checkout: React.FC = () => {
   const { subtotal, shippingFee, discount, total } = calculateTotals();
 
 // Xử lý thay đổi thông tin shippingInfo
-const handleInputChange = (
-  e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
-) => {
-  const { name, value } = e.target;
-  setShippingInfo((prev: any) => ({
-    ...prev,
-    [name]: value
-  }));
-};
+  const handleInputChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
+  ) => {
+    const { name, value } = e.target;
+    setShippingInfo((prev: any) => ({
+      ...prev,
+      [name]: value
+    }));
+  };
 
-  // ✅ Đặt hàng
-  const handlePlaceOrder = async (e: React.FormEvent) => {
+  // Đặt hàng
+  const handleSubmit = async (e:any) => {
+    console.log("🔵 URL đang gọi:", `${API}/api/order/user`);
     e.preventDefault();
-
     if (!agreeToTerms) {
       alert("Vui lòng đồng ý với điều khoản và điều kiện");
       return;
@@ -95,7 +98,7 @@ const handleInputChange = (
       userId,
       items: cartItems.map((item) => ({
         productId: item.productId._id,
-        name: item.productId.name,
+        name: item.productId.masterProduct.name,
         price: item.productId.price,
         quantity: item.quantity,
       })),
@@ -110,14 +113,62 @@ const handleInputChange = (
       status: "pending",
     };
     console.log(orderData)
+
+    if (selectedPayment === "69119adc5a8a0343f7799523") {
+      try {
+        if(!(window as any).ethereum){
+          alert("vui lòng cài đặt Metamask!");
+          return;
+        }
+
+        const accounts = await (window as any).ethereum.request({
+          method: "eth_requestAccounts"
+        });
+        
+        const provider = new ethers.BrowserProvider((window as any).ethereum);
+        const signer = await provider.getSigner();
+        const contract = new ethers.Contract(
+          contractAddress,
+          quanlithuocABI.abi,
+          signer
+        );
+
+        for (const item of cartItems) {
+          const productId = "0x" + item.productId._id;
+
+          const info = await contract.xemThongTinThuoc(productId);
+          const priceInETH = info.giaBanSi;
+          console.log(priceInETH)
+
+          // Gọi smart contract để thanh toán từng sản phẩm
+          const tx = await contract.muaChoNguoiDung(productId, {
+            value: priceInETH,
+          });
+
+          alert(`Đang chờ xác nhận blockchain cho sản phẩm...`);
+          await tx.wait(); // chờ giao dịch thành công trước khi sang sản phẩm tiếp theo
+          alert(`Thanh toán xong sản phẩm `);
+        }
+
+        alert("Thanh toán blockchain thành công");
+
+      } catch (err) {
+        console.error("Lỗi giao dịch blockchain:", err);
+        alert("Thanh toán bằng ETH thất bại!");
+        return; 
+      }
+    }
     try {
-      const res = await fetch(`${API}/api/order`, {
+      const res = await fetch(`${API}/api/order/user`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(orderData),
       });
 
-      if (!res.ok) throw new Error("Tạo đơn hàng thất bại");
+      if (!res.ok) {
+        console.log("err");
+        return;
+      }
 
       const newOrder = await res.json();
       navigate("/orders", { state: newOrder._id });
@@ -147,7 +198,7 @@ const handleInputChange = (
         <p>Đang tải...</p>
       </div>
     ) : (
-              <form className="checkout-form" onSubmit={handlePlaceOrder}>
+              <form className="checkout-form" onSubmit={handleSubmit}>
           <div className="checkout-content">
             {/* Thông tin giao hàng */}
             <div className="checkout-section">
@@ -312,9 +363,9 @@ const handleInputChange = (
                 <div className="order-items">
                   {cartItems.map((item: any) => (
                     <div key={item.productId._id} className="order-item">
-                      <img src={item.productId.image} alt={item.productId.name} />
+                      <img src={item.productId.masterProduct.image} alt={item.productId.masterProduct.name} />
                       <div className="item-details">
-                        <h4>{item.productId.name}</h4>
+                        <h4>{item.productId.masterProduct.name}</h4>
                         <p>Số lượng: {item.quantity}</p>
                       </div>
                       <div className="item-price">
@@ -360,7 +411,7 @@ const handleInputChange = (
               <div className="summary-items">
                 {cartItems.map((item: any) => (
                   <div key={item.productId._id} className="summary-item">
-                    <span className="item-name">{item.productId.name} × {item.productId.quantity}</span>
+                    <span className="item-name">{item.productId.masterProduct.name} × {item.productId.quantity}</span>
                     <span className="item-price">{formatPrice(item.productId.price * item.quantity)}</span>
                   </div>
                 ))}

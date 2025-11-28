@@ -22,7 +22,12 @@ const PharmacyProductSchema = new mongoose.Schema({
   discountPrice: { type: Number, default: 0 },
   quantity: { type: Number, default: 0 },
   prescription: { type: Boolean, default: false }, // Yêu cầu đơn thuốc
-
+  rating: { 
+    type: Number,
+    max: 5,
+    min: 0, 
+    default: 0
+  },
   available: { type: Boolean, default: false },
   // Chỉ số bán hàng
   viewCount: { type: Number, default: 0 },

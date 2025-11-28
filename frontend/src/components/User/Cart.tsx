@@ -74,7 +74,7 @@ useEffect(() => {
       }
     }
     
-    const total = Math.max(0, subtotal + shippingFee - discount);
+    const total = Math.max(0, subtotal - discount);
     
     return { subtotal, shippingFee, discount, total };
   };
@@ -321,7 +321,7 @@ const handleApplyCoupon = async () => {
 
 
               {/* Phương thức thanh toán */}
-              <div className="payment-section">
+              {/* <div className="payment-section">
                 <h4>Phương thức thanh toán</h4>
                 <div className="payment-options">
                   {paymentMethods.map(method => (
@@ -341,7 +341,7 @@ const handleApplyCoupon = async () => {
                     </label>
                   ))}
                 </div>
-              </div>
+              </div> */}
               
               {/* Tổng tiền */}
               <div className="totals-section">
@@ -349,10 +349,10 @@ const handleApplyCoupon = async () => {
                   <span>Tạm tính:</span>
                   <span>{formatPrice(subtotal)}</span>
                 </div>
-                <div className="total-row">
+                {/* <div className="total-row">
                   <span>Phí vận chuyển:</span>
                   <span>{shippingFee > 0 ? formatPrice(shippingFee) : 'Miễn phí'}</span>
-                </div>
+                </div> */}
                 {discount > 0 && (
                   <div className="total-row discount">
                     <span>Giảm giá:</span>

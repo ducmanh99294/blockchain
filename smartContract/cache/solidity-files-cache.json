@@ -2,8 +2,8 @@
   "_format": "hh-sol-cache-2",
   "files": {
     "D:\\BlockChain\\BlockChain\\quanLiThuoc\\smartContract\\contracts\\quanLiThuoc.sol": {
-      "lastModificationDate": 1761159456464,
-      "contentHash": "2054b8afc9f32ccd9d69cf1c4e1acb40",
+      "lastModificationDate": 1764274745338,
+      "contentHash": "60b51650c77d0e881239840f5fe76074",
       "sourceName": "contracts/quanLiThuoc.sol",
       "solcConfig": {
         "version": "0.8.20",

@@ -543,7 +543,7 @@ const PharmacyOrder: React.FC = () => {
                             <p>Xác minh nguồn gốc: {renderBlockchainStatus(item.blockchain.status)}</p>
                             {item.blockchain.transactionHash && (
                               <a
-                                href={`https://etherscan.io/tx/${item.blockchain.transactionHash}`}
+                                href={`https://sepolia.etherscan.io/tx/${item.blockchain.transactionHash}`}
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 className="blockchain-link"

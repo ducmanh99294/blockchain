@@ -9,7 +9,7 @@ import '../../assets/css/Distributor/order.css';
 const DistributorOrder: React.FC = () => {
   const [orders, setOrders] = useState<any>([]);
   const [filteredOrders, setFilteredOrders] = useState<any>([]);([]);
-  const [searchTerm, setSearchTerm] = useState<any>([]);('');
+  const [searchTerm, setSearchTerm] = useState<any>("");
   const [selectedOrder, setSelectedOrder] = useState<any>([]);(null);
   const [showModal, setShowModal] = useState(false);
   const [statusFilter, setStatusFilter] = useState('all');
@@ -19,73 +19,6 @@ const DistributorOrder: React.FC = () => {
   const userId = localStorage.getItem("userId")
   // Giả lập dữ liệu đơn hàng
   useEffect(() => {
-    const mockOrders = [
-      {
-        id: "ORD-2023-001",
-        pharmacy: "Nhà thuốc Minh Anh",
-        pharmacyAddress: "123 Đường Láng, Hà Nội",
-        status: "pending",
-        orderDate: "2023-10-15",
-        totalAmount: 18500000,
-        items: [
-          { product: "Paracetamol 500mg", quantity: 100, price: 120000, total: 12000000 },
-          { product: "Amoxicillin 250mg", quantity: 50, price: 185000, total: 9250000 }
-        ],
-        transactionHash: null,
-        cid: null,
-        expectedDelivery: "2023-10-20",
-        notes: "Giao hàng trong giờ hành chính"
-      },
-      {
-        id: "ORD-2023-002",
-        pharmacy: "Nhà thuốc Hồng Phúc",
-        pharmacyAddress: "456 Đường Giải Phóng, Hà Nội",
-        status: "processing",
-        orderDate: "2023-10-14",
-        totalAmount: 24500000,
-        items: [
-          { product: "Vitamin C 1000mg", quantity: 150, price: 95000, total: 14250000 },
-          { product: "Metformin 500mg", quantity: 70, price: 135000, total: 9450000 }
-        ],
-        transactionHash: "0x8d9c5d87a2b3c9e1f0d8e7c2b3a9f8e7d6c5b4a3f2e1d0c9b8a7f6e5d4c3b2a1",
-        cid: "QmXoypizjW3WknFiJnKLwHCnL72vedxjQkDDP1mXWo6uco",
-        expectedDelivery: "2023-10-18",
-        notes: "Gọi điện trước khi giao hàng"
-      },
-      {
-        id: "ORD-2023-003",
-        pharmacy: "Nhà thuốc Bảo Châu",
-        pharmacyAddress: "789 Đường Lê Văn Lương, Hà Nội",
-        status: "shipped",
-        orderDate: "2023-10-13",
-        totalAmount: 12700000,
-        items: [
-          { product: "Paracetamol 500mg", quantity: 70, price: 120000, total: 8400000 },
-          { product: "Vitamin C 1000mg", quantity: 40, price: 95000, total: 3800000 }
-        ],
-        transactionHash: "0x7a2c6d87a2b3c9e1f0d8e7c2b3a9f8e7d6c5b4a3f2e1d0c9b8a7f6e5d4c3b2a1",
-        cid: "QmY7yz7pX9z2cJ4KnLwHCnL72vedxjQkDDP1mXWo6uco",
-        expectedDelivery: "2023-10-16",
-        notes: "Nhận hàng tại kho sau"
-      },
-      {
-        id: "ORD-2023-004",
-        pharmacy: "Nhà thuốc An Khang",
-        pharmacyAddress: "321 Đường Nguyễn Trãi, Hà Nội",
-        status: "completed",
-        orderDate: "2023-10-10",
-        totalAmount: 31800000,
-        items: [
-          { product: "Amoxicillin 250mg", quantity: 120, price: 185000, total: 22200000 },
-          { product: "Metformin 500mg", quantity: 70, price: 135000, total: 9450000 }
-        ],
-        transactionHash: "0x6b1c5d87a2b3c9e1f0d8e7c2b3a9f8e7d6c5b4a3f2e1d0c9b8a7f6e5d4c3b2a1",
-        cid: "QmZ3pz7pX9z2cJ4KnLwHCnL72vedxjQkDDP1mXWo6uco",
-        expectedDelivery: "2023-10-13",
-        deliveryDate: "2023-10-12",
-        notes: "Đã giao hàng thành công"
-      }
-    ];
     fetchOrders();    
   }, []);
 
@@ -160,7 +93,7 @@ const handleUpdateStatus = async (orderId: any, newStatus: any) => {
   console.log()
   setActionLoading(true);
   try {
-    const res = await fetch(`${API}/api/pharmacy/order/${orderId._id}`, {
+    const res = await fetch(`${API}/api/order/distributor/${orderId._id}`, {
       method: "PUT",
       headers: { 
         'Content-Type': 'application/json' 

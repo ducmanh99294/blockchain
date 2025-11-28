@@ -547,7 +547,7 @@ return (
                           <div className="detail-row">
                             <span>Transaction Hash:</span>
                             <a
-                              href={`https://etherscan.io/tx/${selectedProduct.masterProduct.blockchainTx}`}
+                              href={`https://sepolia.etherscan.io/tx/${selectedProduct.masterProduct.blockchainTx}`}
                               target="_blank"
                               rel="noopener noreferrer"
                               className="blockchain-link"

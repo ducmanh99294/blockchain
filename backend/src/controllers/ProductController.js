@@ -89,6 +89,15 @@ exports.createPharmacyProduct = async (req, res) => {
 
     await newPharmacyProduct.save();
 
+        const master = await DistributorProduct.findById(masterProduct).select("category");
+
+    if (master && master.category) {
+      await Category.findByIdAndUpdate(
+        master.category,
+        { $inc: { productCount: 1 } }
+      );
+    }
+    
     res.status(201).json({
       message: "Pharmacy product created successfully",
       product: newPharmacyProduct,

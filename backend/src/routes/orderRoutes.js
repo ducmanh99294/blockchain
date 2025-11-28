@@ -3,7 +3,7 @@ const router = express.Router();
 const OrderController = require("../controllers/OrderController");
 
 // Tạo đơn hàng
-router.post("/", OrderController.createOrder);
+router.post("/user", OrderController.createOrder);
 
 // Lấy tất cả đơn hàng (admin)
 router.get("/", OrderController.getAllOrders);
@@ -18,7 +18,8 @@ router.get("/pharmacy/:pharmacyId", OrderController.getOrderByPharmacy);
 router.get("/distributor/:distributorId", OrderController.getOrderByDistributor);
 
 // Lấy đơn hàng mới nhất theo pharmacyId
-router.get("/pharmacy/:pharmacyId/latest", OrderController.getLatestOrdersByPharmacy);
+router.get("/pharmacy/:pharmacyId/latest", OrderController.getLatestOrdersByPharmacy)
+;
 // Lấy chi tiết đơn hàng
 router.get("/:id", OrderController.getOrderById);
 
@@ -28,10 +29,14 @@ router.put("/:id", OrderController.updateOrder);
 // Xóa đơn hàng
 router.delete("/:id", OrderController.deleteOrder);
 
-// -----------------PharmacyOrder-----------------
+// -----------------Pharmacy-----------------
 router.post("/pharmacy/create", OrderController.createPharmacyOrder);
 
 // Lấy tất cả đơn hàng
 router.get("/pharmacy/all", OrderController.getAllPharmacyOrders);
+
+// -----------------Distributor-----------------
+router.put("/distributor/:id", OrderController.updateDistributorOrder);
+
 
 module.exports = router;

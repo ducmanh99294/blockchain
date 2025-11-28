@@ -581,7 +581,7 @@ const DistributorProduct: React.FC = () => {
                       const imgs = e.target.value.split(",").map((s) => s.trim());
                       setFormdata({ ...formdata, image: imgs });
                     }}
-                    placeholder="Nhập nhiều link ảnh, cách nhau bằng dấu phẩy"
+                    placeholder="Nhập link ảnh"
                   />
                 </div>
               </div>

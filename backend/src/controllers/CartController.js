@@ -103,9 +103,8 @@ exports.addToPharmacyCart = async (req, res) => {
   const { distributorProductId, name, price, quantity } = req.body;
   try {
     let cart = await PharmacyCart.findOne({ userId: req.params.userId });
-    if (!cart) cart = new Cart({ userId: req.params.userId, items: [] });
+    if (!cart) cart = new PharmacyCart({ userId: req.params.userId, items: [] });
 
-     
     const existingItem = cart.items.find(item => item.distributorProductId.toString() === distributorProductId);
     if (existingItem) {
       existingItem.quantity += (quantity || 1); // Thêm số lượng (hoặc 1 nếu không có)

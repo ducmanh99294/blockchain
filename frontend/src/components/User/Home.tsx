@@ -1,10 +1,7 @@
-// pages/UserHome.js
 import React, { useEffect, useState } from 'react';
-// import { useAuth } from '../context/AuthContext';
 import '../../assets/css/User/home.css';
 
 const Home: React.FC = () => {
-//   const { user } = useAuth();
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
@@ -13,104 +10,11 @@ const Home: React.FC = () => {
   const [events, setEvents] = useState<any[]>([]);
   const [randomProducts, setRandomProducts] = useState<any[]>([]);
   const [recommendProducts, setRecommendProducts] = useState<any[]>([]);
+  const [selectedProduct, setSelectedProduct] = useState<any>(null);
+  const [showProductDetail, setShowProductDetail] = useState(false);
   const API = 'http://localhost:3000'
   const userId = localStorage.getItem('userId')
-  // Dữ liệu mẫu - sẽ thay bằng API sau
-  // const bannerData = {
-  //   title: "Ưu đãi đặc biệt mùa thu",
-  //   description: "Giảm giá lên đến 30% cho các sản phẩm chăm sóc sức khỏe",
-  //   image: "https://via.placeholder.com/1200x400/1a3a6c/ffffff?text=Khuyến+Mãi+Đặc+Biệt",
-  //   ctaText: "Mua ngay"
-  // };
 
-  // const categories = [
-  //   { id: 'cold', name: 'Thuốc cảm', icon: '🤧', count: 24 },
-  //   { id: 'cough', name: 'Thuốc ho', icon: '😷', count: 18 },
-  //   { id: 'vitamin', name: 'Vitamin', icon: '💊', count: 32 },
-  //   { id: 'pain', name: 'Giảm đau', icon: '🥴', count: 15 },
-  //   { id: 'digestive', name: 'Tiêu hóa', icon: '🍃', count: 22 },
-  //   { id: 'skin', name: 'Da liễu', icon: '✨', count: 19 }
-  // ];c
-
-  // const featuredProducts = [
-  //   {
-  //     id: 1,
-  //     name: "Panadol Extra",
-  //     description: "Giảm đau, hạ sốt nhanh chóng",
-  //     price: 95000,
-  //     originalPrice: 120000,
-  //     image: "https://via.placeholder.com/200x200/4CAF50/ffffff?text=Panadol",
-  //     rating: 4.8,
-  //     category: 'pain'
-  //   },
-  //   {
-  //     id: 2,
-  //     name: "Vitamin C 1000mg",
-  //     description: "Tăng cường sức đề kháng",
-  //     price: 150000,
-  //     originalPrice: 180000,
-  //     image: "https://via.placeholder.com/200x200/FF9800/ffffff?text=Vitamin+C",
-  //     rating: 4.6,
-  //     category: 'vitamin'
-  //   },
-  //   {
-  //     id: 3,
-  //     name: "Sirop ho Prospan",
-  //     description: "Giảm ho hiệu quả cho cả gia đình",
-  //     price: 125000,
-  //     originalPrice: 150000,
-  //     image: "https://via.placeholder.com/200x200/2196F3/ffffff?text=Prospan",
-  //     rating: 4.7,
-  //     category: 'cough'
-  //   },
-  //   {
-  //     id: 4,
-  //     name: "Tiffy Cold",
-  //     description: "Điều trị cảm cúm, ngạt mũi",
-  //     price: 85000,
-  //     originalPrice: 100000,
-  //     image: "https://via.placeholder.com/200x200/9C27B0/ffffff?text=Tiffy",
-  //     rating: 4.5,
-  //     category: 'cold'
-  //   }
-  // ];
-
-  // const recommendedProducts = [
-  //   {
-  //     id: 5,
-  //     name: "Omeprazole 20mg",
-  //     description: "Điều trị trào ngược dạ dày",
-  //     price: 110000,
-  //     image: "https://via.placeholder.com/200x200/607D8B/ffffff?text=Omeprazole",
-  //     rating: 4.4,
-  //     reason: "Dựa trên đơn hàng trước của bạn"
-  //   },
-  //   {
-  //     id: 6,
-  //     name: "Calcium D3",
-  //     description: "Bổ sung canxi và vitamin D3",
-  //     price: 135000,
-  //     image: "https://via.placeholder.com/200x200/FF5722/ffffff?text=Calcium+D3",
-  //     rating: 4.9,
-  //     reason: "Sản phẩm được đánh giá cao"
-  //   },
-  //   {
-  //     id: 7,
-  //     name: "Kem dưỡng da Eucerin",
-  //     description: "Dưỡng ẩm chuyên sâu",
-  //     price: 220000,
-  //     image: "https://via.placeholder.com/200x200/E91E63/ffffff?text=Eucerin",
-  //     rating: 4.7,
-  //     reason: "Phù hợp với nhu cầu chăm sóc da"
-  //   }
-  // ];
-
-  // const filteredProducts = featuredProducts.filter(product => {
-  //   const matchesSearch = product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-  //                        product.description.toLowerCase().includes(searchTerm.toLowerCase());
-  //   const matchesCategory = selectedCategory === 'all' || product.category === selectedCategory;
-  //   return matchesSearch && matchesCategory;
-  // });
   useEffect(() => {
     if (userId) {
       fetchData();
@@ -156,7 +60,22 @@ const Home: React.FC = () => {
         setLoading(false);
       }
   };
-  
+
+
+
+  const filteredProducts = recommendProducts.filter(product => {
+    const nameMatch =
+      product.masterProduct?.name
+        ?.toLowerCase()
+        .includes(searchTerm.toLowerCase());
+
+    const categoryMatch =
+      selectedCategory === 'all' ||
+      product.masterProduct?.category?._id === selectedCategory;
+
+    return nameMatch && categoryMatch;
+  });
+
   const handleAddToCart = async (productId: string) => {
     try {
       const res = await fetch(`${API}/api/cart/user/${userId}/add`, {
@@ -192,6 +111,26 @@ const Home: React.FC = () => {
         break;
       default:
         break;
+    }
+  };
+
+  const handleViewProductDetail = (product: any) => {
+    setSelectedProduct(product);
+    setShowProductDetail(true);
+  };
+
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString('vi-VN');
+  };
+
+  const renderBlockchainStatus = (status: string) => {
+    switch(status) {
+      case 'verified':
+        return <span className="badge verified">✅ Đã xác minh</span>;
+      case 'pending':
+        return <span className="badge pending">⏳ Đang xác minh</span>;
+      default:
+        return <span className="badge not-verified">❌ Chưa xác minh</span>;
     }
   };
 
@@ -256,6 +195,13 @@ const Home: React.FC = () => {
       </div>
       ) : (
       <div className="categories-grid">
+        <div
+          className={`category-card ${selectedCategory === "all" ? "active" : ""}`}
+          onClick={() => setSelectedCategory("all")}
+          >
+          <div className="category-icon">🏠</div>
+          <h3>Tất cả</h3>
+        </div>
           {categories.slice(0, 5).map(category => (
             <div 
               key={category._id} 
@@ -264,7 +210,7 @@ const Home: React.FC = () => {
             >
               <div className="category-icon">{category.icon}</div>
               <h3>{category.name}</h3>
-              <p>{category.productCount} sản phẩm</p>
+              {/* <p>{category.productCount} sản phẩm</p> */}
             </div>
           ))}
         </div>
@@ -282,7 +228,7 @@ const Home: React.FC = () => {
       </div>
       ) : (
       <div className="products-grid">
-          {recommendProducts.map(product => (
+          {filteredProducts.map(product => (
             <div key={product._id} className="product-card">
               <div className="product-image">
                 <img src={product.masterProduct.image} alt={product.masterProduct.name} />
@@ -291,13 +237,15 @@ const Home: React.FC = () => {
                     -{Math.round((1 - product.price / product.originalPrice) * 100)}%
                   </span>
                 )}
+                <div className="product-badges">
+                  {renderBlockchainStatus(product.masterProduct.status)}
+                </div>
               </div>
               <div className="product-info">
                 <h3>{product.masterProduct.name}</h3>
                 <p>{product.masterProduct.description}</p>
                 <div className="product-rating">
                   ⭐ ({product.rating})
-              
                 </div>
                 <div className="product-price">
                   <span className="current-price">{product.price.toLocaleString()}đ</span>
@@ -305,12 +253,20 @@ const Home: React.FC = () => {
                     <span className="original-price">{product.originalPrice.toLocaleString()}đ</span>
                   )}
                 </div>
-                <button 
-                  className="add-to-cart-btn"
-                  onClick={() => handleAddToCart(product._id)}
-                >
-                  Thêm vào giỏ
-                </button>
+                <div className="product-actions">
+                  <button 
+                    className="primary-cart-btn"
+                    onClick={() => handleAddToCart(product._id)}
+                  >
+                    Thêm vào giỏ
+                  </button>
+                  <button 
+                    className="view-detail-btn"
+                    onClick={() => handleViewProductDetail(product)}
+                  >
+                    Xem nguồn gốc
+                  </button>
+                </div>
               </div>
             </div>
           ))}
@@ -340,14 +296,144 @@ const Home: React.FC = () => {
                 <div className="product-price">
                   {product.price.toLocaleString()}đ
                 </div>
+                <div className="product-actions">
+                  <button 
+                    className="add-to-cart-btn small"
+                    onClick={() => handleAddToCart(product._id)}
+                  >
+                    🛒
+                  </button>
+                  <button 
+                    className="view-detail-btn small"
+                    onClick={() => handleViewProductDetail(product)}
+                  >
+                    🔍
+                  </button>
+                </div>
                 <p className="recommend-reason">{product.reason}</p>
               </div>
             </div>
           ))}
         </div>
         )}
-
       </section>
+
+      {/* Modal chi tiết sản phẩm */}
+      {showProductDetail && selectedProduct && (
+        <div className="modal-overlay">
+          <div className="product-detail-modal">
+            <div className="modal-header">
+              <h2>Thông tin nguồn gốc sản phẩm</h2>
+              <button className="close-btn" onClick={() => setShowProductDetail(false)}>×</button>
+            </div>
+
+            <div className="modal-content">
+              <div className="product-main-info">
+                <img src={selectedProduct.masterProduct.image} alt={selectedProduct.masterProduct.name} />
+                <div className="product-header">
+                  <h3>{selectedProduct.masterProduct.name}</h3>
+                  <p>{selectedProduct.masterProduct.category?.name}</p>
+                  <div className="product-badges">
+                    {renderBlockchainStatus(selectedProduct.masterProduct.status)}
+                  </div>
+                </div>
+              </div>
+
+              <div className="product-details-grid">
+                <div className="detail-section">
+                  <h4>Thông tin sản phẩm</h4>
+                  <div className="detail-row">
+                    <span>Nhà sản xuất:</span>
+                    <span>{selectedProduct.masterProduct.brand || 'Đang cập nhật'}</span>
+                  </div>
+                  <div className="detail-row">
+                    <span>Nhà phân phối:</span>
+                    <span>{selectedProduct.masterProduct.distributor?.companyName || 'Đang cập nhật'}</span>
+                  </div>
+                  <div className="detail-row">
+                    <span>Hạn sử dụng:</span>
+                    <span>{selectedProduct.masterProduct.expiryDate ? formatDate(selectedProduct.masterProduct.expiryDate) : 'Đang cập nhật'}</span>
+                  </div>
+                  <div className="detail-row">
+                    <span>Giá bán:</span>
+                    <span className="product-price">{selectedProduct.price.toLocaleString()}đ</span>
+                  </div>
+                </div>
+
+                <div className="detail-section">
+                  <h4>Thông tin sử dụng</h4>
+                  <div className="detail-row">
+                    <span>Công dụng:</span>
+                    <span>{selectedProduct.masterProduct.description}</span>
+                  </div>
+                  <div className="detail-row">
+                    <span>Cách dùng:</span>
+                    <span>{selectedProduct.masterProduct.usage || 'Theo hướng dẫn của bác sĩ'}</span>
+                  </div>
+                </div>
+
+                {selectedProduct.masterProduct.status !== 'not_verified' && (
+                  <div className="detail-section">
+                    <h4>Thông tin Blockchain</h4>
+                    {selectedProduct.masterProduct.blockchainTx && (
+                      <div className="detail-row">
+                        <span>Transaction Hash:</span>
+                        <a
+                          href={`https://sepolia.etherscan.io/tx/${selectedProduct.masterProduct.blockchainTx}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="blockchain-link"
+                        >
+                          {selectedProduct.masterProduct.blockchainTx.slice(0, 16)}... ↗
+                        </a>
+                      </div>
+                    )}
+                    {selectedProduct.masterProduct.ipfsCidString && (
+                      <div className="detail-row">
+                        <span>IPFS CID:</span>
+                        <a
+                          href={`https://ipfs.io/ipfs/${selectedProduct.masterProduct.ipfsCidString}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="blockchain-link"
+                        >
+                          {selectedProduct.masterProduct.ipfsCidString.slice(0, 16)}... ↗
+                        </a>
+                      </div>
+                    )}
+                    <div className="detail-row">
+                      <span>Trạng thái:</span>
+                      <span className="verification-status">
+                        {selectedProduct.masterProduct.status === 'verified' 
+                          ? '✅ Đã xác minh tính xác thực' 
+                          : '⏳ Đang chờ xác minh'}
+                      </span>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              <div className="modal-actions">
+                <button
+                  className="action-btn add-cart"
+                  onClick={() => {
+                    handleAddToCart(selectedProduct._id);
+                    setShowProductDetail(false);
+                  }}
+                >
+                  🛒 Thêm vào giỏ hàng
+                </button>
+                <button
+                  className="action-btn close"
+                  onClick={() => setShowProductDetail(false)}
+                >
+                  Đóng
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

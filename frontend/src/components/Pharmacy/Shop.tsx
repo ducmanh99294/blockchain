@@ -194,6 +194,7 @@ const PharmacyShop = () => {
       });
       if(!res.ok) {
         console.log("err")
+        return;
       }
       const data = await res.json();
       setCart(data);
@@ -299,17 +300,13 @@ const PharmacyShop = () => {
           return;
         }
 
-        //-----------------------------------------------
         // 1. Kết nối ví
-        //-----------------------------------------------
         const accounts = await (window as any).ethereum.request({
           method: "eth_requestAccounts"
         });
         const sender = accounts[0];
 
-        //-----------------------------------------------
         // 2. Tạo provider & signer & contract
-        //-----------------------------------------------
         const provider = new ethers.BrowserProvider((window as any).ethereum);
         const signer = await provider.getSigner();
         const contract = new ethers.Contract(
@@ -318,9 +315,7 @@ const PharmacyShop = () => {
           signer
         );
 
-        //-----------------------------------------------
         // 3. Lặp qua từng sản phẩm và mua trên blockchain
-        //-----------------------------------------------
         for (const item of cart.items) {
             const productId = "0x" + item.distributorProductId._id;  // convert ObjectId -> hex
 
@@ -328,9 +323,7 @@ const PharmacyShop = () => {
           const info = await contract.xemThongTinThuoc(productId);
           const giaBanSi = info.giaBanSi; // BigInt
 
-          //-----------------------------------------------
           // 4. Gửi giao dịch mua thuốc
-          //-----------------------------------------------
           const tx = await contract.muaChoNhaThuoc(productId, {
             value: giaBanSi
           });
@@ -349,9 +342,8 @@ const PharmacyShop = () => {
       }
     }
 
-    // =============== TẠO ĐƠN HÀNG BACKEND ==================
     try {
-      const res = await fetch(`${API}/api/pharmacy/order/create`, {
+      const res = await fetch(`${API}/api/order/pharmacy/create`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
